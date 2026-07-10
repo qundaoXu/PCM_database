@@ -27,3 +27,6 @@ data/foundation_MLIP_model/
 # MLIP 训练集原始 extended XYZ（152MB，GST225.xyz 单文件 80MB 超 GitHub 50MB 警戒线）
 # 登记信息见 data/metadata/mlip_metadata.*，站点载荷见 docs/mlip.json / docs/mlip_descriptors.json
 data/MLIP_training_data_DFT_labeled/
+
+# 开发文档
+develop_docs/
