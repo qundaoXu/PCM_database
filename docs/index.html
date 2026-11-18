@@ -27,7 +27,7 @@ if(location.protocol==='file:')location.replace('http://127.0.0.1:8765/'+locatio
   --sh5:0 18px 56px rgba(0,0,0,.16),0 4px 12px rgba(0,0,0,.16);
   --glow:rgba(47,116,221,.11); --viewer-bg:#ffffff;
   --art-bond:#b4bccb; --art-stroke:rgba(20,30,50,.12); --art-curve:#8b93a4; --art-accent:var(--series);
-  --fn-pcm:#1e5bb8; --fn-ots:#1f8f5f; --fn-som:#7a3fc0; --fn-cand:#b3701a; --fn-other:#6b7280;
+  --ov-solid:#6a7aa0; --ov-hatch:#3e4c7c; --fn-pcm:#1e5bb8; --fn-ots:#1f8f5f; --fn-som:#7a3fc0; --fn-cand:#b3701a; --fn-other:#6b7280;
 }
 @media (prefers-color-scheme:dark){:root{
   --plane:#161618; --surface:#202127; --soft:#1b1b1f; --ink:#f5f5f7; --ink2:#c9c9cf; --muted:#8a8a91;
@@ -40,7 +40,7 @@ if(location.protocol==='file:')location.replace('http://127.0.0.1:8765/'+locatio
   --sh5:0 18px 56px rgba(0,0,0,.5),0 4px 12px rgba(0,0,0,.5);
   --glow:rgba(74,158,255,.13); --viewer-bg:#1b1b1f;
   --art-bond:#586274; --art-stroke:rgba(255,255,255,.14); --art-curve:#8791a3; --art-accent:var(--series);
-  --fn-pcm:#8cc2ff; --fn-ots:#5fd39a; --fn-som:#c4a3f0; --fn-cand:#f0b566; --fn-other:#9aa0aa;
+  --ov-solid:#7f90bd; --ov-hatch:#aebce3; --fn-pcm:#8cc2ff; --fn-ots:#5fd39a; --fn-som:#c4a3f0; --fn-cand:#f0b566; --fn-other:#9aa0aa;
 }}
 :root[data-theme=dark]{
   --plane:#161618; --surface:#202127; --soft:#1b1b1f; --ink:#f5f5f7; --ink2:#c9c9cf; --muted:#8a8a91;
@@ -53,7 +53,7 @@ if(location.protocol==='file:')location.replace('http://127.0.0.1:8765/'+locatio
   --sh5:0 18px 56px rgba(0,0,0,.5),0 4px 12px rgba(0,0,0,.5);
   --glow:rgba(74,158,255,.13); --viewer-bg:#1b1b1f;
   --art-bond:#586274; --art-stroke:rgba(255,255,255,.14); --art-curve:#8791a3; --art-accent:var(--series);
-  --fn-pcm:#8cc2ff; --fn-ots:#5fd39a; --fn-som:#c4a3f0; --fn-cand:#f0b566; --fn-other:#9aa0aa;
+  --ov-solid:#7f90bd; --ov-hatch:#aebce3; --fn-pcm:#8cc2ff; --fn-ots:#5fd39a; --fn-som:#c4a3f0; --fn-cand:#f0b566; --fn-other:#9aa0aa;
 }
 :root[data-theme=light]{
   --plane:#f7f8fa; --surface:#ffffff; --soft:#f6f6f7; --ink:#1b1b1f; --ink2:#4b4b52; --muted:#8a8a91;
@@ -66,7 +66,7 @@ if(location.protocol==='file:')location.replace('http://127.0.0.1:8765/'+locatio
   --sh5:0 18px 56px rgba(0,0,0,.16),0 4px 12px rgba(0,0,0,.16);
   --glow:rgba(47,116,221,.11); --viewer-bg:#ffffff;
   --art-bond:#b4bccb; --art-stroke:rgba(20,30,50,.12); --art-curve:#8b93a4; --art-accent:var(--series);
-  --fn-pcm:#1e5bb8; --fn-ots:#1f8f5f; --fn-som:#7a3fc0; --fn-cand:#b3701a; --fn-other:#6b7280;
+  --ov-solid:#6a7aa0; --ov-hatch:#3e4c7c; --fn-pcm:#1e5bb8; --fn-ots:#1f8f5f; --fn-som:#7a3fc0; --fn-cand:#b3701a; --fn-other:#6b7280;
 }
 *{box-sizing:border-box}
 html,body{margin:0;background:var(--plane);color:var(--ink);
@@ -149,7 +149,15 @@ h2{font-size:22px;letter-spacing:-.01em;margin:0 0 4px;font-weight:700}
 .card h3{font-size:14px;margin:0 0 14px;font-weight:600;color:var(--ink)}
 svg{display:block;width:100%;overflow:visible}
 .bar{fill:var(--series);transition:fill .12s} .bar:hover{fill:var(--accent2)}
-.gbar{transition:opacity .12s} .gbar:hover{opacity:.82}
+.gbar{transition:opacity .12s} .gbar:hover{opacity:.78}
+.ovsolid{fill:var(--ov-solid)} .ovhatch{stroke:var(--ov-hatch);stroke-width:2.3}
+text.ovlab{fill:var(--ink);font-size:12px} text.ovval{fill:var(--ink);font-size:11.5px;font-variant-numeric:tabular-nums}
+text.ovtick{fill:var(--muted);font-size:11px}
+.ovlegend{display:flex;gap:16px;align-items:center;font-size:12px;color:var(--ink2);margin:-8px 0 16px}
+.ovlegend span{display:inline-flex;align-items:center;gap:6px}
+.ovlegend i{display:inline-block;width:22px;height:11px}
+.ovlegend i.s{background:var(--ov-solid)}
+.ovlegend i.h{background:repeating-linear-gradient(-45deg,var(--ov-hatch) 0 2px,transparent 2px 5px)}
 text{fill:var(--ink2);font-size:11px;font-family:inherit}
 .axis-line{stroke:var(--axis);stroke-width:1} .grid-line{stroke:var(--grid);stroke-width:1}
 .tt{position:fixed;pointer-events:none;background:var(--ink);color:var(--surface);padding:7px 10px;border-radius:8px;
@@ -282,6 +290,14 @@ tr.hi td{background:var(--series-soft)}
 .vizfoot{margin:8px 0 0;font-size:12px;color:var(--muted)}
 .vizrow{display:flex;gap:16px;align-items:flex-start}
 .vizmain{flex:3;min-width:0}
+.vizstats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-top:14px}
+@media(max-width:900px){.vizstats{grid-template-columns:1fr}}
+.vstat{border:1px solid var(--border);border-radius:10px;padding:10px 12px 8px;background:var(--surface);min-width:0}
+.vstat-h{display:flex;justify-content:space-between;align-items:baseline;gap:8px;font-size:12.5px;font-weight:600;color:var(--ink)}
+.vstat-n{font-size:11px;font-weight:500;color:var(--muted);white-space:nowrap}
+.vstat svg{margin-top:6px}
+.vstat-f{font-size:11px;color:var(--muted);line-height:1.45;min-height:16px;display:flex;flex-wrap:wrap;gap:2px 10px}
+.vstat-f i{display:inline-block;width:8px;height:8px;border-radius:2px;margin-right:4px;vertical-align:middle}
 .vizctrl{flex:1;min-width:0;display:flex;flex-direction:column;gap:14px;padding-top:2px}
 .vizc-grp{display:flex;flex-direction:column;gap:5px}
 .vizc-lbl{font-size:12px;color:var(--muted);font-weight:600}
@@ -342,6 +358,28 @@ code{background:var(--soft);border:1px solid var(--border);border-radius:6px;pad
 .mhead h3{margin:0;font-size:17px}
 .mclose{background:none;border:none;color:var(--ink2);font-size:20px;cursor:pointer;line-height:1}
 #viewer3d{width:100%;height:400px;position:relative;background:var(--viewer-bg)}
+/* Structure viewer: resizable window (drag the corner grip, or maximize); the 3D canvas takes the spare height. */
+#modal .mbox{position:relative;display:flex;flex-direction:column;overflow:hidden;
+  width:min(var(--mw,880px),calc(100vw - 40px));height:min(var(--mh,860px),calc(100vh - 40px));max-height:none;
+  min-width:min(420px,calc(100vw - 40px));min-height:min(420px,calc(100vh - 40px))}
+#modal .mbox.max{width:calc(100vw - 40px);height:calc(100vh - 40px)}
+#modal .mhead{flex:none;cursor:default;user-select:none}
+#modal .mhead h3{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.mhbtns{display:flex;align-items:center;gap:6px;flex:none}
+.mmax{background:none;border:1px solid transparent;color:var(--ink2);font-size:15px;line-height:1;cursor:pointer;
+  width:30px;height:30px;border-radius:8px;display:inline-flex;align-items:center;justify-content:center}
+.mmax:hover,.mclose:hover{color:var(--series)}
+.mmax:hover{border-color:var(--border);background:var(--soft)}
+#modal #viewer3d{flex:1 1 auto;height:auto;min-height:200px}
+#modal .mdetails{flex:0 1 auto;max-height:46%;overflow:auto;border-top:1px solid var(--border);overscroll-behavior:contain}
+#modal .mmeta div{min-width:0;overflow-wrap:anywhere}
+#modal .mmeta div.mwide{grid-column:span 3}
+@media(max-width:640px){#modal .mmeta div.mwide{grid-column:1/-1}}
+.mgrip{position:absolute;right:0;bottom:0;width:22px;height:22px;cursor:nwse-resize;z-index:3;touch-action:none;
+  background:linear-gradient(135deg,transparent 0 52%,var(--axis) 52% 58%,transparent 58% 68%,var(--axis) 68% 74%,transparent 74%)}
+#modal .mbox.max .mgrip{display:none}
+body.mresizing{cursor:nwse-resize;user-select:none}
+body.mresizing #viewer3d{pointer-events:none}
 #viewer3d canvas,#upViewer canvas{border-radius:0}
 .mmeta{padding:14px 20px;display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px 18px;font-size:13px}
 .mmeta div span{color:var(--muted);display:block;font-size:11.5px}
@@ -503,6 +541,7 @@ code{background:var(--soft);border:1px solid var(--border);border-radius:6px;pad
   <section>
     <h2 data-i18n="overview"></h2>
     <p class="hint" data-i18n="overview_hint"></p>
+    <div class="ovlegend"><span><i class="s"></i>AIMD</span><span><i class="h"></i>AI</span></div>
     <div class="charts">
       <div class="card"><h3 data-i18n="chart_sys"></h3><svg id="sysChart"></svg></div>
       <div class="card"><h3 data-i18n="chart_elem"></h3><svg id="elemChart"></svg></div>
@@ -535,6 +574,11 @@ code{background:var(--soft);border:1px solid var(--border);border-radius:6px;pad
         <div class="vizmain">
           <div class="vizbar" id="vizBar"></div>
           <div id="vizWrap"><canvas id="vizCanvas"></canvas></div>
+          <div class="vizstats" id="vizStats">
+            <div class="vstat"><div class="vstat-h"><span data-i18n="vs_density"></span><span class="vstat-n" id="vsDensityN"></span></div><svg id="vsDensity"></svg><div class="vstat-f" id="vsDensityF"></div></div>
+            <div class="vstat"><div class="vstat-h"><span data-i18n="vs_energy"></span><span class="vstat-n" id="vsEnergyN"></span></div><svg id="vsEnergy"></svg><div class="vstat-f" id="vsEnergyF"></div></div>
+            <div class="vstat"><div class="vstat-h"><span data-i18n="vs_rdf"></span><span class="vstat-n" id="vsRdfN"></span></div><svg id="vsRdf"></svg><div class="vstat-f" id="vsRdfF"></div></div>
+          </div>
         </div>
         <div class="vizctrl" id="vizCtrl">
           <div class="vizc-grp">
@@ -713,16 +757,20 @@ code{background:var(--soft);border:1px solid var(--border);border-radius:6px;pad
 </div>
 
 <div class="modal" id="modal">
-  <div class="mbox">
-    <div class="mhead"><h3 id="mTitle"></h3><button class="mclose" id="mClose">✕</button></div>
+  <div class="mbox" id="mBox">
+    <div class="mhead" id="mHead"><h3 id="mTitle"></h3>
+      <div class="mhbtns"><button class="mmax" id="mMax" data-i18n-title="m_maximize"><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9.5 2.5h4v4M6.5 13.5h-4v-4M13.5 2.5 9 7M2.5 13.5 7 9"/></svg></button><button class="mclose" id="mClose">✕</button></div></div>
     <div id="viewer3d"></div>
-    <div class="mmeta" id="mMeta"></div>
-    <div class="mcolors" id="mColors"></div>
-    <div class="mfoot">
-      <a class="btn" id="mDownload" download><span data-i18n="dl_poscar"></span></a>
-      <button class="btn ghost" id="mMetadata" data-i18n="download_metadata"></button>
-      <button class="btn ghost" id="mStyle" data-i18n="toggle_style"></button>
+    <div class="mdetails">
+      <div class="mmeta" id="mMeta"></div>
+      <div class="mcolors" id="mColors"></div>
+      <div class="mfoot">
+        <a class="btn" id="mDownload" download><span data-i18n="dl_poscar"></span></a>
+        <button class="btn ghost" id="mMetadata" data-i18n="download_metadata"></button>
+        <button class="btn ghost" id="mStyle" data-i18n="toggle_style"></button>
+      </div>
     </div>
+    <div class="mgrip" id="mGrip" data-i18n-title="m_resize"></div>
   </div>
 </div>
 
@@ -743,12 +791,12 @@ const I18N={
    viz_hint:'对当前筛选的结构做元素无关 SOAP 编码，z-score 标准化后 PCA 降到 2 维。悬停查看结构序号，点击点打开 3D 预览；按住鼠标框选可局部放大，点「重置」回到全图。',
    viz_axis:(n,r)=>`PC${n} (${(r*100).toFixed(1)}%)`,
    viz_need:'至少需要 3 个结构才能作图，请放宽筛选。',
-   viz_colorby:'着色依据',viz_cb_phase:'相态',viz_cb_func:'功能性',viz_cb_density:'数密度',viz_cb_energy:'MLIP能量',viz_colormap:'色带',
+   viz_colorby:'着色依据',viz_cb_phase:'相态',viz_cb_func:'功能性',viz_cb_density:'数密度',viz_cb_energy:'能量',vs_density:'数密度 (Atom/Å³)',vs_energy:'能量 (eV/atom)',vs_rdf:'g(r) 峰位误差 (%)',vs_n:n=>`${n.toLocaleString()} 个结构`,vs_med:'中位',vs_out:n=>`${n} 个超出显示范围`,vs_none:'无数据',viz_colormap:'色带',
    viz_size:'散点大小',viz_opacity:'透明度',viz_cmap_rev:'反转配色',
    viz_count:(n)=>`${n} 个结构`,color_amor:'非晶',color_liq:'液态',color_cryst:'晶态',
    view:'▶ 3D',t_total:'结构总数',t_sys:'材料体系',t_natoms:'原子数范围',t_dens:'数密度中位',t_phase:'相态',phase_amor:'非晶',phase_cryst:'晶态',phase_liq:'液态',
    shown:(a,b)=>`显示 ${a} / ${b}`,page:(a,b)=>`第 ${a} / ${b} 页`,sel_none:'未选元素',sel_pre:'已选：',
-   dl_poscar:'⬇ 下载 POSCAR',toggle_style:'切换显示（球棍/填充）',elem_colors:'元素颜色',reset:'↺ 重置',
+   dl_poscar:'⬇ 下载 POSCAR',m_maximize:'最大化 / 还原（双击标题栏）',m_resize:'拖动调整窗口大小',toggle_style:'切换显示（球棍/填充）',elem_colors:'元素颜色',reset:'↺ 重置',
    docs:'文档',github:'GitHub',
    upload:'贡献数据',up_title:'上传结构入库',up_file:'结构文件 (POSCAR/CONTCAR)',
    up_pick:'选择文件后自动计算化学式 / 原子数 / 密度',up_temp:'温度 (K)',up_dest:'存放路径',
@@ -791,12 +839,12 @@ const I18N={
    viz_hint:'Element-agnostic SOAP encoding of the filtered structures, z-scored then reduced to 2D by PCA. Hover for the structure ID; click a point to open the 3D preview. Drag to box-zoom; press Reset for the full view.',
    viz_axis:(n,r)=>`PC${n} (${(r*100).toFixed(1)}%)`,
    viz_need:'Need at least 3 structures to plot — loosen the filter.',
-   viz_colorby:'Color by',viz_cb_phase:'Phase',viz_cb_func:'Function',viz_cb_density:'Density',viz_cb_energy:'Energy (MLIP)',viz_colormap:'Colormap',
+   viz_colorby:'Color by',viz_cb_phase:'Phase',viz_cb_func:'Function',viz_cb_density:'Density',viz_cb_energy:'Energy',vs_density:'Density (Atom/Å³)',vs_energy:'Energy (eV/atom)',vs_rdf:'g(r) peak error (%)',vs_n:n=>`${n.toLocaleString()} structures`,vs_med:'median',vs_out:n=>`${n} outside range`,vs_none:'No data',viz_colormap:'Colormap',
    viz_size:'Point size',viz_opacity:'Opacity',viz_cmap_rev:'Reverse',
    viz_count:(n)=>`${n} structures`,color_amor:'amorphous',color_liq:'liquid',color_cryst:'crystalline',
    view:'▶ 3D',t_total:'Structures',t_sys:'Material systems',t_natoms:'Atom-count range',t_dens:'Median density',t_phase:'Phase',phase_amor:'amorph.',phase_cryst:'cryst.',phase_liq:'liquid',
    shown:(a,b)=>`Showing ${a} / ${b}`,page:(a,b)=>`Page ${a} / ${b}`,sel_none:'No elements selected',sel_pre:'Selected: ',
-   dl_poscar:'⬇ Download POSCAR',toggle_style:'Toggle style (ball-stick/space-fill)',elem_colors:'Element colors',reset:'↺ Reset',
+   dl_poscar:'⬇ Download POSCAR',m_maximize:'Maximize / restore (double-click the title bar)',m_resize:'Drag to resize',toggle_style:'Toggle style (ball-stick/space-fill)',elem_colors:'Element colors',reset:'↺ Reset',
    docs:'Docs',github:'GitHub',
    upload:'Contribute data',up_title:'Upload structure',up_file:'Structure file (POSCAR/CONTCAR)',
    up_pick:'Pick a file — formula / atoms / density auto-computed',up_temp:'Temperature (K)',up_dest:'Store path',
@@ -865,7 +913,7 @@ function applyI18n(){
   document.querySelectorAll('[data-i18n-ph]').forEach(e=>e.placeholder=t(e.dataset.i18nPh));
   document.querySelectorAll('[data-i18n-title]').forEach(e=>e.title=t(e.dataset.i18nTitle));
   document.getElementById('langBtn').textContent=LANG==='zh'?'EN':'中';
-  if(DATA){renderTiles();renderCharts();renderTable();renderSelEls();buildCboxItems();renderSourceLegend();if(vizState){renderVizBar(vizState);renderLegend();}}
+  if(DATA){renderTiles();renderCharts();renderTable();renderSelEls();buildCboxItems();renderSourceLegend();renderVizStats();if(vizState){renderVizBar(vizState);renderLegend();}}
   renderMlip();
 }
 function renderTiles(){
@@ -908,21 +956,30 @@ function el(n,a){const x=document.createElementNS(NS,n);for(const k in a)x.setAt
 function debounce(fn,ms){let h;return(...a)=>{clearTimeout(h);h=setTimeout(()=>fn(...a),ms);};}
 let DATA=null;
 
-function barChart(svg,rows,label,value){
-  svg.innerHTML='';const W=svg.clientWidth||520,rh=20,padL=120,padR=48,padT=6;
-  const H=rows.length*rh+padT+8;svg.setAttribute('viewBox',`0 0 ${W} ${H}`);svg.style.height=H+'px';
-  const max=Math.max(...rows.map(value))||1,sc=(W-padL-padR)/max;
-  const gid=(svg.id||'bc')+'-grad';                 // 玫瑰红→蓝 横向渐变（跨绘图区，条越长越偏蓝）
-  const defs=el('defs',{}),lg=el('linearGradient',{id:gid,gradientUnits:'userSpaceOnUse',x1:padL,y1:0,x2:W-padR,y2:0});
-  lg.appendChild(el('stop',{offset:'0%','stop-color':'#d6336c'}));
-  lg.appendChild(el('stop',{offset:'55%','stop-color':'#8f4fd0'}));
-  lg.appendChild(el('stop',{offset:'100%','stop-color':'#2f74dd'}));
-  defs.appendChild(lg);svg.appendChild(defs);
-  rows.forEach((r,i)=>{const y=padT+i*rh,bw=Math.max(2,value(r)*sc);
-    svg.appendChild(el('text',{x:padL-8,y:y+rh/2+3,'text-anchor':'end'})).textContent=label(r);
-    const b=el('rect',{x:padL,y:y+4,width:bw,height:rh-11,rx:4,class:'gbar',fill:`url(#${gid})`});
-    b.addEventListener('mousemove',e=>showTip(e,`<b>${label(r)}</b><br>${value(r)}`));b.addEventListener('mouseleave',hideTip);
-    svg.appendChild(b);svg.appendChild(el('text',{x:padL+bw+6,y:y+rh/2+3})).textContent=value(r);});
+// 概览横向条形图（参照 MLIP 排名榜风格）：扁平矩形条、竖向网格 + 底部刻度、条尾数值。
+// 每条按生成方式分段：实色 = AIMD，斜线填充 = AI。rows: [{k, aimd, ai}]
+function niceStep(max,n){const raw=max/n,p=Math.pow(10,Math.floor(Math.log10(raw))),f=raw/p;
+  return (f<=1?1:f<=2?2:f<=2.5?2.5:f<=5?5:10)*p;}
+function barChart(svg,rows){
+  svg.innerHTML='';const W=svg.clientWidth||520,rh=28,padT=4,padB=24,padR=46;
+  const padL=Math.max(...rows.map(r=>String(r.k).length))*7.2+16;
+  const H=rows.length*rh+padT+padB;svg.setAttribute('viewBox',`0 0 ${W} ${H}`);svg.style.height=H+'px';
+  const tot=r=>r.aimd+r.ai,step=niceStep(Math.max(...rows.map(tot))||1,5);
+  const axMax=Math.ceil((Math.max(...rows.map(tot))||1)/step)*step,sc=(W-padL-padR)/axMax,base=padT+rows.length*rh;
+  const pid=(svg.id||'bc')+'-hatch',defs=el('defs',{}),pat=el('pattern',{id:pid,patternUnits:'userSpaceOnUse',width:7,height:7,patternTransform:'rotate(45)'});
+  pat.appendChild(el('line',{x1:0,y1:0,x2:0,y2:7,class:'ovhatch'}));defs.appendChild(pat);svg.appendChild(defs);
+  for(let v=0;v<=axMax+1e-9;v+=step){const x=padL+v*sc;
+    svg.appendChild(el('line',{x1:x,y1:padT,x2:x,y2:base,class:'grid-line'}));
+    svg.appendChild(el('text',{x,y:base+16,'text-anchor':'middle',class:'ovtick'})).textContent=v>=1e3?(v/1e3)+'k':v;}
+  rows.forEach((r,i)=>{const y=padT+i*rh,bh=Math.round(rh*0.64),by=y+(rh-bh)/2,wa=r.aimd*sc,wi=r.ai*sc;
+    svg.appendChild(el('text',{x:padL-9,y:y+rh/2+4,'text-anchor':'end',class:'ovlab'})).textContent=r.k;
+    const g=el('g',{class:'gbar'});
+    if(r.aimd)g.appendChild(el('rect',{x:padL,y:by,width:Math.max(1.5,wa),height:bh,class:'ovsolid'}));
+    if(r.ai)g.appendChild(el('rect',{x:padL+wa,y:by,width:Math.max(1.5,wi),height:bh,fill:`url(#${pid})`}));
+    g.addEventListener('mousemove',e=>showTip(e,`<b>${r.k}</b> · ${tot(r).toLocaleString()}<br>AIMD ${r.aimd.toLocaleString()} · AI ${r.ai.toLocaleString()}`));
+    g.addEventListener('mouseleave',hideTip);svg.appendChild(g);
+    svg.appendChild(el('text',{x:padL+wa+wi+5,y:y+rh/2+4,class:'ovval'})).textContent=tot(r).toLocaleString('en-US');});
+  svg.appendChild(el('line',{x1:padL,y1:padT,x2:padL,y2:base,class:'axis-line'}));
 }
 // 预分箱直方图：edges 长度 = counts 长度 + 1。opts={fmt,unit,logY}
 // logY 用于力分布——原子级计数跨数个数量级，线性轴会把尾部压成零。
@@ -957,15 +1014,13 @@ function naryLabel(n){
   return LANG==='zh'?(zh[n]||`${n}元`):(en[n]||`${n}-element`);
 }
 function renderCharts(){
-  const bySys={};DATA.forEach(r=>bySys[r.system]=(bySys[r.system]||0)+1);
-  const top=Object.entries(bySys).sort((a,b)=>b[1]-a[1]).slice(0,10).map(([k,v])=>({k,v}));
-  barChart(document.getElementById('sysChart'),top,r=>r.k,r=>r.v);
-  const ec=elementCounts();
-  const els=Object.entries(ec).sort((a,b)=>b[1]-a[1]).slice(0,10).map(([k,v])=>({k,v}));
-  barChart(document.getElementById('elemChart'),els,r=>r.k,r=>r.v);
-  const comp={};DATA.forEach(r=>{const n=r.elements.length;comp[n]=(comp[n]||0)+1;});
-  const crows=Object.keys(comp).map(Number).sort((a,b)=>a-b).map(n=>({k:naryLabel(n),v:comp[n]}));
-  barChart(document.getElementById('compChart'),crows,r=>r.k,r=>r.v);
+  const add=(m,k,r)=>{const o=m[k]||(m[k]={k,aimd:0,ai:0});(r.generation_origin||'AIMD')==='AI'?o.ai++:o.aimd++;};
+  const bySys={},byEl={},byN={};
+  DATA.forEach(r=>{add(bySys,r.system,r);r.elements.forEach(e=>add(byEl,e,r));add(byN,r.elements.length,r);});
+  const top10=m=>Object.values(m).sort((a,b)=>(b.aimd+b.ai)-(a.aimd+a.ai)).slice(0,10);
+  barChart(document.getElementById('sysChart'),top10(bySys));
+  barChart(document.getElementById('elemChart'),top10(byEl));
+  barChart(document.getElementById('compChart'),Object.values(byN).sort((a,b)=>a.k-b.k).map(o=>({...o,k:naryLabel(+o.k)})));
 }
 
 /* ---------- periodic table ---------- */
@@ -1230,7 +1285,7 @@ function syncHeadlights(st){
 }
 
 function disposeViewer(st){
-  if(!st)return;cancelAnimationFrame(st.raf);st.renderer.dispose();st.host.innerHTML='';
+  if(!st)return;cancelAnimationFrame(st.raf);if(st.ro)st.ro.disconnect();st.renderer.dispose();st.host.innerHTML='';
 }
 function buildGroup(st){                       // 依据 st.struct + st.style 建/重建原子键盒
   if(st.group){st.scene.remove(st.group);st.group.traverse(o=>{if(o.geometry)o.geometry.dispose();if(o.material)o.material.dispose();});}
@@ -1298,6 +1353,11 @@ function makeViewer(host,struct){              // 工厂：创建独立查看器
   const dist=R/Math.tan(Math.PI/8)*0.95;camera.position.set(dist*0.6,dist*0.45,dist);controls.update();
   syncHeadlights(st);
   (function loop(){st.raf=requestAnimationFrame(loop);controls.update();syncHeadlights(st);renderer.render(scene,camera);})();
+  if(window.ResizeObserver){                     // 窗口拉伸/最大化时同步画布尺寸
+    st.ro=new ResizeObserver(()=>{const W=host.clientWidth,H=host.clientHeight;if(!W||!H)return;
+      renderer.setSize(W,H);camera.aspect=W/H;camera.updateProjectionMatrix();});
+    st.ro.observe(host);
+  }
   return st;
 }
 function ensureVIZ(){return VIZ?Promise.resolve(VIZ):fetch('viz_assets.json',{cache:'no-cache'}).then(x=>x.json()).then(j=>VIZ=j);}
@@ -1314,7 +1374,8 @@ function openViewer(r){
     ['m_reference',r.reference_material||'—'],['m_energy',eStr],['m_contrib',r.contributor||'—'],['m_src',r.hpc_source||'—']];
   if(r.collection_role==='reference')M.push(['m_ref_frame',r.reference_frame_0based]);
   const box=document.getElementById('mMeta');box.innerHTML='';
-  M.forEach(([k,v])=>{const div=document.createElement('div'),span=document.createElement('span');span.textContent=t(k);div.append(span,document.createTextNode(String(v)));box.appendChild(div);});
+  M.forEach(([k,v])=>{const div=document.createElement('div'),span=document.createElement('span');span.textContent=t(k);
+    if(k==='m_src')div.className='mwide';div.append(span,document.createTextNode(String(v)));box.appendChild(div);});
   const note=document.createElement('div');note.className='mnote';note.textContent=t('rdf_error_definition');box.appendChild(note);
   document.getElementById('mMetadata').onclick=()=>downloadText(JSON.stringify(r,null,2),r.sid+'_metadata.json','application/json');
   const url=r.structure_url||`structures/${r.sid}.poscar`;
@@ -1344,6 +1405,29 @@ function buildColorEditor(struct){
 }
 document.getElementById('mClose').onclick=()=>{document.getElementById('modal').classList.remove('open');disposeViewer(mainViewer);mainViewer=null;};
 document.getElementById('modal').addEventListener('click',e=>{if(e.target.id==='modal')document.getElementById('mClose').click();});
+(function initViewerWindow(){                  // 结构查看窗口：右下角拖动缩放 + 最大化，尺寸记在本机
+  const box=document.getElementById('mBox'),grip=document.getElementById('mGrip');
+  const KEY='pcm_viewer_size';
+  try{const v=JSON.parse(localStorage.getItem(KEY)||'null');
+    if(v&&v.w&&v.h){box.style.setProperty('--mw',v.w+'px');box.style.setProperty('--mh',v.h+'px');}}catch(e){}
+  const btn=document.getElementById('mMax'),ICON_MAX=btn.innerHTML,
+    ICON_RESTORE='<svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M13.5 6.5h-4v-4M2.5 9.5h4v4M9.5 6.5 14 2M6.5 9.5 2 14"/></svg>';
+  const toggleMax=()=>{btn.innerHTML=box.classList.toggle('max')?ICON_RESTORE:ICON_MAX;};
+  document.getElementById('mMax').onclick=toggleMax;
+  document.getElementById('mHead').addEventListener('dblclick',e=>{if(!e.target.closest('button'))toggleMax();});
+  grip.addEventListener('pointerdown',e=>{
+    e.preventDefault();grip.setPointerCapture(e.pointerId);document.body.classList.add('mresizing');
+    const r=box.getBoundingClientRect(),x0=e.clientX,y0=e.clientY;
+    // 窗口居中显示，拖动量 ×2 才能让右下角跟随指针
+    const move=ev=>{const w=Math.round(r.width+2*(ev.clientX-x0)),h=Math.round(r.height+2*(ev.clientY-y0));
+      box.style.setProperty('--mw',w+'px');box.style.setProperty('--mh',h+'px');};
+    const up=()=>{grip.removeEventListener('pointermove',move);grip.removeEventListener('pointerup',up);
+      grip.removeEventListener('pointercancel',up);document.body.classList.remove('mresizing');
+      const b=box.getBoundingClientRect();try{localStorage.setItem(KEY,JSON.stringify({w:Math.round(b.width),h:Math.round(b.height)}));}catch(e){}};
+    grip.addEventListener('pointermove',move);grip.addEventListener('pointerup',up);grip.addEventListener('pointercancel',up);
+  });
+})();
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&document.getElementById('modal').classList.contains('open'))document.getElementById('mClose').click();});
 document.getElementById('mStyle').onclick=()=>{if(!mainViewer)return;mainViewer.style=mainViewer.style==='bs'?'sf':'bs';buildGroup(mainViewer);};
 
 /* ---------- upload (仅本地后端) ---------- */
@@ -1528,7 +1612,50 @@ function projectInWorker(vecs,dim){
     worker.postMessage({matrix,dim},[matrix.buffer]);
   });
 }
+// 结构分布图下方的统计：当前筛选结果中 AIMD / AI 各自归一化（占本组 %）后叠加的阶梯面积直方图，
+// 两组数量相差约 7 倍，按各自占比画才能比较分布形状；颜色跟随两类 Modeling 的取色。
+// 横轴取 1–99% 分位，避免个别异常结构（如能量 +35 eV/atom）压扁主分布；范围外数量写在脚注。
+function stackHist(svg,groups,opts){
+  const o=Object.assign({bins:30,fmt:v=>v.toFixed(2)},opts||{});
+  svg.innerHTML='';const W=svg.clientWidth||320,H=128,padL=34,padR=6,padT=6,padB=20;
+  svg.setAttribute('viewBox',`0 0 ${W} ${H}`);svg.style.height=H+'px';
+  const all=groups.flatMap(g=>g.vals).sort((a,b)=>a-b);
+  if(!all.length){svg.appendChild(el('text',{x:W/2,y:H/2,'text-anchor':'middle'})).textContent=t('vs_none');return {outside:0};}
+  let lo=quantile(all,0.01),hi=quantile(all,0.99);if(!(hi>lo)){lo=all[0];hi=all[all.length-1];}if(!(hi>lo)){lo-=0.5;hi+=0.5;}
+  const n=o.bins,w=(hi-lo)/n,counts=groups.map(()=>new Array(n).fill(0));let outside=0;
+  groups.forEach((g,gi)=>g.vals.forEach(v=>{if(v<lo||v>hi){outside++;return;}counts[gi][Math.min(n-1,Math.floor((v-lo)/w))]++;}));
+  const frac=counts.map((c,gi)=>c.map(x=>100*x/groups[gi].vals.length));
+  const fmax=Math.max(...frac.flat())||1,plotW=W-padL-padR,plotH=H-padT-padB,cw=plotW/n,base=padT+plotH;
+  [0,0.5,1].forEach(f=>{const y=base-plotH*f;svg.appendChild(el('line',{x1:padL,y1:y,x2:W-padR,y2:y,class:'grid-line'}));
+    svg.appendChild(el('text',{x:padL-4,y:y+3,'text-anchor':'end'})).textContent=(fmax*f).toFixed(fmax*f<10&&f?1:0)+'%';});
+  frac.forEach((fr,gi)=>{let d=`M${padL},${base}`;
+    fr.forEach((v,i)=>{const y=base-plotH*v/fmax;d+=`L${padL+i*cw},${y}L${padL+(i+1)*cw},${y}`;});
+    d+=`L${padL+n*cw},${base}Z`;
+    svg.appendChild(el('path',{d,fill:groups[gi].color,'fill-opacity':0.22,stroke:groups[gi].color,'stroke-width':1.6,'stroke-linejoin':'round'}));});
+  for(let i=0;i<n;i++){const hit=el('rect',{x:padL+i*cw,y:padT,width:cw,height:plotH,fill:'transparent'});
+    hit.addEventListener('mousemove',e=>showTip(e,`${o.fmt(lo+i*w)} – ${o.fmt(lo+(i+1)*w)}<br>`+
+      groups.map((g,gi)=>`${g.label}: <b>${counts[gi][i].toLocaleString()}</b> (${frac[gi][i].toFixed(1)}%)`).join('<br>')));
+    hit.addEventListener('mouseleave',hideTip);svg.appendChild(hit);}
+  svg.appendChild(el('line',{x1:padL,y1:base,x2:W-padR,y2:base,class:'axis-line'}));
+  [0,0.5,1].forEach((f,k)=>svg.appendChild(el('text',{x:padL+plotW*f,y:H-5,'text-anchor':['start','middle','end'][k]})).textContent=o.fmt(lo+(hi-lo)*f));
+  return {outside};
+}
+function renderVizStats(){
+  if(!DATA||!document.getElementById('vizStats'))return;
+  const rows=filtered(),fin=v=>v!=null&&isFinite(v),med=a=>{const s=[...a].sort((x,y)=>x-y);return s.length?quantile(s,0.5):null;};
+  const src=[['AIMD','AIMD Modeling',aimdColor],['AI','AI Modeling',aiColor]];
+  [['Density',r=>r.density,v=>v.toFixed(4)],['Energy',r=>r.energy_per_atom,v=>v.toFixed(2)],['Rdf',r=>r.rdf_peak_error_pct,v=>v.toFixed(2)]]
+  .forEach(([id,get,fmt])=>{
+    const groups=src.map(([k,label,color])=>({label,color,vals:rows.filter(r=>(r.generation_origin||'AIMD')===k).map(get).filter(fin)}))
+      .filter(g=>g.vals.length);
+    const res=stackHist(document.getElementById('vs'+id),groups,{fmt});
+    document.getElementById('vs'+id+'N').textContent=t('vs_n')(groups.reduce((a,g)=>a+g.vals.length,0));
+    document.getElementById('vs'+id+'F').innerHTML=groups.map(g=>`<span><i style="background:${g.color}"></i>${g.label} (${g.vals.length.toLocaleString()}) · ${t('vs_med')} ${fmt(med(g.vals))}</span>`).join('')+
+      (res.outside?`<span>${t('vs_out')(res.outside)}</span>`:'');
+  });
+}
 async function updateViz(){
+  renderVizStats();
   const bar=document.getElementById('vizBar');if(!bar)return;const request=++vizRequest;
   if(pcaWorker){pcaWorker.terminate();pcaWorker=null;}
   bar.textContent=t('viz_loading');
@@ -1668,7 +1795,7 @@ function attachScatter(cv,cfg){
   cbSel.value=vizColorBy;cmSel.value=vizCmap;
   const syncCmapVis=()=>{document.getElementById('vizCmapGroup').style.display=CONT[vizColorBy]?'':'none';};
   syncCmapVis();
-  const recolor=()=>{if(vizState){computeColors();drawViz();renderLegend();}};
+  const recolor=()=>{renderVizStats();if(vizState){computeColors();drawViz();renderLegend();}};
   cbSel.onchange=()=>{vizColorBy=cbSel.value;localStorage.setItem('pcm_viz_colorby',vizColorBy);syncCmapVis();recolor();};
   cmSel.onchange=()=>{vizCmap=cmSel.value;localStorage.setItem('pcm_viz_cmap',vizCmap);recolor();};
   const revChk=document.getElementById('vizCmapRev');
@@ -1693,7 +1820,7 @@ function attachScatter(cv,cfg){
   const rc=document.getElementById('referenceColor');rc.value=referenceColor;
   rc.oninput=()=>{referenceColor=rc.value;localStorage.setItem('pcm_ref_color',referenceColor);renderSourceLegend();recolor();};
   renderSourceLegend();
-  window.addEventListener('resize',debounce(()=>{if(vizState)drawViz();},150));
+  window.addEventListener('resize',debounce(()=>{if(vizState)drawViz();renderVizStats();},150));
 })();
 
 /* ---------- MLIP dataset：能量/受力分布 + SOAP-PCA 构型图 ---------- */

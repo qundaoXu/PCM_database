@@ -12,7 +12,12 @@
       （增量写盘，可断点续跑；已算过的 sid 跳过）
 
 用法（mace 环境）:
-  /opt/anaconda3/envs/mace/bin/python scripts/predict_energy.py [--limit N] [--device mps|cpu]
+  /opt/anaconda3/envs/mace/bin/python scripts/predict_energy.py [--limit N] [--device mps|cpu|cuda] [--origin AI]
+
+大批量（如 14,900 个 AI 结构）在 bwlab GPU 上跑：把本仓库的 scripts/predict_energy.py、docs/data.json、
+docs/structures/、模型与 energy.json 按相同目录结构拷过去，CUDA_VISIBLE_DEVICES 固定一张空闲卡，
+--device cuda 运行，结束后把 energy.json 拉回本地，再运行 build_site_data.py。
+float32 单点能与 float64 相差 ~1e-6 eV/atom，与已有能量口径一致。
 """
 import argparse
 import json
@@ -44,9 +49,11 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--limit", type=int, default=0, help="只算前 N 个（0=全部）")
     ap.add_argument("--device", default="mps", choices=["mps", "cpu", "cuda"])
+    ap.add_argument("--origin", default="all", choices=["all", "AI", "AIMD"], help="只算某一生成方式的结构")
     args = ap.parse_args()
 
-    sids = [r["sid"] for r in json.loads(DATA.read_text())]
+    sids = [r["sid"] for r in json.loads(DATA.read_text())
+            if args.origin == "all" or (r.get("generation_origin") or "AIMD") == args.origin]
     if args.limit:
         sids = sids[:args.limit]
 

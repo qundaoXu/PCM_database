@@ -12,7 +12,7 @@ import json
 import math
 from pathlib import Path
 
-import pandas as pd
+from organize_ai_sources import save_csv
 
 ROOT = Path(__file__).resolve().parent.parent
 ENERGY = ROOT / "data" / "metadata" / "energy.json"
@@ -30,14 +30,14 @@ def main():
     if dropped:
         print(f"coerced {len(dropped)} non-finite energies to null: {dropped}")
 
-    # pcm_metadata.json (sid = s{index:04d})
+    # pcm_metadata.json：按记录自身 sid 匹配（AI 结构为 ai_*；旧 AIMD 记录无 sid 时回退 s{index:04d}）
     meta = json.loads(META_JSON.read_text(encoding="utf-8"))
     for i, r in enumerate(meta):
-        r[COL] = vals.get(f"s{i:04d}")
-    META_JSON.write_text(json.dumps(meta, ensure_ascii=False, indent=2), encoding="utf-8")
+        r[COL] = vals.get(r.get("sid", f"s{i:04d}"))
+    META_JSON.write_text(json.dumps(meta, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
 
-    # CSV 镜像 json 列
-    pd.DataFrame(meta).to_csv(META_CSV, index=False, encoding="utf-8-sig")
+    # CSV 镜像 json 列（与其他 metadata 脚本同一写法）
+    save_csv(META_CSV, meta)
 
     # docs/data.json (按 sid)
     data = json.loads(DATA.read_text(encoding="utf-8"))
