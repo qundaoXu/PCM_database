@@ -243,14 +243,22 @@ tbody tr{cursor:pointer;transition:background .12s} tbody tr:hover{background:va
 td.idx{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12px;color:var(--muted);letter-spacing:.3px}
 tr.hi td{background:var(--series-soft)}
 /* Main catalog: columns stretch with the window; horizontal scrolling below the minimum width. */
+/* 列宽由 fitColumns() 按数据内容实测（表头只保证最长单词不溢出）；下面是测量前的兜底宽度 */
 #tbl{table-layout:fixed;min-width:1180px;font-size:13px}
 #tbl col.c-idx{width:118px} #tbl col.c-sys{width:86px} #tbl col.c-origin{width:96px} #tbl col.c-method{width:118px}
 #tbl col.c-err{width:132px} #tbl col.c-phase{width:72px} #tbl col.c-func{width:96px} #tbl col.c-temp{width:68px}
 #tbl col.c-natoms{width:82px} #tbl col.c-dens{width:84px} #tbl col.c-energy{width:76px} #tbl col.c-view{width:78px}
 #tbl col.c-fml{width:auto} #tbl col.c-contrib{width:auto}
+#tbl.m-data,#tbl.m-head{table-layout:auto!important;width:1px!important;min-width:0!important}
+#tbl.m-data col,#tbl.m-head col{width:auto!important}
+#tbl.m-data thead,#tbl.m-head tbody{display:none}
+#tbl.m-data .pill{max-width:none}
 #tbl th{padding:11px 10px;font-size:11.5px;line-height:1.3;letter-spacing:.01em;text-transform:none;
   white-space:normal;vertical-align:middle;border-bottom:1px solid var(--border)}
 #tbl th>span[data-i18n]{white-space:normal}
+#tbl th[data-k]>span[data-i18n]{display:inline-block;max-width:calc(100% - 14px);vertical-align:middle}  /* 留出排序箭头位置，箭头不单独换行 */
+#tbl.m-head th[data-k]>span[data-i18n]{max-width:none}
+#tbl.m-headmax th>span[data-i18n]{white-space:nowrap}
 #tbl th[data-k]{white-space:nowrap}
 #tbl th .sind{position:static;margin-left:5px;opacity:.9}
 #tbl th:not(.active) .sind{opacity:.45}
@@ -1090,6 +1098,7 @@ function filtered(){
     contributor:CBOX.contrib.sel,elements:[...SEL],errorMin:bound('errorMin'),errorMax:bound('errorMax')});
 }
 function renderTable(){
+  if(colFitLang!==LANG)fitColumns();
   let rows=filtered();
   rows.sort((a,b)=>{let x=a[sortK],y=b[sortK];if(x==null||y==null)return x==null?(y==null?0:1):-1;
     return typeof x==='string'?sortDir*x.localeCompare(y):sortDir*(x-y);});
@@ -1098,22 +1107,65 @@ function renderTable(){
   const start=(curPage-1)*PAGESIZE, slice=rows.slice(start,start+PAGESIZE);
   const tb=document.getElementById('tbody');tb.innerHTML='';const fr=document.createDocumentFragment();
   slice.forEach(r=>{const tr=document.createElement('tr');tr.onclick=()=>openViewer(r);
-    const fn=r.functionality||'Others';
-    const na='<span class="na">—</span>',org=r.generation_origin||'AIMD',method=r.modeling_method||'AIMD';
-    tr.innerHTML=`<td class="idx" title="${r.sid}">${r.sid}</td><td class="sys" title="${r.system}">${r.system}</td><td class="fml" title="${r.formula}">${normFormula(r.formula,true)}</td>`+
-      `<td><span class="pill org-${org.toLowerCase()}">${org}</span></td><td class="method" title="${method}">${method}</td>`+
-      `<td class="num" title="${t('rdf_error_definition')}">${r.rdf_peak_error_pct!=null?r.rdf_peak_error_pct.toFixed(3):na}</td>`+
-      `<td><span class="pill ph-${r.phase}">${phaseLabel(r.phase)}</span></td>`+
-      `<td><span class="pill ${fnClass(fn)}">${fnLabel(fn)}</span></td>`+
-      `<td>${r.temperature}</td><td class="num">${r.natoms.toLocaleString('en-US')}</td><td class="num">${r.density.toFixed(4)}</td>`+
-      `<td class="num">${r.energy_per_atom!=null?r.energy_per_atom.toFixed(3):na}</td>`+
-      `<td class="contrib" title="${r.contributor||''}">${r.contributor||na}</td><td class="view"><span class="viewbtn">${t('view')}</span></td>`;fr.appendChild(tr);});
+    tr.innerHTML=rowHtml(r);fr.appendChild(tr);});
   tb.appendChild(fr);
   document.getElementById('shown').textContent=t('shown')(total,DATA.length);
   document.getElementById('pageInfo').textContent=t('page')(curPage,pages);
   document.getElementById('firstPage').disabled=document.getElementById('prevPage').disabled=(curPage<=1);
   document.getElementById('nextPage').disabled=document.getElementById('lastPage').disabled=(curPage>=pages);
   updateSortIndicators();
+}
+function rowHtml(r){
+    const fn=r.functionality||'Others';
+    const na='<span class="na">—</span>',org=r.generation_origin||'AIMD',method=r.modeling_method||'AIMD';
+    return `<td class="idx" title="${r.sid}">${r.sid}</td><td class="sys" title="${r.system}">${r.system}</td><td class="fml" title="${r.formula}">${normFormula(r.formula,true)}</td>`+
+      `<td><span class="pill org-${org.toLowerCase()}">${org}</span></td><td class="method" title="${method}">${method}</td>`+
+      `<td class="num" title="${t('rdf_error_definition')}">${r.rdf_peak_error_pct!=null?r.rdf_peak_error_pct.toFixed(3):na}</td>`+
+      `<td><span class="pill ph-${r.phase}">${phaseLabel(r.phase)}</span></td>`+
+      `<td><span class="pill ${fnClass(fn)}">${fnLabel(fn)}</span></td>`+
+      `<td>${r.temperature}</td><td class="num">${r.natoms.toLocaleString('en-US')}</td><td class="num">${r.density.toFixed(4)}</td>`+
+      `<td class="num">${r.energy_per_atom!=null?r.energy_per_atom.toFixed(3):na}</td>`+
+      `<td class="contrib" title="${r.contributor||''}">${r.contributor||na}</td><td class="view"><span class="viewbtn">${t('view')}</span></td>`;
+}
+/* ---------- 主表列宽：按全库数据的实际显示宽度决定 ----------
+   每列取「数据单元格最宽内容」与「表头最长单词」的较大值（表头可换行，不主导列宽），
+   再按上限截断（长 ID / 超长化学式用省略号 + title）。容器剩余宽度平均分给除 View 外的各列，
+   避免像 table-layout:fixed 的按比例分配那样把多余空间全堆到宽列上。
+   只在数据加载、语言切换、字体加载后重新测量；筛选/翻页不变，列宽不会跳动。 */
+const COL_CAP={0:150,2:250,12:180};          // 列序号 → 最大宽度(px)：ID、化学式、贡献者
+let colBase=null,colFitLang=null;
+function fitColumns(){
+  const tbl=document.getElementById('tbl'),tb=document.getElementById('tbody'),cols=[...tbl.querySelectorAll('col')];
+  // 每列一个“宽度等价键”：数字类按位数归一（表格用等宽数字），取每个键的一条代表记录
+  const z=v=>String(v).replace(/\d/g,'0'),seen=new Set(),reps=[];
+  const keys=[r=>r.sid.length,r=>r.system,r=>r.formula,r=>r.generation_origin||'AIMD',r=>r.modeling_method||'AIMD',
+    r=>r.rdf_peak_error_pct!=null?z(r.rdf_peak_error_pct.toFixed(3)):'-',r=>r.phase,r=>r.functionality||'Others',r=>r.temperature,
+    r=>z(r.natoms.toLocaleString('en-US')),r=>z(r.density.toFixed(4)),r=>r.energy_per_atom!=null?z(r.energy_per_atom.toFixed(3)):'-',
+    r=>r.contributor||'-'];
+  DATA.forEach(r=>{let add=false;keys.forEach((k,i)=>{const key=i+'|'+k(r);if(!seen.has(key)){seen.add(key);add=true;}});if(add)reps.push(r);});
+  cols.forEach(c=>c.style.width='');
+  tb.innerHTML=reps.map(r=>'<tr>'+rowHtml(r)+'</tr>').join('');
+  tbl.classList.add('m-data');
+  const first=tb.rows[0],dataW=[...first.cells].map(c=>Math.ceil(c.getBoundingClientRect().width));
+  tbl.classList.replace('m-data','m-head');
+  // 表头不主导列宽：最多折成两行（且不短于最长单词），再加排序箭头宽度，箭头不被挤到单独一行
+  const ths=[...tbl.tHead.rows[0].cells],spanMin=ths.map(c=>{const sp=c.querySelector(':scope>span[data-i18n]');return sp?sp.getBoundingClientRect().width:0;});
+  tbl.classList.add('m-headmax');
+  const headW=ths.map((c,i)=>{const sp=c.querySelector(':scope>span[data-i18n]'),s=c.querySelector('.sind');
+    if(!sp)return Math.ceil(c.getBoundingClientRect().width);
+    const pad=parseFloat(getComputedStyle(c).paddingLeft)+parseFloat(getComputedStyle(c).paddingRight);
+    return Math.ceil(pad+Math.max(spanMin[i],sp.getBoundingClientRect().width/2+6)+(s?s.getBoundingClientRect().width+8:0));});
+  tbl.classList.remove('m-head','m-headmax');tb.innerHTML='';
+  colBase=dataW.map((w,i)=>Math.min(COL_CAP[i]||Infinity,Math.max(w,headW[i])));
+  colFitLang=LANG;
+  tbl.style.minWidth=colBase.reduce((a,b)=>a+b,0)+'px';
+  spreadColumns();
+}
+function spreadColumns(){                      // 把容器剩余宽度平均分到除 View 外的列
+  if(!colBase)return;
+  const cols=[...document.querySelectorAll('#tbl col')],wrap=document.querySelector('#tbl').parentElement;
+  const n=colBase.length-1,slack=Math.max(0,wrap.clientWidth-colBase.reduce((a,b)=>a+b,0)),add=Math.floor(slack/n);
+  cols.forEach((c,i)=>c.style.width=(colBase[i]+(i<n?add:0))+'px');
 }
 function updateSortIndicators(){
   document.querySelectorAll('th[data-k]').forEach(th=>{
@@ -2003,7 +2055,8 @@ fetch('mlip.json',{cache:'no-cache'}).then(r=>r.json()).then(d=>{
   io.observe(sec);
 }).catch(()=>{document.getElementById('mlipTbody').innerHTML=`<tr><td colspan="8" class="load">${t('mlip_fail')}</td></tr>`;});
 
-window.addEventListener('resize',debounce(()=>{if(DATA)renderCharts();},150));
+window.addEventListener('resize',debounce(()=>{if(DATA){renderCharts();spreadColumns();}},150));
+if(document.fonts)document.fonts.ready.then(()=>{if(DATA){colFitLang=null;renderTable();}});
 fetch('data.json',{cache:'no-cache'}).then(r=>r.json()).then(d=>{
   DATA=d;initFilters();buildPT();applyI18n();updateViz();
   const m=location.hash.match(/#view=([a-zA-Z0-9_]+)/);
