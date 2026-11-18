@@ -11,6 +11,7 @@ import argparse
 import base64
 import hashlib
 import json
+import re
 from collections import Counter, defaultdict
 from concurrent.futures import ProcessPoolExecutor, as_completed
 from pathlib import Path
@@ -29,6 +30,23 @@ META = ROOT / "data/metadata"
 DOCS = ROOT / "docs"
 CACHE = ROOT / "data/.cache/ai_catalog"
 SOAP_PARAMS = dict(r_cut=6.0, n_max=8, l_max=6, periodic=True, average="outer")
+
+
+# AI 生成结构的贡献者按体系（排序后的元素拼接）指定；AI 结构统一按非晶入库。
+AI_CONTRIBUTORS = {
+    "Ge": "Shaojie Yuan", "Se": "Shaojie Yuan", "GeSe": "Shaojie Yuan",
+    "GeSbTe": "Qundao Xu",
+    "SbTe": "Siqi Tang", "GeTe": "Siqi Tang", "Sb": "Siqi Tang", "Te": "Siqi Tang",
+}
+AI_DEFAULT_PHASE = "amorphous"
+
+
+def ai_system(formula):
+    return "".join(sorted(set(re.findall(r"[A-Z][a-z]?", formula))))
+
+
+def ai_contributor(formula, contributor=None):
+    return contributor or AI_CONTRIBUTORS.get(ai_system(formula))
 
 
 def family(method):
@@ -84,9 +102,9 @@ def import_task(task):
 
 
 def base_fields(sid, formula, phase, natoms, density, rel_path, contributor, source, source_frame):
-    return dict(sid=sid, **{"化学式": formula, "相": phase or "unknown", "温度": "300K",
+    return dict(sid=sid, **{"化学式": formula, "相": phase or AI_DEFAULT_PHASE, "温度": "300K",
         "体系原子数": natoms, "密度_Atom_per_Angstrom3": density, "结构文件": rel_path,
-        "贡献者": contributor, "HPC来源路径": source, "代表帧来源": source_frame,
+        "贡献者": ai_contributor(formula, contributor), "HPC来源路径": source, "代表帧来源": source_frame,
         "功能性": classify(formula, is_mp=False)})
 
 
@@ -134,7 +152,7 @@ def main():
                     "源帧": r["source_frame_0based"], "几何SHA256": r["geometry_sha256"],
                     "POSCAR_SHA256": structure_hashes[sid], "collection_role": "catalog"})
         ai_records.append(row)
-        rich.append(dict(r, sid=sid, catalog_structure_file=rel_path,
+        rich.append(dict(r, sid=sid, phase=row["相"], contributor=row["贡献者"], catalog_structure_file=rel_path,
                          catalog_POSCAR_sha256=structure_hashes[sid],
                          catalog_export="periodic_positions_wrapped;species_sorted;Cartesian_A"))
     soap = SOAP(species=[6], **SOAP_PARAMS)

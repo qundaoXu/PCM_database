@@ -73,7 +73,7 @@ def build_reference_frames(soap, descriptors, structure_hashes, count=10):
             descriptors[sid] = (vector / norm).astype(np.float32)
             structure_hashes[sid] = digest(dest)
             records.append({
-                "sid": sid, "化学式": r["material"], "相": r["phase"] or "unknown", "温度": "300K",
+                "sid": sid, "化学式": r["material"], "相": r["phase"] or "amorphous", "温度": "300K",
                 "体系原子数": len(atoms), "密度_Atom_per_Angstrom3": len(atoms) / atoms.get_volume(),
                 "结构文件": str(dest.relative_to(RAW)), "贡献者": r["contributor"],
                 "HPC来源路径": r["archive_file"], "代表帧来源": "AIMD-reference-frame",

@@ -73,7 +73,19 @@ html,body{margin:0;background:var(--plane);color:var(--ink);
   font-family:"Inter",system-ui,-apple-system,"Segoe UI",sans-serif;line-height:1.6;
   -webkit-text-size-adjust:100%;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
 a{color:var(--series);text-decoration:none}a:hover{text-decoration:underline}
-.wrap{max-width:1180px;margin:0 auto;padding:0 20px}
+/* Hybrid layout: reading content capped at --content-max, data (filters, maps, main table) breaks out to --wide-max;
+   below those widths everything fills the window minus a fixed gutter. */
+:root{--gutter:clamp(16px,4vw,48px);--content-max:1280px;--wide-max:1600px}
+.wrap{display:grid;grid-template-columns:
+  [full-start] minmax(var(--gutter),1fr)
+  [wide-start] minmax(0,calc((var(--wide-max) - var(--content-max))/2))
+  [content-start] min(100% - 2*var(--gutter),var(--content-max)) [content-end]
+  minmax(0,calc((var(--wide-max) - var(--content-max))/2)) [wide-end]
+  minmax(var(--gutter),1fr) [full-end]}
+.wrap>header,.wrap>section{grid-column:full;display:grid;grid-template-columns:subgrid}
+.wrap>header>*,.wrap>section>*{grid-column:content;min-width:0}
+.wrap>footer{grid-column:content}
+.wrap>section>.wide{grid-column:wide}
 .topbar{position:absolute;top:18px;right:20px;display:flex;gap:8px;z-index:5}
 .tbtn{background:var(--surface);color:var(--ink2);border:1px solid var(--border);border-radius:9px;
   padding:7px 13px;cursor:pointer;font-size:13px;font-family:inherit;font-weight:500;
@@ -82,13 +94,13 @@ a{color:var(--series);text-decoration:none}a:hover{text-decoration:underline}
 .tbtn:hover{color:var(--series);border-color:var(--series);box-shadow:var(--sh2);text-decoration:none}
 .tbtn:active{transform:translateY(1px)}
 header{position:relative;padding:60px 0 30px;overflow:hidden}
-header::before{content:"";position:absolute;top:-160px;left:-80px;width:520px;height:360px;
+header::before{content:"";position:absolute;top:-160px;left:max(-80px,calc(50% - var(--content-max)/2 - 80px));width:520px;height:360px;
   background:radial-gradient(closest-side,var(--glow),transparent 70%);pointer-events:none;z-index:0}
 header>*{position:relative;z-index:1}
 .hero{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,44%);gap:10px;align-items:center}
 .hero-text{min-width:0}
 .hero-art{position:relative;min-width:0}
-.hero-art .concept{width:100%;height:auto;display:block;
+.hero-art .concept{width:100%;max-width:640px;margin-left:auto;height:auto;display:block;
   -webkit-mask-image:linear-gradient(to right,transparent 0%,rgba(0,0,0,.35) 16%,#000 40%);
   mask-image:linear-gradient(to right,transparent 0%,rgba(0,0,0,.35) 16%,#000 40%)}
 .hero-art::before{content:"";position:absolute;inset:0;z-index:1;pointer-events:none;
@@ -107,7 +119,7 @@ h1{font-size:clamp(34px,5.2vw,52px);line-height:1.08;margin:.28em 0 .18em;letter
 .tile{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:18px 20px;
   box-shadow:var(--sh2);transition:transform .18s,box-shadow .18s}
 .tile:hover{transform:translateY(-3px);box-shadow:var(--sh3)}
-.tile .v{font-size:30px;font-weight:750;letter-spacing:-.03em;font-variant-numeric:tabular-nums;
+.tile .v{font-size:clamp(22px,2.4vw,30px);white-space:nowrap;font-weight:750;letter-spacing:-.03em;font-variant-numeric:tabular-nums;
   background:var(--grad);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
 .tile .v.tv{font-size:clamp(18px,2.4vw,24px);line-height:1.25}
 .tile .l{font-size:12.5px;color:var(--muted);margin-top:4px;font-weight:500}
@@ -143,7 +155,8 @@ text{fill:var(--ink2);font-size:11px;font-family:inherit}
 .tt{position:fixed;pointer-events:none;background:var(--ink);color:var(--surface);padding:7px 10px;border-radius:8px;
   font-size:12px;opacity:0;transition:opacity .1s;z-index:60;white-space:nowrap;box-shadow:var(--sh3);font-weight:500}
 /* periodic table */
-.ptable{display:grid;grid-template-columns:repeat(18,1fr);gap:3px;max-width:760px;margin:4px auto 6px}
+.ptable{display:grid;grid-template-columns:repeat(18,minmax(0,1fr));gap:3px;width:100%;max-width:min(900px,100%);margin:16px auto 6px}
+@media(max-width:560px){.ptable{gap:1.5px}.pt{font-size:8.5px;border-radius:3px}}
 .pt{aspect-ratio:1;border:1px solid var(--border);border-radius:4px;background:var(--surface);
   display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--muted);user-select:none}
 .pt{transition:transform .1s,box-shadow .1s}
@@ -221,20 +234,48 @@ tbody tr{cursor:pointer;transition:background .12s} tbody tr:hover{background:va
 .pill{display:inline-block;padding:2px 10px;border-radius:999px;font-size:11.5px;background:var(--series-soft);color:var(--brand-3);font-weight:600}
 td.idx{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12px;color:var(--muted);letter-spacing:.3px}
 tr.hi td{background:var(--series-soft)}
-/* Main catalog: fit all columns on desktop; retain horizontal scrolling on small screens. */
-#tbl{table-layout:fixed;min-width:1136px;font-size:12.5px}
-#tbl th{height:48px;padding:8px 16px 8px 6px;font-size:11px;line-height:1.25;
-  letter-spacing:0;white-space:normal;vertical-align:middle}
-#tbl th>span[data-i18n]{display:inline-block;max-width:100%;white-space:pre-line;hyphens:auto}
-#tbl th .sind{position:absolute;right:4px;top:50%;transform:translateY(-50%);margin:0}
-#tbl .sind i{border-left-width:3px;border-right-width:3px}
-#tbl td{padding:8px 6px;overflow:hidden;text-overflow:ellipsis}
+/* Main catalog: columns stretch with the window; horizontal scrolling below the minimum width. */
+#tbl{table-layout:fixed;min-width:1180px;font-size:13px}
+#tbl col.c-idx{width:118px} #tbl col.c-sys{width:86px} #tbl col.c-origin{width:96px} #tbl col.c-method{width:118px}
+#tbl col.c-err{width:132px} #tbl col.c-phase{width:72px} #tbl col.c-func{width:96px} #tbl col.c-temp{width:68px}
+#tbl col.c-natoms{width:82px} #tbl col.c-dens{width:84px} #tbl col.c-energy{width:76px} #tbl col.c-view{width:78px}
+#tbl col.c-fml{width:auto} #tbl col.c-contrib{width:auto}
+#tbl th{padding:11px 10px;font-size:11.5px;line-height:1.3;letter-spacing:.01em;text-transform:none;
+  white-space:normal;vertical-align:middle;border-bottom:1px solid var(--border)}
+#tbl th>span[data-i18n]{white-space:normal}
+#tbl th[data-k]{white-space:nowrap}
+#tbl th .sind{position:static;margin-left:5px;opacity:.9}
+#tbl th:not(.active) .sind{opacity:.45}
+#tbl th:hover .sind{opacity:1}
+#tbl .sind i{border-left-width:3.5px;border-right-width:3.5px}
+#tbl td{padding:10px 10px;overflow:hidden;text-overflow:ellipsis;vertical-align:middle}
+#tbl tbody tr:nth-child(even) td{background:color-mix(in srgb,var(--soft) 55%,transparent)}
+#tbl tbody tr:hover td{background:var(--series-soft)}
 #tbl td.idx{font-size:11.5px;letter-spacing:0}
-#tbl td.act{display:table-cell;vertical-align:middle;font-size:12.5px;border-radius:0;box-shadow:none;
-  background:transparent;transform:none;border-top:0;border-left:0;border-right:0}
+#tbl td.sys{font-weight:600;color:var(--ink)}
 #tbl td.fml .formula-main,#tbl td.fml .formula-ratio{display:block;overflow:hidden;text-overflow:ellipsis}
-#tbl td.fml .formula-ratio{font-size:10.5px;color:var(--muted);line-height:1.3}
-#tbl .pill{max-width:100%;padding:2px 6px;white-space:normal;line-height:1.3;vertical-align:middle}
+#tbl td.fml .formula-main{line-height:1.35}
+#tbl td.fml .formula-ratio{font-size:11px;color:var(--muted);line-height:1.3;font-variant-numeric:tabular-nums}
+#tbl td.fml sub{font-size:.72em;color:var(--ink2)}
+#tbl td .na{color:var(--axis)}
+#tbl td.method{color:var(--ink2)}
+#tbl td.contrib{color:var(--ink2)}
+#tbl .pill{max-width:100%;padding:2px 9px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.45;vertical-align:middle}
+.pill.org-ai{color:#6d4fd8;background:color-mix(in srgb,#6d4fd8 13%,transparent)}
+.pill.org-aimd{color:#c2410c;background:color-mix(in srgb,#c2410c 12%,transparent)}
+.pill.ph-amorphous{color:#2f74dd;background:color-mix(in srgb,#2f74dd 13%,transparent)}
+.pill.ph-crystalline{color:#c2255c;background:color-mix(in srgb,#c2255c 12%,transparent)}
+.pill.ph-liquid{color:#b4690e;background:color-mix(in srgb,#b4690e 13%,transparent)}
+:root[data-theme=dark] .pill.org-ai{color:#b3a2ff} :root[data-theme=dark] .pill.org-aimd{color:#ff9c6b}
+:root[data-theme=dark] .pill.ph-amorphous{color:#7fb2ff} :root[data-theme=dark] .pill.ph-crystalline{color:#ff8fb6}
+:root[data-theme=dark] .pill.ph-liquid{color:#f5c26b}
+@media (prefers-color-scheme:dark){:root:not([data-theme=light]) .pill.org-ai{color:#b3a2ff}
+  :root:not([data-theme=light]) .pill.org-aimd{color:#ff9c6b}:root:not([data-theme=light]) .pill.ph-amorphous{color:#7fb2ff}
+  :root:not([data-theme=light]) .pill.ph-crystalline{color:#ff8fb6}:root:not([data-theme=light]) .pill.ph-liquid{color:#f5c26b}}
+#tbl td.view{text-align:center;padding-left:6px;padding-right:6px;text-overflow:clip}
+.viewbtn{display:inline-flex;white-space:nowrap;align-items:center;gap:4px;padding:3px 9px;border-radius:7px;font-size:12px;font-weight:600;
+  color:var(--series);border:1px solid color-mix(in srgb,var(--series) 35%,transparent);transition:background .12s,color .12s}
+#tbl tbody tr:hover .viewbtn{background:var(--series);color:#fff;border-color:var(--series)}
 .vizpanel{width:100%;margin:14px auto 20px;background:var(--surface);border:1px solid var(--border);
   border-radius:14px;padding:14px 16px 16px;box-shadow:var(--sh1)}
 .viztitle{margin:0 0 8px;font-size:15px}
@@ -261,7 +302,7 @@ tr.hi td{background:var(--series-soft)}
 .cbar-cap{width:100%;font-size:11px;color:var(--muted);margin-top:2px}
 @media(max-width:820px){.vizrow{flex-direction:column}.vizmain,.vizctrl{width:100%;flex:none}}
 #vizWrap,#mlipVizWrap{position:relative;width:100%}
-#vizCanvas,#mlipCanvas{display:block;width:100%;height:440px;border-radius:10px;cursor:crosshair}
+#vizCanvas,#mlipCanvas{display:block;width:100%;height:clamp(380px,32vw,600px);border-radius:10px;cursor:crosshair}
 /* MLIP 数据集板块 */
 .mlipbar{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:18px 0 6px}
 .mlipbar-lbl{font-size:12.5px;color:var(--muted);font-weight:500}
@@ -288,7 +329,6 @@ tr.hi td{background:var(--series-soft)}
 .pager #pageInfo{font-size:13px;color:var(--ink2);min-width:120px;text-align:center;font-variant-numeric:tabular-nums}
 .pager .tbtn{padding:5px 12px}
 .pager .tbtn:disabled{opacity:.4;cursor:default}
-.act{color:var(--series);font-weight:600}
 footer{padding:34px 0 70px;color:var(--muted);font-size:12.5px;border-top:1px solid var(--border);margin-top:20px}
 code{background:var(--soft);border:1px solid var(--border);border-radius:6px;padding:1px 6px;font-size:12px;
   font-family:ui-monospace,Menlo,Consolas,monospace}
@@ -472,13 +512,12 @@ code{background:var(--soft);border:1px solid var(--border);border-radius:6px;pad
 
   <section>
     <h2 data-i18n="explore"></h2>
-    <p class="hint" data-i18n="pt_hint"></p>
     <div class="ptable" id="ptable"></div>
     <div class="ptrow">
       <span id="selEls" class="hint" style="margin:0"></span>
       <button class="tbtn" id="clearEls" data-i18n="clear"></button>
     </div>
-    <div class="controls">
+    <div class="controls wide">
       <input type="search" id="q" data-i18n-ph="search_ph">
       <div class="cbox" id="originBox"><button type="button" class="cbox-btn" id="originBtn"><span id="originLab"></span></button><div class="cbox-pop" id="originPop" hidden></div></div>
       <div class="cbox" id="sysBox"><button type="button" class="cbox-btn" id="sysBtn"><span id="sysLab"></span></button><div class="cbox-pop" id="sysPop" hidden></div></div>
@@ -490,13 +529,12 @@ code{background:var(--soft);border:1px solid var(--border);border-radius:6px;pad
       <button class="tbtn" id="exportMetadata" data-i18n="export_metadata"></button>
       <span class="count" id="shown"></span>
     </div>
-    <div class="vizpanel" id="vizSection">
+    <div class="vizpanel wide" id="vizSection">
       <h3 class="viztitle" data-i18n="viz_title"></h3>
       <div class="vizrow">
         <div class="vizmain">
           <div class="vizbar" id="vizBar"></div>
           <div id="vizWrap"><canvas id="vizCanvas"></canvas></div>
-          <p class="vizfoot" data-i18n="viz_hint"></p>
         </div>
         <div class="vizctrl" id="vizCtrl">
           <div class="vizc-grp">
@@ -545,13 +583,11 @@ code{background:var(--soft);border:1px solid var(--border);border-radius:6px;pad
         </div>
       </div>
     </div>
-    <div class="tblwrap"><table id="tbl">
+    <div class="tblwrap wide"><table id="tbl">
       <colgroup>
-        <col style="width:84px"><col style="width:66px"><col style="width:130px">
-        <col style="width:92px"><col style="width:98px"><col style="width:96px">
-        <col style="width:88px"><col style="width:84px"><col style="width:50px">
-        <col style="width:60px"><col style="width:68px"><col style="width:64px">
-        <col style="width:100px"><col style="width:56px">
+        <col class="c-idx"><col class="c-sys"><col class="c-fml"><col class="c-origin"><col class="c-method">
+        <col class="c-err"><col class="c-phase"><col class="c-func"><col class="c-temp"><col class="c-natoms">
+        <col class="c-dens"><col class="c-energy"><col class="c-contrib"><col class="c-view">
       </colgroup>
       <thead><tr>
         <th data-k="sid"><span data-i18n="c_idx"></span></th>
@@ -567,11 +603,11 @@ code{background:var(--soft);border:1px solid var(--border);border-radius:6px;pad
         <th class="num" data-k="density"><span data-i18n="c_density"></span></th>
         <th class="num" data-k="energy_per_atom"><span data-i18n="c_energy"></span></th>
         <th data-k="contributor"><span data-i18n="c_contributor"></span></th>
-        <th data-i18n="c_view"></th>
+        <th style="text-align:center;cursor:default" data-i18n="c_view"></th>
       </tr></thead>
       <tbody id="tbody"><tr><td colspan="14" class="load">…</td></tr></tbody>
     </table></div>
-    <div class="pager" id="pager">
+    <div class="pager wide" id="pager">
       <button class="tbtn" id="firstPage">«</button>
       <button class="tbtn" id="prevPage">‹</button>
       <span id="pageInfo"></span>
@@ -609,13 +645,12 @@ code{background:var(--soft);border:1px solid var(--border);border-radius:6px;pad
       <div class="card"><h3 data-i18n="mlip_chart_fcomp"></h3><svg id="mlipFcompChart"></svg>
         <p class="chartfoot" id="mlipFootFcomp"></p></div>
     </div>
-    <div class="vizpanel">
+    <div class="vizpanel wide">
       <h3 class="viztitle" data-i18n="mlip_viz_title"></h3>
       <div class="vizrow">
         <div class="vizmain">
           <div class="vizbar" id="mlipVizBar"></div>
           <div id="mlipVizWrap"><canvas id="mlipCanvas"></canvas></div>
-          <p class="vizfoot" data-i18n="mlip_viz_hint"></p>
         </div>
         <div class="vizctrl">
           <div class="vizc-grp">
@@ -704,7 +739,7 @@ const I18N={
    phase_all:'全部相态',temp_all:'全部温度',func_all:'全部功能性',contrib_all:'全部贡献者',
    c_idx:'序号',c_formula:'化学式',c_system:'体系',c_phase:'相',c_func:'功能性',c_temp:'温度',c_natoms:'原子数',c_density:'数密度',c_energy:'能量',c_energy_t:'MLIP(mace-omat-0-medium)预测的每原子能量 (eV/atom)，反映相对能量，非 DFT 绝对值',c_contributor:'贡献者',c_view:'预览',
    m_energy:'MLIP 能量/原子',
-   viz_title:'结构描述符分布 (SOAP + PCA)',
+   viz_title:'结构描述符分布',
    viz_hint:'对当前筛选的结构做元素无关 SOAP 编码，z-score 标准化后 PCA 降到 2 维。悬停查看结构序号，点击点打开 3D 预览；按住鼠标框选可局部放大，点「重置」回到全图。',
    viz_axis:(n,r)=>`PC${n} (${(r*100).toFixed(1)}%)`,
    viz_need:'至少需要 3 个结构才能作图，请放宽筛选。',
@@ -734,7 +769,7 @@ const I18N={
    mlip_foot_fcomp:(n)=>`按受力分量统计，共 ${n.toLocaleString()} 个分量。分布应关于 0 对称——这是无净受力的合理性检查。`,
    mlip_clipped:(n,p)=>`另有 ${n.toLocaleString()} 个样本（${p.toFixed(2)}%）落在显示范围外，未计入柱形。`,
    mlip_none:'请至少选择一个数据集。',
-   mlip_viz_title:'训练集构型分布 (SOAP + PCA)',
+   mlip_viz_title:'训练集构型分布',
    mlip_viz_hint:'对抽样帧做元素无关 SOAP 编码（超参与主库结构图一致，故两图落在同一特征空间），z-score 标准化后 PCA 降到 2 维。默认视野裁到 1–99% 分位，以免二聚体等微小晶胞的极端离群点压缩主分布；点「全图」查看全部点。悬停查看帧信息；按住鼠标框选可局部放大。',
    mlip_fullext:'⤢ 全图',mlip_hidden:(n)=>`${n} 个点在视野外`,
    mlip_cb_ds:'数据集',mlip_cb_epa:'能量/原子',mlip_cb_frms:'受力 RMS',mlip_cb_fmax:'最大 |F|',
@@ -752,7 +787,7 @@ const I18N={
    phase_all:'All phases',temp_all:'All temps',func_all:'All functions',contrib_all:'All contributors',
    c_idx:'ID',c_formula:'Formula',c_system:'System',c_phase:'Phase',c_func:'Function',c_temp:'Temp',c_natoms:'Atoms',c_density:'Density',c_energy:'Energy',c_energy_t:'MLIP (mace-omat-0-medium) predicted energy per atom (eV/atom): reflects relative energy, not absolute DFT values',c_contributor:'Contributor',c_view:'View',
    m_energy:'Energy/atom (MLIP)',
-   viz_title:'Structure descriptor map (SOAP + PCA)',
+   viz_title:'Structure descriptor map',
    viz_hint:'Element-agnostic SOAP encoding of the filtered structures, z-scored then reduced to 2D by PCA. Hover for the structure ID; click a point to open the 3D preview. Drag to box-zoom; press Reset for the full view.',
    viz_axis:(n,r)=>`PC${n} (${(r*100).toFixed(1)}%)`,
    viz_need:'Need at least 3 structures to plot — loosen the filter.',
@@ -782,7 +817,7 @@ const I18N={
    mlip_foot_fcomp:(n)=>`Over ${n.toLocaleString()} force components. The distribution should be symmetric about 0 — a sanity check for zero net force.`,
    mlip_clipped:(n,p)=>`A further ${n.toLocaleString()} samples (${p.toFixed(2)}%) fall outside the plotted range and are not drawn.`,
    mlip_none:'Select at least one dataset.',
-   mlip_viz_title:'Training-set configuration map (SOAP + PCA)',
+   mlip_viz_title:'Training-set configuration map',
    mlip_viz_hint:'Element-agnostic SOAP encoding of the subsampled frames (same hyperparameters as the structure map above, so both live in the same feature space), z-scored then reduced to 2D by PCA. The default view is clipped to the 1–99% quantile so that extreme outliers (dimers and other tiny cells) do not squash the main distribution; press Full extent to see every point. Hover for frame details; drag to box-zoom.',
    mlip_fullext:'⤢ Full extent',mlip_hidden:(n)=>`${n} points outside view`,
    mlip_cb_ds:'Dataset',mlip_cb_epa:'Energy/atom',mlip_cb_frms:'Force RMS',mlip_cb_fmax:'Max |F|',
@@ -793,33 +828,33 @@ const I18N={
 };
 Object.assign(I18N.zh,{
   origin_all:'全部生成方式',c_origin:'生成方式',c_method:'建模方法',
-  c_method_table:'建模\n方法',c_rdf_error_table:'g(r) 峰位\n误差 (%)',
+  c_method_table:'建模方法',c_rdf_error_table:'g(r) 峰位误差 (%)',
   c_rdf_error:'g(r) 峰位误差 (%)',error_filter:'g(r) 误差 %',min_value:'最小值',max_value:'最大值',
   rdf_error_definition:'100 × |r_AI − r_AIMD| / r_AIMD，总 g(r) 第一壳主峰位置的相对误差；AIMD 为 —。',
   export_metadata:'导出筛选 metadata',download_metadata:'下载 metadata',aimd_color:'AIMD Modeling',ai_color:'AI Modeling',
-  aimd_reference:'AIMD reference',color_unknown:'未标注',
+  aimd_reference:'AIMD reference',
   m_origin:'生成方式',m_method:'建模方法',m_rdf_error:'g(r) 峰位误差',m_ai_peak:'AI 主峰 (Å)',m_ref_peak:'AIMD 主峰 (Å)',
   m_time:'模拟时间',m_time_order:'时间数量级',m_reference:'AIMD 参考材料',m_ref_frame:'参考轨迹帧号 (从 0 起)',
   viz_loading:'正在计算结构分布…',viz_ref_count:(n,r)=>`${n.toLocaleString()} 个库内结构 + ${r} 个 AIMD 参考帧`,
   show_reference:'显示 AIMD reference',modeling_hidden:'已隐藏',
   viz_reference_hidden:n=>`${n.toLocaleString()} 个 AIMD reference 参考帧已隐藏`,
   viz_hint:'使用相同参数的元素无关 SOAP，在同一 PCA 坐标中比较。AIMD Modeling、AI Modeling、AIMD reference 分别设置颜色和透明度；选择 AI 时自动叠加每条对应参考轨迹的 10 个采样帧。显示开关仅控制 AIMD reference。参考帧仅用于对照，不计入表格数量。悬停查看信息，点击预览，拖动框选放大。',
-  subtitle:'面向硫系存储材料（PCM / OTS / SOM）的结构数据库，收录第一性原理结构及 MLIP、Diffusion、Flow Matching 生成构型。可按来源、成分和 g(r) 主峰误差筛选，支持 3D 预览与下载。'
+  subtitle:'面向硫系存储材料（PCM / OTS / SOM）的结构数据库，收录第一性原理结构及 MLIP、Diffusion、Flow Matching 生成构型。可按多条件筛选，支持 3D 预览与下载。'
 });
 Object.assign(I18N.en,{
   origin_all:'All generation origins',c_origin:'Generation',c_method:'Modeling method',
-  c_method_table:'Modeling\nmethod',c_rdf_error_table:'g(r) peak\nerror (%)',
+  c_method_table:'Modeling method',c_rdf_error_table:'g(r) peak error (%)',
   c_rdf_error:'g(r) peak error (%)',error_filter:'g(r) error %',min_value:'Min',max_value:'Max',
   rdf_error_definition:'100 × |r_AI − r_AIMD| / r_AIMD: relative position error of the first-shell total g(r) peak; AIMD has no error value.',
   export_metadata:'Export filtered metadata',download_metadata:'Download metadata',aimd_color:'AIMD Modeling',ai_color:'AI Modeling',
-  aimd_reference:'AIMD reference',color_unknown:'Unspecified',
+  aimd_reference:'AIMD reference',
   m_origin:'Generation',m_method:'Modeling method',m_rdf_error:'g(r) peak error',m_ai_peak:'AI peak (Å)',m_ref_peak:'AIMD peak (Å)',
   m_time:'Simulation time',m_time_order:'Time order',m_reference:'AIMD reference material',m_ref_frame:'Reference frame (0-based)',
   viz_loading:'Computing the structure map…',viz_ref_count:(n,r)=>`${n.toLocaleString()} catalog structures + ${r} AIMD reference frames`,
   show_reference:'Show AIMD reference',modeling_hidden:'Hidden',
   viz_reference_hidden:n=>`${n.toLocaleString()} AIMD reference frames hidden`,
   viz_hint:'Shared element-agnostic SOAP parameters and joint PCA coordinates. AIMD Modeling, AI Modeling and AIMD reference have separate color and opacity controls. AI selections include 10 sampled frames per matching reference trajectory. The visibility switch controls AIMD reference only. Reference overlays are excluded from table counts. Hover for details, click to preview, and drag to zoom.',
-  subtitle:'A structure database for chalcogenide memory materials (PCM / OTS / SOM), combining first-principles structures with MLIP, Diffusion and Flow Matching models. Filter by origin, composition and g(r) peak error; preview in 3D and download.'
+  subtitle:'A structure database for chalcogenide memory materials (PCM / OTS / SOM), combining first-principles structures with MLIP, Diffusion and Flow Matching models. Filter by multiple criteria; preview in 3D and download.'
 });
 let LANG=localStorage.getItem('pcm_lang')||'zh';
 function t(k){const v=I18N[LANG][k];return v!==undefined?v:k;}
@@ -836,14 +871,14 @@ function applyI18n(){
 function renderTiles(){
   const box=document.getElementById('tiles');if(!box||!DATA)return;
   const na=DATA.map(r=>r.natoms);
-  const PL={amorphous:'phase_amor',crystalline:'phase_cryst',liquid:'phase_liq',unknown:'color_unknown'};
-  const order=['amorphous','liquid','crystalline','unknown'];
+  const PL={amorphous:'phase_amor',crystalline:'phase_cryst',liquid:'phase_liq'};
+  const order=['amorphous','liquid','crystalline'];
   const phases=[...new Set(DATA.map(r=>r.phase))].sort((a,b)=>order.indexOf(a)-order.indexOf(b));
   const phaseVal=phases.map(p=>t(PL[p]||'')||p).join(' · ');
   const items=[
-    [DATA.length,t('t_total'),''],
+    [DATA.length.toLocaleString('en-US'),t('t_total'),''],
     [new Set(DATA.map(r=>r.system)).size,t('t_sys'),''],
-    [`${Math.min(...na)}–${Math.max(...na)}`,t('t_natoms'),''],
+    [`${Math.min(...na).toLocaleString('en-US')}–${Math.max(...na).toLocaleString('en-US')}`,t('t_natoms'),''],
     [phaseVal,t('t_phase'),' tv'],
   ];
   box.innerHTML=items.map(([v,l,c])=>`<div class="tile"><div class="v${c}">${v}</div><div class="l">${l}</div></div>`).join('');
@@ -1009,14 +1044,15 @@ function renderTable(){
   const tb=document.getElementById('tbody');tb.innerHTML='';const fr=document.createDocumentFragment();
   slice.forEach(r=>{const tr=document.createElement('tr');tr.onclick=()=>openViewer(r);
     const fn=r.functionality||'Others';
-    tr.innerHTML=`<td class="idx" title="${r.sid}">${r.sid}</td><td title="${r.system}">${r.system}</td><td class="fml" title="${r.formula}">${normFormula(r.formula,true)}</td>`+
-      `<td><span class="pill">${r.generation_origin||'AIMD'}</span></td><td title="${r.modeling_method||'AIMD'}">${r.modeling_method||'AIMD'}</td>`+
-      `<td class="num" title="${t('rdf_error_definition')}">${r.rdf_peak_error_pct!=null?r.rdf_peak_error_pct.toFixed(3):'—'}</td>`+
-      `<td><span class="pill">${r.phase==='unknown'?t('color_unknown'):r.phase}</span></td>`+
+    const na='<span class="na">—</span>',org=r.generation_origin||'AIMD',method=r.modeling_method||'AIMD';
+    tr.innerHTML=`<td class="idx" title="${r.sid}">${r.sid}</td><td class="sys" title="${r.system}">${r.system}</td><td class="fml" title="${r.formula}">${normFormula(r.formula,true)}</td>`+
+      `<td><span class="pill org-${org.toLowerCase()}">${org}</span></td><td class="method" title="${method}">${method}</td>`+
+      `<td class="num" title="${t('rdf_error_definition')}">${r.rdf_peak_error_pct!=null?r.rdf_peak_error_pct.toFixed(3):na}</td>`+
+      `<td><span class="pill ph-${r.phase}">${phaseLabel(r.phase)}</span></td>`+
       `<td><span class="pill ${fnClass(fn)}">${fnLabel(fn)}</span></td>`+
-      `<td>${r.temperature}</td><td class="num">${r.natoms}</td><td class="num">${r.density.toFixed(4)}</td>`+
-      `<td class="num">${r.energy_per_atom!=null?r.energy_per_atom.toFixed(3):'—'}</td>`+
-      `<td title="${r.contributor||'—'}">${r.contributor||'—'}</td><td class="act">${t('view')}</td>`;fr.appendChild(tr);});
+      `<td>${r.temperature}</td><td class="num">${r.natoms.toLocaleString('en-US')}</td><td class="num">${r.density.toFixed(4)}</td>`+
+      `<td class="num">${r.energy_per_atom!=null?r.energy_per_atom.toFixed(3):na}</td>`+
+      `<td class="contrib" title="${r.contributor||''}">${r.contributor||na}</td><td class="view"><span class="viewbtn">${t('view')}</span></td>`;fr.appendChild(tr);});
   tb.appendChild(fr);
   document.getElementById('shown').textContent=t('shown')(total,DATA.length);
   document.getElementById('pageInfo').textContent=t('page')(curPage,pages);
@@ -1264,14 +1300,14 @@ function makeViewer(host,struct){              // 工厂：创建独立查看器
   (function loop(){st.raf=requestAnimationFrame(loop);controls.update();syncHeadlights(st);renderer.render(scene,camera);})();
   return st;
 }
-function ensureVIZ(){return VIZ?Promise.resolve(VIZ):fetch('viz_assets.json').then(x=>x.json()).then(j=>VIZ=j);}
+function ensureVIZ(){return VIZ?Promise.resolve(VIZ):fetch('viz_assets.json',{cache:'no-cache'}).then(x=>x.json()).then(j=>VIZ=j);}
 
 let mainViewer=null;
 function openViewer(r){
-  document.getElementById('mTitle').textContent=`${r.formula}  ·  ${r.phase} ${r.temperature}`;
+  document.getElementById('mTitle').textContent=`${r.formula}  ·  ${phaseLabel(r.phase)} ${r.temperature}`;
   const eStr=r.energy_per_atom!=null?`${r.energy_per_atom.toFixed(3)} eV/atom`:'—';
   const M=[['m_natoms',r.natoms],['m_dens',r.density.toFixed(4)],['m_temp',r.temperature],
-    ['m_phase',r.phase==='unknown'?t('color_unknown'):r.phase],['m_origin',r.generation_origin||'AIMD'],
+    ['m_phase',phaseLabel(r.phase)],['m_origin',r.generation_origin||'AIMD'],
     ['m_method',r.modeling_method||'AIMD'],['m_rdf_error',r.rdf_peak_error_pct!=null?r.rdf_peak_error_pct.toFixed(4)+'%':'—'],
     ['m_ai_peak',r.rdf_peak_A!=null?r.rdf_peak_A.toFixed(5):'—'],['m_ref_peak',r.aimd_peak_A!=null?r.aimd_peak_A.toFixed(5):'—'],
     ['m_time',r.simulation_time_ps!=null?r.simulation_time_ps+' ps':'none'],['m_time_order',r.simulation_time_order||'none'],
@@ -1358,7 +1394,7 @@ function loadDesc(){
   if(DESC)return Promise.resolve(DESC);
   if(DESC_LOADING)return DESC_LOADING;
   const dec=s=>{const bin=atob(s),n=bin.length,b=new Uint8Array(n);for(let i=0;i<n;i++)b[i]=bin.charCodeAt(i);return new Float32Array(b.buffer);};
-  DESC_LOADING=fetch('descriptors.json').then(r=>r.json()).then(p=>{
+  DESC_LOADING=fetch('descriptors.json',{cache:'no-cache'}).then(r=>r.json()).then(p=>{
     const arr=dec(p.data),idx={};
     p.sids.forEach((s,i)=>idx[s]=i);
     DESC={dim:p.dim,idx,arr};
@@ -1370,9 +1406,10 @@ function loadDesc(){
 // 协方差 C=AᵀA/m，用幂迭代取前两主成分（deflation）。
 function pcaProject(rows){return PcmPCA.project(rows);}
 
-const PHASE_COLOR={amorphous:'#2f74dd',liquid:'#f0a020',crystalline:'#d6336c',unknown:'#88919d'};
-const PHASE_LKEY={amorphous:'color_amor',liquid:'color_liq',crystalline:'color_cryst',unknown:'color_unknown'};
-const PHASE_ORDER=['amorphous','liquid','crystalline','unknown'];
+const PHASE_COLOR={amorphous:'#2f74dd',liquid:'#f0a020',crystalline:'#d6336c'};
+const PHASE_LKEY={amorphous:'color_amor',liquid:'color_liq',crystalline:'color_cryst'};
+const PHASE_ORDER=['amorphous','liquid','crystalline'];
+function phaseLabel(p){return t(PHASE_LKEY[p]||'')||p;}
 // 连续型 colormap（锚点色线性插值近似 matplotlib）
 const CMAPS={
   coolwarm:['#3b4cc0','#6788ee','#9abbff','#c9d7f0','#edd1c2','#f7a889','#e26952','#b40426'],
@@ -1470,7 +1507,7 @@ function renderLegend(){
   if(CONT[vizColorBy]){contLegend(box,CONT[vizColorBy],vizState.colorInfo||{lo:0,hi:1},vizCmap,vizCmapRev);return;}
   const items=vizState.items.filter(r=>PcmCatalog.visibleInMap(r,vizShowReference)),mode=vizColorBy;let cats,label;
   if(mode==='function'){cats=FN_ORDER.filter(f=>items.some(r=>(r.functionality||'Others')===f));label=fnLabel;}
-  else{cats=PHASE_ORDER.filter(p=>items.some(r=>r.phase===p));label=p=>t(PHASE_LKEY[p]||'')||p;}
+  else{cats=PHASE_ORDER.filter(p=>items.some(r=>r.phase===p));label=phaseLabel;}
   catLegend(box,mode,cats,label,relegend=>{computeColors();drawViz();if(relegend)renderLegend();});
 }
 let vizState=null;
@@ -1478,7 +1515,7 @@ let vizState=null;
 let REFERENCE_FRAMES=null,REFERENCE_LOADING=null,pcaWorker=null,vizRequest=0;
 function loadReferences(){
   if(REFERENCE_FRAMES)return Promise.resolve(REFERENCE_FRAMES);
-  if(!REFERENCE_LOADING)REFERENCE_LOADING=fetch('aimd_references.json').then(r=>{if(!r.ok)throw new Error(r.status);return r.json();}).then(rows=>REFERENCE_FRAMES=rows);
+  if(!REFERENCE_LOADING)REFERENCE_LOADING=fetch('aimd_references.json',{cache:'no-cache'}).then(r=>{if(!r.ok)throw new Error(r.status);return r.json();}).then(rows=>REFERENCE_FRAMES=rows);
   return REFERENCE_LOADING;
 }
 function projectInWorker(vecs,dim){
@@ -1681,7 +1718,7 @@ function loadMdesc(){
   if(MDESC)return Promise.resolve(MDESC);
   if(MDESC_LOADING)return MDESC_LOADING;
   const dec=s=>{const bin=atob(s),n=bin.length,b=new Uint8Array(n);for(let i=0;i<n;i++)b[i]=bin.charCodeAt(i);return new Float32Array(b.buffer);};
-  MDESC_LOADING=fetch('mlip_descriptors.json').then(r=>r.json()).then(p=>{MDESC={dim:p.dim,arr:dec(p.data)};return MDESC;});
+  MDESC_LOADING=fetch('mlip_descriptors.json',{cache:'no-cache'}).then(r=>r.json()).then(p=>{MDESC={dim:p.dim,arr:dec(p.data)};return MDESC;});
   return MDESC_LOADING;
 }
 function renderMlipTiles(){
@@ -1826,7 +1863,7 @@ function renderMlip(){                                   // 语言/主题切换�
   op.oninput=()=>{mlipPointAlpha=+op.value;opV.textContent=mlipPointAlpha.toFixed(2);localStorage.setItem('pcm_mlip_alpha',mlipPointAlpha);if(mlipState)drawMlipViz();};
   window.addEventListener('resize',debounce(()=>{if(MLIP)renderMlipCharts();if(mlipState)drawMlipViz();},150));
 })();
-fetch('mlip.json').then(r=>r.json()).then(d=>{
+fetch('mlip.json',{cache:'no-cache'}).then(r=>r.json()).then(d=>{
   MLIP=d;mlipSel=new Set(dsKeys());
   const P=d.points;
   MITEMS=P.ds.map((di,i)=>({i,ds:dsKeys()[di],fid:P.fid[i],formula:d.formulas[P.formula[i]],
@@ -1840,7 +1877,7 @@ fetch('mlip.json').then(r=>r.json()).then(d=>{
 }).catch(()=>{document.getElementById('mlipTbody').innerHTML=`<tr><td colspan="8" class="load">${t('mlip_fail')}</td></tr>`;});
 
 window.addEventListener('resize',debounce(()=>{if(DATA)renderCharts();},150));
-fetch('data.json').then(r=>r.json()).then(d=>{
+fetch('data.json',{cache:'no-cache'}).then(r=>r.json()).then(d=>{
   DATA=d;initFilters();buildPT();applyI18n();updateViz();
   const m=location.hash.match(/#view=([a-zA-Z0-9_]+)/);
   if(m){const r=DATA.find(x=>x.sid===m[1]);if(r)openViewer(r);}
