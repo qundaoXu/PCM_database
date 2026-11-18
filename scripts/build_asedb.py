@@ -29,21 +29,23 @@ def main():
 
     records = json.loads(META.read_text(encoding="utf-8"))
 
-    if args.db.exists():
-        args.db.unlink()  # 主库由 metadata 可重建，重建前清空（仅本地产物，非 HPC）
-    db = connect(args.db)
+    ref_meta = META.parent / "aimd_reference_frames.json"
+    if ref_meta.exists():
+        records += json.loads(ref_meta.read_text(encoding="utf-8"))
+    temporary = args.db.with_name(args.db.stem + ".building.db")
+    if temporary.exists():
+        temporary.unlink()
+    db = connect(temporary)
 
     n = 0
     with db:
         for r in records:
             fpath = RAW / r["结构文件"]
             if not fpath.is_file():
-                print(f"[skip] 缺文件 {r['结构文件']}")
-                continue
+                raise FileNotFoundError(fpath)
             atoms = read(str(fpath), format="vasp")
             temp = int(str(r["温度"]).rstrip("Kk")) if r.get("温度") else None
-            db.write(
-                atoms,
+            properties = dict(
                 phase=r["相"],
                 temperature_K=temp,
                 number_density=r["密度_Atom_per_Angstrom3"],
@@ -51,8 +53,20 @@ def main():
                 hpc_source=r["HPC来源路径"],
                 source_frame=r.get("代表帧来源", ""),
                 rel_path=r["结构文件"],
+                sid=r.get("sid", f"s{n:04d}"),
+                generation_origin=r.get("生成方式", "AIMD"),
+                generation_family=r.get("AI类别") or "AIMD",
+                modeling_method=r.get("建模方法", "AIMD"),
+                collection_role=r.get("collection_role", "catalog"),
+                rdf_peak_error_pct=r.get("g(r)主峰相对误差_pct"),
+                simulation_time_ps=r.get("模拟时间_ps"),
+                simulation_time_order=r.get("模拟时间数量级", "none"),
             )
+            db.write(atoms, data={"metadata": r}, **{k: v for k, v in properties.items() if v is not None})
             n += 1
+    if db.count() != len(records):
+        raise ValueError("Database row count mismatch")
+    temporary.replace(args.db)
     print(f"已写入 {n} 条 -> {args.db}")
     print(f"查询示例: ase db {args.db.relative_to(ROOT)} \"phase=amorphous,natoms>200\"")
 

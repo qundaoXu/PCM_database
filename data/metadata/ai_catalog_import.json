@@ -1,0 +1,27 @@
+{
+  "catalog": 16944,
+  "original_AIMD": 2044,
+  "AI": 14900,
+  "reference_frames": 790,
+  "reference_policy": "10 distributed frames per trajectory from the existing 200 RDF samples, including the prior midpoint; map overlay excluded from catalog counts",
+  "by_modeling_method": {
+    "Diffusion": 4404,
+    "Flow Matching": 1233,
+    "MLIP_DeePMD": 833,
+    "MLIP_MACE": 4416,
+    "MLIP_NEP": 4014
+  },
+  "soap": {
+    "descriptor": "SOAP",
+    "species_mode": "element-agnostic",
+    "average": "outer",
+    "normalized": "l2-per-structure",
+    "r_cut": 6.0,
+    "n_max": 8,
+    "l_max": 6,
+    "periodic": true,
+    "atomic_centers": "all atoms, including large cells; no center subsampling",
+    "note": "AI and actual AIMD reference frames share SOAP parameters and joint PCA"
+  },
+  "reference_frames_per_trajectory": 10
+}

@@ -1,0 +1,35 @@
+{
+  "unique_trajectory_files": 25,
+  "stored_complete_frames": 18629,
+  "raw_trajectory_paths": 30,
+  "excluded_duplicate_file_paths": 5,
+  "by_category": {
+    "liquid_benchmark": {
+      "files": 18,
+      "frames": 14316,
+      "atom_counts": [
+        306
+      ]
+    },
+    "amorphous_benchmark": {
+      "files": 5,
+      "frames": 2005,
+      "atom_counts": [
+        306
+      ]
+    },
+    "aging_373K": {
+      "files": 2,
+      "frames": 2308,
+      "atom_counts": [
+        8001
+      ]
+    }
+  },
+  "max400_stored_index_plan_frames": 9429,
+  "trajectories_already_local": 1,
+  "frames_already_local": 2108,
+  "additional_remote_candidate_frames": 16521,
+  "status": "candidate_frames_not_unique_validated_structures",
+  "note": "File SHA256 deduplication only; shared initial MD frames may still repeat"
+}

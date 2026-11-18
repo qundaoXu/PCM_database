@@ -1,0 +1,47 @@
+{
+  "schema": 1,
+  "include_flow_matching": true,
+  "modeling_methods": {
+    "GST225/": "MLIP_MACE",
+    "2026_AI4S_uniform_400/gete/": "MLIP_DeePMD",
+    "2026_AI4S_uniform_400/sb-te/": "MLIP_NEP",
+    "diffusion_rdf_dataset/generated/": "Diffusion or Flow Matching, from original per-frame index"
+  },
+  "temperature_policy": {
+    "reference_temperature_K": 300,
+    "comparison_temperature_K": 300,
+    "basis": "user_instruction_all_AIMD_300K_and_MLIP_300_to_400K_treated_as_300K",
+    "preserve_reported_temperature": true
+  },
+  "selection_policy": {
+    "maximum_structures": 14900,
+    "strata": [
+      "reference_material",
+      "modeling_method",
+      "actual_natoms"
+    ],
+    "allocation": "capped_square_root_of_candidate_count_with_at_least_one_per_stratum",
+    "descriptor": "species_resolved_radial_distributions_coordination_distributions_number_density",
+    "selection": "farthest_point_sampling_after_scaled_PCA_retaining_at_least_95pct_variance",
+    "known_long_trajectory": "physical_time_uniform_sampling_within_time_order_strata",
+    "peak_error_threshold": null,
+    "nearest_reference_max_atomic_fraction_deviation": 0.001
+  },
+  "preferred_GST225_source": "reorg/GST225/",
+  "excluded_sources": [
+    {
+      "source_host": "hopper.nus.edu.sg",
+      "root": "/scratch/t0937929/deeph",
+      "scope": "previously inventoried 216-atom and 1080-atom static structures and their processing/archive copies",
+      "reason": "explicit_user_instruction",
+      "included": false
+    }
+  ],
+  "duplicate_source_policy": "Files with identical SHA256 are one trajectory source; prefer an available local copy and retain all remote provenance paths.",
+  "time_metadata": {
+    "known_long_trajectory_min_duration_ps": 1000,
+    "NEP_XYZ_Time_unit": "fs",
+    "NEP_XYZ_basis": "GPUMD_writer_format_match",
+    "unit_source": "https://github.com/brucefan1983/GPUMD/blob/master/src/measure/dump_observer.cu"
+  }
+}

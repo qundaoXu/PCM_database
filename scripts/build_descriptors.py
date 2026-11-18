@@ -20,6 +20,8 @@
   python scripts/build_descriptors.py
 """
 import base64
+import argparse
+import hashlib
 import json
 from pathlib import Path
 
@@ -49,7 +51,13 @@ def load_atoms(sid: str):
 
 
 def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--force', action='store_true', help='Recompute even unchanged POSCAR files')
+    args = parser.parse_args()
     recs = json.loads(DATA.read_text(encoding="utf-8"))
+    references = DOCS / "aimd_references.json"
+    if references.exists():
+        recs += json.loads(references.read_text(encoding="utf-8"))
     sids = [r["sid"] for r in recs]
 
     soap = SOAP(species=[DUMMY_Z], **SOAP_PARAMS)
@@ -57,12 +65,27 @@ def main():
     print(f"records={len(sids)} SOAP dim={dim} params={SOAP_PARAMS}")
 
     vecs = np.zeros((len(sids), dim), dtype=np.float64)
-    for start in range(0, len(sids), BATCH):
-        batch_sids = sids[start:start + BATCH]
+    previous, previous_vectors, previous_index = {}, None, {}
+    if OUT.exists() and not args.force:
+        previous = json.loads(OUT.read_text())
+        if previous.get('dim') == dim and all(previous.get('meta', {}).get(k) == v for k, v in SOAP_PARAMS.items()):
+            previous_vectors = np.frombuffer(base64.b64decode(previous['data']), dtype='<f4').reshape(-1, dim)
+            previous_index = {sid: i for i, sid in enumerate(previous['sids'])}
+    hashes, pending = {}, []
+    for i, sid in enumerate(sids):
+        with (STRUCT_DIR / f'{sid}.poscar').open('rb') as handle:
+            hashes[sid] = hashlib.file_digest(handle, 'sha256').hexdigest()
+        if previous_vectors is not None and sid in previous_index and previous.get('structure_sha256', {}).get(sid) == hashes[sid]:
+            vecs[i] = previous_vectors[previous_index[sid]]
+        else:
+            pending.append(i)
+    for start in range(0, len(pending), BATCH):
+        batch_indices = pending[start:start + BATCH]
+        batch_sids = [sids[i] for i in batch_indices]
         atoms_list = [load_atoms(s) for s in batch_sids]
         out = soap.create(atoms_list, n_jobs=1)  # (n, dim)
-        vecs[start:start + len(batch_sids)] = np.atleast_2d(out)
-        print(f"  {min(start + BATCH, len(sids))}/{len(sids)}", flush=True)
+        vecs[batch_indices] = np.atleast_2d(out)
+        print(f"  computed {min(start + BATCH, len(pending))}/{len(pending)}", flush=True)
 
     # 逐结构 L2 归一化（让 PCA 反映形状而非规模）
     norms = np.linalg.norm(vecs, axis=1, keepdims=True)
@@ -85,6 +108,7 @@ def main():
             "note": "z-scored PCA is fit in-browser on the filtered subset.",
         },
         "dim": dim,
+        "structure_sha256": hashes,
         "sids": sids,
         "data": b64(vecs),
     }

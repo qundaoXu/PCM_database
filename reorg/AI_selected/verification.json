@@ -1,0 +1,18 @@
+{
+  "selected": 14900,
+  "geometry_unique": true,
+  "original_frame_bytes": "passed",
+  "recomputed_first_shell_peaks": "passed",
+  "error_formula": "passed",
+  "time_labels": "passed",
+  "temperature_K": 300,
+  "csv_json_counts": "passed",
+  "cap": "passed",
+  "unit_tests_passed": 13,
+  "independent_original_generated_peak_matches": 5637,
+  "independent_generated_peak_max_difference_A": 8.881784197001252e-16,
+  "minimum_PCA_retained_variance": 0.9500371217727661,
+  "known_simulation_time_records": 4529,
+  "missing_simulation_time_records": 10371,
+  "GPUMD_header_time_conversion": "verified_against_each_selected_original_header"
+}

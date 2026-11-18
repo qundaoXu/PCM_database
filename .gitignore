@@ -1,8 +1,12 @@
 # 可由 metadata + data/raw 重建的产物
 data/pcm.db
+data/.cache/
+data/*.building.db
 
 # 敏感/本地：HPC 连接配置（含用户名）与 control socket
 .ssh/
+# 本机项目指引包含 HPC 登录配置，不发布。
+/AGENTS.md
 
 # Python
 __pycache__/
@@ -30,3 +34,6 @@ data/MLIP_training_data_DFT_labeled/
 
 # 开发文档
 develop_docs/
+
+# 图片
+/assets/

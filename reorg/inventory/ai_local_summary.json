@@ -1,0 +1,77 @@
+{
+  "files": 62,
+  "complete_valid_frames": 76405,
+  "unique_geometries": 76403,
+  "duplicate_frames": 2,
+  "by_method": {
+    "MLIP-MD": 62320,
+    "diffusion": 12735,
+    "flow_matching": 1350
+  },
+  "unique_by_method": {
+    "MLIP-MD": 62318,
+    "diffusion": 12735,
+    "flow_matching": 1350
+  },
+  "by_material": {
+    "GeTe": 2000,
+    "Sb": 1200,
+    "Sb667Te333": 400,
+    "Sb2Te": 800,
+    "SbTe": 1200,
+    "Sb2Te3": 1200,
+    "Sb333Te667": 400,
+    "SbTe2": 800,
+    "Te": 1200,
+    "Ge2Sb2Te5": 53120,
+    "Ge": 3277,
+    "Ge11Se9": 134,
+    "Ge2Se": 865,
+    "Ge3Se": 937,
+    "Ge3Se17": 194,
+    "Ge3Se2": 577,
+    "Ge3Se7": 1062,
+    "Ge4Se": 474,
+    "Ge7Se3": 1105,
+    "GeSe": 1481,
+    "GeSe19": 67,
+    "GeSe2": 910,
+    "GeSe3": 958,
+    "Se": 2044
+  },
+  "by_natoms": {
+    "1000": 2821,
+    "2400": 2800,
+    "300": 17563,
+    "1080": 30001,
+    "108": 1001,
+    "216": 9,
+    "504": 20001,
+    "8001": 2108,
+    "100": 100,
+    "30000": 1
+  },
+  "by_source_category": {
+    "uniform400_MLIP_MD": 9200,
+    "GST225_MLIP_MD": 53120,
+    "generation": 12388,
+    "ablation": 466,
+    "archived_model": 1138,
+    "sampling_ledger": 93
+  },
+  "missing_exact_reference_frames": 800,
+  "unique_with_exact_reference": 75603,
+  "deduplication": "species+raw_cartesian_coordinates+cell at 1e-6 A; atom-order invariant; no structural similarity clustering",
+  "counting": "stored complete frames; correlated MD frames are not statistically independent structures",
+  "rdf_status": "all_unique_candidates_evaluated_against_user_approved_300K_material_reference",
+  "by_modeling_method": {
+    "MLIP_DeePMD": 1998,
+    "MLIP_NEP": 7200,
+    "MLIP_MACE": 53120,
+    "Diffusion": 12735,
+    "Flow Matching": 1350
+  },
+  "comparison_temperature_K": 300,
+  "temperature_basis": "user_normalized_300K",
+  "selected_structures": 14900
+}

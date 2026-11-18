@@ -65,9 +65,14 @@ git add data/ && git commit -m "add: GeTe model_01"
 `docs/` 是一个纯静态站点（无后端），可用 GitHub Pages 直接托管：概览统计、
 材料体系/原子数/数密度图表、可筛选排序的结构浏览表，明暗主题自适应。
 
+本机可双击项目根目录的 `本地预览.command`：自动启动或复用预览服务并打开
+`http://127.0.0.1:8765/`。启动服务的终端窗口需保持打开。直接打开 `docs/index.html`
+时会转到该 HTTP 地址；若服务尚未启动，请先运行上述启动入口。
+
 ```bash
 python scripts/build_site_data.py     # 由 metadata 生成 docs/data.json
 # 本地预览（纯静态，无上传）
+python scripts/preview_site.py                # 启动/复用服务并打开 http://127.0.0.1:8765/
 python -m http.server 8000 --directory docs   # 访问 http://localhost:8000
 
 # 本地维护模式（带网页上传功能，推荐维护者使用）
@@ -104,6 +109,43 @@ python scripts/serve_local.py --port 8080     # 访问 http://localhost:8080
 | `scripts/build_descriptors.py` | 预计算主库结构的 SOAP 描述符 |
 | `scripts/build_mlip_data.py` | 登记 MLIP 训练集，产出统计 / 直方图 / SOAP 抽样 |
 | `scripts/add_structure.py` | 贡献助手：新增单个结构 |
+
+## AI 生成构型与 AIMD 对照
+
+结构浏览现有 **16,944** 条构型：原始 AIMD 来源 **2,044** 条，AI 生成 **14,900** 条。
+生成方式分为 AIMD / AI；AI 再分 MLIP、Diffusion、Flow Matching，并保存 MLIP_MACE、
+MLIP_DeePMD、MLIP_NEP 的具体建模方法。主 metadata 为 `data/metadata/pcm_metadata.{json,csv}`，
+完整 AI 来源及筛选信息另见 `data/metadata/ai_generated_metadata.{json,csv}`。
+
+`g(r)主峰相对误差_pct` 为 `100 * abs(r_AI - r_AIMD) / r_AIMD`；AIMD 为 null，页面显示「—」。
+页面支持 AIMD/AI 来源、误差区间筛选，以及筛选结果 CSV 和单构型 JSON metadata 下载。
+材料体系列表按已选来源更新选项及数量；来源切换后不存在的体系选择会自动清空。
+
+选择 AI 后，地图自动叠加对应 AIMD 参考帧：每条实际用于 g(r) 基准的轨迹从 200 个 RDF
+采样帧中分布选取 10 帧，覆盖区间首尾并保留原中间帧。79 条轨迹共登记 790 帧；只有与所选
+AI 对应的参考才显示，这些对照帧不计入主列表数量，g(r) 均值及误差基准保持不变。
+散点采用带细外轮廓的填充圆点。控件分为 AIMD Modeling（原库 2,044 条）、AI Modeling
+（14,900 条）和 AIMD reference（来自 reorg/AIMD_reference 的轨迹采样帧）三组，
+颜色与透明度独立设置，默认不透明度分别为 80% / 50% / 80%。AIMD reference 下的显示
+开关仅控制参考帧；原库 AIMD 构型始终按表格筛选结果显示。切换参考帧的显示时保留当前
+投影与缩放、表格筛选结果，显示偏好保存在当前浏览器。三组共用全部原子平均 SOAP 参数
+并在同一 PCA 中投影。
+PCA 在浏览器后台线程运行。参考 metadata 位于
+`data/metadata/aimd_reference_frames.{json,csv}`，ASE 数据库用 `collection_role=reference` 区分。
+
+```bash
+conda activate pcm_database
+python scripts/import_ai_catalog.py --workers 2  # 由筛选结果导入 POSCAR、metadata 和全部原子 SOAP
+python scripts/build_aimd_reference_frames.py   # 仅更新每轨迹 10 个参考帧，复用主库 SOAP
+python scripts/build_site_data.py               # 更新列表、参考帧和下载文件
+python scripts/build_asedb.py                   # 原子化重建：16944 catalog + 790 reference
+python scripts/build_descriptors.py             # 校验 POSCAR SHA256；复用未改变的 SOAP
+python -m unittest discover -s tests -v
+# 有 Node.js 时可独立运行前端逻辑测试：
+node tests/catalog_logic.test.cjs
+```
+
+查询示例：`ase db data/pcm.db "generation_origin=AI,collection_role=catalog"`。
 
 ## MLIP 训练数据集
 

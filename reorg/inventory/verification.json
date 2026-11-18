@@ -1,0 +1,33 @@
+{
+  "archived_sha256_verified": 79,
+  "original_package_links_verified": 73,
+  "reference_peaks_reproduced": 44,
+  "pooled_rdf_means_verified": 24,
+  "reference_sampling_frames": 15800,
+  "local_validated_frames": 76405,
+  "local_unique_geometries": 76403,
+  "csv_json_row_counts": "passed",
+  "archive_repeat_execution": "passed",
+  "unit_tests_passed": 13,
+  "hopper_unique_trajectory_files": 25,
+  "hopper_candidate_frames": 18629,
+  "hopper_writes": false,
+  "local_source_sha256_verified": 62,
+  "gst225_validated_frames": 53120,
+  "gst225_actual_natoms": {
+    "1080": 30001,
+    "108": 1001,
+    "216": 9,
+    "504": 20001,
+    "8001": 2108
+  },
+  "deeph_static_structures": "excluded_by_user",
+  "hopper_frames_already_local": 2108,
+  "additional_hopper_candidate_frames": 16521,
+  "selected_structures": 14900,
+  "selected_structures_validation": "AI_selected/verification.json",
+  "reference_temperature_policy": "all_AIMD_user_assumed_300K",
+  "AI_comparison_temperature_K": 300,
+  "selected_time_records_known": 4529,
+  "selected_time_records_none": 10371
+}

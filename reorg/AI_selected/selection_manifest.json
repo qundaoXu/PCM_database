@@ -1,0 +1,1414 @@
+{
+  "protocol": {
+    "version": 1,
+    "cutoff_A": 5.5,
+    "rdf_feature_bin_A": 0.1,
+    "rdf_feature_min_A": 1.5,
+    "species": [
+      "Ge",
+      "Sb",
+      "Se",
+      "Te"
+    ],
+    "pair_types": [
+      [
+        0,
+        0
+      ],
+      [
+        0,
+        1
+      ],
+      [
+        0,
+        2
+      ],
+      [
+        0,
+        3
+      ],
+      [
+        1,
+        1
+      ],
+      [
+        1,
+        2
+      ],
+      [
+        1,
+        3
+      ],
+      [
+        2,
+        2
+      ],
+      [
+        2,
+        3
+      ],
+      [
+        3,
+        3
+      ]
+    ],
+    "coordination_cutoff_A": 3.5,
+    "coordination_overflow_bin": 13,
+    "density_multiplier": 100,
+    "coordination_multiplier": 5,
+    "peak_bin_A": 0.05,
+    "peak_search_A": [
+      2,
+      3.3
+    ],
+    "smoothing_bins": 5,
+    "distance_round_decimals": 12,
+    "descriptor_dimension": 511,
+    "pca_dimensions": "adaptive",
+    "pca_variance_target": 0.95,
+    "pca_scale_floor": 0.05,
+    "random_seed": 20261117
+  },
+  "policy": {
+    "schema": 1,
+    "include_flow_matching": true,
+    "modeling_methods": {
+      "GST225/": "MLIP_MACE",
+      "2026_AI4S_uniform_400/gete/": "MLIP_DeePMD",
+      "2026_AI4S_uniform_400/sb-te/": "MLIP_NEP",
+      "diffusion_rdf_dataset/generated/": "Diffusion or Flow Matching, from original per-frame index"
+    },
+    "temperature_policy": {
+      "reference_temperature_K": 300,
+      "comparison_temperature_K": 300,
+      "basis": "user_instruction_all_AIMD_300K_and_MLIP_300_to_400K_treated_as_300K",
+      "preserve_reported_temperature": true
+    },
+    "selection_policy": {
+      "maximum_structures": 14900,
+      "strata": [
+        "reference_material",
+        "modeling_method",
+        "actual_natoms"
+      ],
+      "allocation": "capped_square_root_of_candidate_count_with_at_least_one_per_stratum",
+      "descriptor": "species_resolved_radial_distributions_coordination_distributions_number_density",
+      "selection": "farthest_point_sampling_after_scaled_PCA_retaining_at_least_95pct_variance",
+      "known_long_trajectory": "physical_time_uniform_sampling_within_time_order_strata",
+      "peak_error_threshold": null,
+      "nearest_reference_max_atomic_fraction_deviation": 0.001
+    },
+    "preferred_GST225_source": "reorg/GST225/",
+    "excluded_sources": [
+      {
+        "source_host": "hopper.nus.edu.sg",
+        "root": "/scratch/t0937929/deeph",
+        "scope": "previously inventoried 216-atom and 1080-atom static structures and their processing/archive copies",
+        "reason": "explicit_user_instruction",
+        "included": false
+      }
+    ],
+    "duplicate_source_policy": "Files with identical SHA256 are one trajectory source; prefer an available local copy and retain all remote provenance paths.",
+    "time_metadata": {
+      "known_long_trajectory_min_duration_ps": 1000,
+      "NEP_XYZ_Time_unit": "fs",
+      "NEP_XYZ_basis": "GPUMD_writer_format_match",
+      "unit_source": "https://github.com/brucefan1983/GPUMD/blob/master/src/measure/dump_observer.cu"
+    }
+  },
+  "candidates": 76403,
+  "eligible": 76403,
+  "selected": 14900,
+  "cap": 14900,
+  "ineligible": [],
+  "strata": [
+    {
+      "material": "Ge",
+      "modeling_method": "Diffusion",
+      "natoms": 100,
+      "candidates": 20,
+      "allocated": 20,
+      "selected": 20,
+      "sampling_method": "diversity_farthest_point_scaled_PCA",
+      "descriptor_coverage": {
+        "retained_variance": 1.0,
+        "pca_dimensions": 0,
+        "max_distance": 0.0
+      }
+    },
+    {
+      "material": "Ge",
+      "modeling_method": "Diffusion",
+      "natoms": 300,
+      "candidates": 3099,
+      "allocated": 623,
+      "selected": 623,
+      "sampling_method": "diversity_farthest_point_scaled_PCA",
+      "descriptor_coverage": {
+        "retained_variance": 0.9574717283248901,
+        "pca_dimensions": 31,
+        "max_distance": 7.572633873558062
+      }
+    },
+    {
+      "material": "Ge",
+      "modeling_method": "Diffusion",
+      "natoms": 1000,
+      "candidates": 8,
+      "allocated": 8,
+      "selected": 8,
+      "sampling_method": "diversity_farthest_point_scaled_PCA",
+      "descriptor_coverage": {
+        "retained_variance": 1.0,
+        "pca_dimensions": 0,
+        "max_distance": 0.0
+      }
+    },
+    {
+      "material": "Ge",
+      "modeling_method": "Flow Matching",
+      "natoms": 300,
+      "candidates": 150,
+      "allocated": 137,
+      "selected": 137,
+      "sampling_method": "diversity_farthest_point_scaled_PCA",
+      "descriptor_coverage": {
+        "retained_variance": 0.9533290266990662,
+        "pca_dimensions": 28,
+        "max_distance": 0.8673879718176115
+      }
+    },
+    {
+      "material": "Ge11Se9",
+      "modeling_method": "Diffusion",
+      "natoms": 100,
+      "candidates": 4,
+      "allocated": 4,
+      "selected": 4,
+      "sampling_method": "diversity_farthest_point_scaled_PCA",
+      "descriptor_coverage": {
+        "retained_variance": 1.0,
+        "pca_dimensions": 0,
+        "max_distance": 0.0
+      }
+    },
+    {
+      "material": "Ge11Se9",
+      "modeling_method": "Diffusion",
+      "natoms": 300,
+      "candidates": 128,
+      "allocated": 127,
+      "selected": 127,
+      "sampling_method": "diversity_farthest_point_scaled_PCA",
+      "descriptor_coverage": {
+        "retained_variance": 0.9510726928710938,
+        "pca_dimensions": 60,
+        "max_distance": 6.215582726336259
+      }
+    },
+    {
+      "material": "Ge11Se9",
+      "modeling_method": "Diffusion",
+      "natoms": 1000,
+      "candidates": 1,
+      "allocated": 1,
+      "selected": 1,
+      "sampling_method": "diversity_farthest_point_scaled_PCA",
+      "descriptor_coverage": {
+        "retained_variance": 1.0,
+        "pca_dimensions": 0,
+        "max_distance": 0.0
+      }
+    },
+    {
+      "material": "Ge11Se9",
+      "modeling_method": "Diffusion",
+      "natoms": 30000,
+      "candidates": 1,
+      "allocated": 1,
+      "selected": 1,
+      "sampling_method": "diversity_farthest_point_scaled_PCA",
+      "descriptor_coverage": {
+        "retained_variance": 1.0,
+        "pca_dimensions": 0,
+        "max_distance": 0.0
+      }
+    },
+    {
+      "material": "Ge2Sb2Te5",
+      "modeling_method": "MLIP_MACE",
+      "natoms": 108,
+      "candidates": 1001,
+      "allocated": 354,
+      "selected": 354,
+      "sampling_method": "diversity_farthest_point_scaled_PCA",
+      "descriptor_coverage": {
+        "retained_variance": 0.9517925977706909,
+        "pca_dimensions": 153,
+        "max_distance": 18.45041920255472
+      }
+    },
+    {
+      "material": "Ge2Sb2Te5",
+      "modeling_method": "MLIP_MACE",
+      "natoms": 216,
+      "candidates": 9,
+      "allocated": 9,
+      "selected": 9,
+      "sampling_method": "diversity_farthest_point_scaled_PCA",
+      "descriptor_coverage": {
+        "retained_variance": 1.0,
+        "pca_dimensions": 0,
+        "max_distance": 0.0
+      }
+    },
+    {
+      "material": "Ge2Sb2Te5",
+      "modeling_method": "MLIP_MACE",
+      "natoms": 504,
+      "candidates": 20001,
+      "allocated": 1590,
+      "selected": 1590,
+      "sampling_method": "diversity_farthest_point_scaled_PCA",
+      "descriptor_coverage": {
+        "retained_variance": 0.9517940282821655,
+        "pca_dimensions": 156,
+        "max_distance": 19.038523118898382
+      }
+    },
+    {
+      "material": "Ge2Sb2Te5",
+      "modeling_method": "MLIP_MACE",
+      "natoms": 1080,
+      "candidates": 30001,
+      "allocated": 1948,
+      "selected": 1948,
+      "sampling_method": "diversity_farthest_point_scaled_PCA",
+      "descriptor_coverage": {
+        "retained_variance": 0.9529842138290405,
+        "pca_dimensions": 153,
+        "max_distance": 18.64904052884449
+      }
+    },
+    {
+      "material": "Ge2Sb2Te5",
+      "modeling_method": "MLIP_MACE",
+      "natoms": 8001,
+      "candidates": 2108,
+      "allocated": 515,
+      "selected": 515,
+      "sampling_method": "physical_time_uniform_within_time_orders",
+      "descriptor_coverage": null
+    },
+    {
+      "material": "Ge2Se",
+      "modeling_method": "Diffusion",
+      "natoms": 300,
+      "candidates": 715,
+      "allocated": 299,
+      "selected": 299,
+      "sampling_method": "diversity_farthest_point_scaled_PCA",
+      "descriptor_coverage": {
+        "retained_variance": 0.9529853463172913,
+        "pca_dimensions": 89,
+        "max_distance": 13.222602012444154
+      }
+    },
+    {
+      "material": "Ge2Se",
+      "modeling_method": "Flow Matching",
+      "natoms": 300,
+      "candidates": 150,
+      "allocated": 137,
+      "selected": 137,
+      "sampling_method": "diversity_farthest_point_scaled_PCA",
+      "descriptor_coverage": {
+        "retained_variance": 0.9517897963523865,
+        "pca_dimensions": 60,
+        "max_distance": 1.340768256013892
+      }
+    },
+    {
+      "material": "Ge3Se",
+      "modeling_method": "Diffusion",
+      "natoms": 100,
+      "candidates": 11,
+      "allocated": 11,
+      "selected": 11,
+      "sampling_method": "diversity_farthest_point_scaled_PCA",
+      "descriptor_coverage": {
+        "retained_variance": 1.0,
+        "pca_dimensions": 0,
+        "max_distance": 0.0
+      }
+    },
+    {
+      "material": "Ge3Se",
+      "modeling_method": "Diffusion",
+      "natoms": 300,
+      "candidates": 776,
+      "allocated": 311,
+      "selected": 311,
+      "sampling_method": "diversity_farthest_point_scaled_PCA",
+      "descriptor_coverage": {
+        "retained_variance": 0.9517288208007812,
+        "pca_dimensions": 90,
+        "max_distance": 12.724110966111922
+      }
+    },
+    {
+      "material": "Ge3Se",
+      "modeling_method": "Flow Matching",
+      "natoms": 300,
+      "candidates": 150,
+      "allocated": 137,
+      "selected": 137,
+      "sampling_method": "diversity_farthest_point_scaled_PCA",
+      "descriptor_coverage": {
+        "retained_variance": 0.9504101276397705,
+        "pca_dimensions": 59,
+        "max_distance": 1.3682041421012037
+      }
+    },
+    {
+      "material": "Ge3Se17",
+      "modeling_method": "Diffusion",
+      "natoms": 100,
+      "candidates": 4,
+      "allocated": 4,
+      "selected": 4,
+      "sampling_method": "diversity_farthest_point_scaled_PCA",
+      "descriptor_coverage": {
+        "retained_variance": 1.0,
+        "pca_dimensions": 0,
+        "max_distance": 0.0
+      }
+    },
+    {
+      "material": "Ge3Se17",
+      "modeling_method": "Diffusion",
+      "natoms": 300,
+      "candidates": 190,
+      "allocated": 154,
+      "selected": 154,
+      "sampling_method": "diversity_farthest_point_scaled_PCA",
+      "descriptor_coverage": {
+        "retained_variance": 0.9526315927505493,
+        "pca_dimensions": 72,
+        "max_distance": 11.858234978967412
+      }
+    },
+    {
+      "material": "Ge3Se2",
+      "modeling_method": "Diffusion",
+      "natoms": 100,
+      "candidates": 2,
+      "allocated": 2,
+      "selected": 2,
+      "sampling_method": "diversity_farthest_point_scaled_PCA",
+      "descriptor_coverage": {
+        "retained_variance": 1.0,
+        "pca_dimensions": 0,
+        "max_distance": 0.0
+      }
+    },
+    {
+      "material": "Ge3Se2",
+      "modeling_method": "Diffusion",
+      "natoms": 300,
+      "candidates": 574,
+      "allocated": 267,
+      "selected": 267,
+      "sampling_method": "diversity_farthest_point_scaled_PCA",
+      "descriptor_coverage": {
+        "retained_variance": 0.9529841542243958,
+        "pca_dimensions": 84,
+        "max_distance": 12.400823602704403
+      }
+    },
+    {
+      "material": "Ge3Se2",
+      "modeling_method": "Diffusion",
+      "natoms": 1000,
+      "candidates": 1,
+      "allocated": 1,
+      "selected": 1,
+      "sampling_method": "diversity_farthest_point_scaled_PCA",
+      "descriptor_coverage": {
+        "retained_variance": 1.0,
+        "pca_dimensions": 0,
+        "max_distance": 0.0
+      }
+    },
+    {
+      "material": "Ge3Se7",
+      "modeling_method": "Diffusion",
+      "natoms": 100,
+      "candidates": 6,
+      "allocated": 6,
+      "selected": 6,
+      "sampling_method": "diversity_farthest_point_scaled_PCA",
+      "descriptor_coverage": {
+        "retained_variance": 1.0,
+        "pca_dimensions": 0,
+        "max_distance": 0.0
+      }
+    },
+    {
+      "material": "Ge3Se7",
+      "modeling_method": "Diffusion",
+      "natoms": 300,
+      "candidates": 905,
+      "allocated": 336,
+      "selected": 336,
+      "sampling_method": "diversity_farthest_point_scaled_PCA",
+      "descriptor_coverage": {
+        "retained_variance": 0.9519357681274414,
+        "pca_dimensions": 89,
+        "max_distance": 13.377372745143196
+      }
+    },
+    {
+      "material": "Ge3Se7",
+      "modeling_method": "Diffusion",
+      "natoms": 1000,
+      "candidates": 1,
+      "allocated": 1,
+      "selected": 1,
+      "sampling_method": "diversity_farthest_point_scaled_PCA",
+      "descriptor_coverage": {
+        "retained_variance": 1.0,
+        "pca_dimensions": 0,
+        "max_distance": 0.0
+      }
+    },
+    {
+      "material": "Ge3Se7",
+      "modeling_method": "Flow Matching",
+      "natoms": 300,
+      "candidates": 150,
+      "allocated": 137,
+      "selected": 137,
+      "sampling_method": "diversity_farthest_point_scaled_PCA",
+      "descriptor_coverage": {
+        "retained_variance": 0.9519804120063782,
+        "pca_dimensions": 60,
+        "max_distance": 1.4189654753815215
+      }
+    },
+    {
+      "material": "Ge4Se",
+      "modeling_method": "Diffusion",
+      "natoms": 100,
+      "candidates": 9,
+      "allocated": 9,
+      "selected": 9,
+      "sampling_method": "diversity_farthest_point_scaled_PCA",
+      "descriptor_coverage": {
+        "retained_variance": 1.0,
+        "pca_dimensions": 0,
+        "max_distance": 0.0
+      }
+    },
+    {
+      "material": "Ge4Se",
+      "modeling_method": "Diffusion",
+      "natoms": 300,
+      "candidates": 465,
+      "allocated": 241,
+      "selected": 241,
+      "sampling_method": "diversity_farthest_point_scaled_PCA",
+      "descriptor_coverage": {
+        "retained_variance": 0.9517563581466675,
+        "pca_dimensions": 83,
+        "max_distance": 12.10773489397151
+      }
+    },
+    {
+      "material": "Ge7Se3",
+      "modeling_method": "Diffusion",
+      "natoms": 100,
+      "candidates": 3,
+      "allocated": 3,
+      "selected": 3,
+      "sampling_method": "diversity_farthest_point_scaled_PCA",
+      "descriptor_coverage": {
+        "retained_variance": 1.0,
+        "pca_dimensions": 0,
+        "max_distance": 0.0
+      }
+    },
+    {
+      "material": "Ge7Se3",
+      "modeling_method": "Diffusion",
+      "natoms": 300,
+      "candidates": 951,
+      "allocated": 344,
+      "selected": 344,
+      "sampling_method": "diversity_farthest_point_scaled_PCA",
+      "descriptor_coverage": {
+        "retained_variance": 0.9516230225563049,
+        "pca_dimensions": 90,
+        "max_distance": 12.822579043437218
+      }
+    },
+    {
+      "material": "Ge7Se3",
+      "modeling_method": "Diffusion",
+      "natoms": 1000,
+      "candidates": 1,
+      "allocated": 1,
+      "selected": 1,
+      "sampling_method": "diversity_farthest_point_scaled_PCA",
+      "descriptor_coverage": {
+        "retained_variance": 1.0,
+        "pca_dimensions": 0,
+        "max_distance": 0.0
+      }
+    },
+    {
+      "material": "Ge7Se3",
+      "modeling_method": "Flow Matching",
+      "natoms": 300,
+      "candidates": 150,
+      "allocated": 137,
+      "selected": 137,
+      "sampling_method": "diversity_farthest_point_scaled_PCA",
+      "descriptor_coverage": {
+        "retained_variance": 0.9512414336204529,
+        "pca_dimensions": 60,
+        "max_distance": 1.5630486097434393
+      }
+    },
+    {
+      "material": "GeSe",
+      "modeling_method": "Diffusion",
+      "natoms": 100,
+      "candidates": 10,
+      "allocated": 10,
+      "selected": 10,
+      "sampling_method": "diversity_farthest_point_scaled_PCA",
+      "descriptor_coverage": {
+        "retained_variance": 1.0,
+        "pca_dimensions": 0,
+        "max_distance": 0.0
+      }
+    },
+    {
+      "material": "GeSe",
+      "modeling_method": "Diffusion",
+      "natoms": 300,
+      "candidates": 1316,
+      "allocated": 406,
+      "selected": 406,
+      "sampling_method": "diversity_farthest_point_scaled_PCA",
+      "descriptor_coverage": {
+        "retained_variance": 0.953463077545166,
+        "pca_dimensions": 88,
+        "max_distance": 13.252864887803504
+      }
+    },
+    {
+      "material": "GeSe",
+      "modeling_method": "Diffusion",
+      "natoms": 1000,
+      "candidates": 5,
+      "allocated": 5,
+      "selected": 5,
+      "sampling_method": "diversity_farthest_point_scaled_PCA",
+      "descriptor_coverage": {
+        "retained_variance": 1.0,
+        "pca_dimensions": 0,
+        "max_distance": 0.0
+      }
+    },
+    {
+      "material": "GeSe",
+      "modeling_method": "Flow Matching",
+      "natoms": 300,
+      "candidates": 150,
+      "allocated": 137,
+      "selected": 137,
+      "sampling_method": "diversity_farthest_point_scaled_PCA",
+      "descriptor_coverage": {
+        "retained_variance": 0.9511030912399292,
+        "pca_dimensions": 59,
+        "max_distance": 1.3656322243366281
+      }
+    },
+    {
+      "material": "GeSe19",
+      "modeling_method": "Diffusion",
+      "natoms": 100,
+      "candidates": 1,
+      "allocated": 1,
+      "selected": 1,
+      "sampling_method": "diversity_farthest_point_scaled_PCA",
+      "descriptor_coverage": {
+        "retained_variance": 1.0,
+        "pca_dimensions": 0,
+        "max_distance": 0.0
+      }
+    },
+    {
+      "material": "GeSe19",
+      "modeling_method": "Diffusion",
+      "natoms": 300,
+      "candidates": 66,
+      "allocated": 66,
+      "selected": 66,
+      "sampling_method": "diversity_farthest_point_scaled_PCA",
+      "descriptor_coverage": {
+        "retained_variance": 1.0,
+        "pca_dimensions": 0,
+        "max_distance": 0.0
+      }
+    },
+    {
+      "material": "GeSe2",
+      "modeling_method": "Diffusion",
+      "natoms": 300,
+      "candidates": 760,
+      "allocated": 308,
+      "selected": 308,
+      "sampling_method": "diversity_farthest_point_scaled_PCA",
+      "descriptor_coverage": {
+        "retained_variance": 0.9515613913536072,
+        "pca_dimensions": 89,
+        "max_distance": 13.346196327826833
+      }
+    },
+    {
+      "material": "GeSe2",
+      "modeling_method": "Flow Matching",
+      "natoms": 300,
+      "candidates": 150,
+      "allocated": 137,
+      "selected": 137,
+      "sampling_method": "diversity_farthest_point_scaled_PCA",
+      "descriptor_coverage": {
+        "retained_variance": 0.9508205652236938,
+        "pca_dimensions": 59,
+        "max_distance": 1.4061920577933813
+      }
+    },
+    {
+      "material": "GeSe3",
+      "modeling_method": "Diffusion",
+      "natoms": 100,
+      "candidates": 2,
+      "allocated": 2,
+      "selected": 2,
+      "sampling_method": "diversity_farthest_point_scaled_PCA",
+      "descriptor_coverage": {
+        "retained_variance": 1.0,
+        "pca_dimensions": 0,
+        "max_distance": 0.0
+      }
+    },
+    {
+      "material": "GeSe3",
+      "modeling_method": "Diffusion",
+      "natoms": 300,
+      "candidates": 806,
+      "allocated": 317,
+      "selected": 317,
+      "sampling_method": "diversity_farthest_point_scaled_PCA",
+      "descriptor_coverage": {
+        "retained_variance": 0.9501670002937317,
+        "pca_dimensions": 89,
+        "max_distance": 13.303657568033687
+      }
+    },
+    {
+      "material": "GeSe3",
+      "modeling_method": "Flow Matching",
+      "natoms": 300,
+      "candidates": 150,
+      "allocated": 137,
+      "selected": 137,
+      "sampling_method": "diversity_farthest_point_scaled_PCA",
+      "descriptor_coverage": {
+        "retained_variance": 0.9530251026153564,
+        "pca_dimensions": 60,
+        "max_distance": 1.4325885626826702
+      }
+    },
+    {
+      "material": "GeTe",
+      "modeling_method": "MLIP_DeePMD",
+      "natoms": 300,
+      "candidates": 1198,
+      "allocated": 387,
+      "selected": 387,
+      "sampling_method": "diversity_farthest_point_scaled_PCA",
+      "descriptor_coverage": {
+        "retained_variance": 0.9522175788879395,
+        "pca_dimensions": 80,
+        "max_distance": 12.903221828090915
+      }
+    },
+    {
+      "material": "GeTe",
+      "modeling_method": "MLIP_DeePMD",
+      "natoms": 1000,
+      "candidates": 400,
+      "allocated": 223,
+      "selected": 223,
+      "sampling_method": "diversity_farthest_point_scaled_PCA",
+      "descriptor_coverage": {
+        "retained_variance": 0.9502308964729309,
+        "pca_dimensions": 72,
+        "max_distance": 11.506207988109072
+      }
+    },
+    {
+      "material": "GeTe",
+      "modeling_method": "MLIP_DeePMD",
+      "natoms": 2400,
+      "candidates": 400,
+      "allocated": 223,
+      "selected": 223,
+      "sampling_method": "diversity_farthest_point_scaled_PCA",
+      "descriptor_coverage": {
+        "retained_variance": 0.9512086510658264,
+        "pca_dimensions": 69,
+        "max_distance": 10.01361987534041
+      }
+    },
+    {
+      "material": "Sb",
+      "modeling_method": "MLIP_NEP",
+      "natoms": 300,
+      "candidates": 400,
+      "allocated": 223,
+      "selected": 223,
+      "sampling_method": "diversity_farthest_point_scaled_PCA",
+      "descriptor_coverage": {
+        "retained_variance": 0.959375262260437,
+        "pca_dimensions": 25,
+        "max_distance": 7.16569888063949
+      }
+    },
+    {
+      "material": "Sb",
+      "modeling_method": "MLIP_NEP",
+      "natoms": 1000,
+      "candidates": 400,
+      "allocated": 223,
+      "selected": 223,
+      "sampling_method": "diversity_farthest_point_scaled_PCA",
+      "descriptor_coverage": {
+        "retained_variance": 0.9586375951766968,
+        "pca_dimensions": 24,
+        "max_distance": 6.011757774300727
+      }
+    },
+    {
+      "material": "Sb",
+      "modeling_method": "MLIP_NEP",
+      "natoms": 2400,
+      "candidates": 400,
+      "allocated": 223,
+      "selected": 223,
+      "sampling_method": "diversity_farthest_point_scaled_PCA",
+      "descriptor_coverage": {
+        "retained_variance": 0.9581024050712585,
+        "pca_dimensions": 22,
+        "max_distance": 4.60292600368615
+      }
+    },
+    {
+      "material": "Sb2Te",
+      "modeling_method": "MLIP_NEP",
+      "natoms": 300,
+      "candidates": 400,
+      "allocated": 223,
+      "selected": 223,
+      "sampling_method": "diversity_farthest_point_scaled_PCA",
+      "descriptor_coverage": {
+        "retained_variance": 0.9524685740470886,
+        "pca_dimensions": 68,
+        "max_distance": 10.954568852097811
+      }
+    },
+    {
+      "material": "Sb2Te",
+      "modeling_method": "MLIP_NEP",
+      "natoms": 1000,
+      "candidates": 400,
+      "allocated": 223,
+      "selected": 223,
+      "sampling_method": "diversity_farthest_point_scaled_PCA",
+      "descriptor_coverage": {
+        "retained_variance": 0.9517500400543213,
+        "pca_dimensions": 68,
+        "max_distance": 10.53607954449703
+      }
+    },
+    {
+      "material": "Sb2Te",
+      "modeling_method": "MLIP_NEP",
+      "natoms": 2400,
+      "candidates": 400,
+      "allocated": 223,
+      "selected": 223,
+      "sampling_method": "diversity_farthest_point_scaled_PCA",
+      "descriptor_coverage": {
+        "retained_variance": 0.9506955146789551,
+        "pca_dimensions": 64,
+        "max_distance": 9.231437822728502
+      }
+    },
+    {
+      "material": "Sb2Te3",
+      "modeling_method": "MLIP_NEP",
+      "natoms": 300,
+      "candidates": 400,
+      "allocated": 223,
+      "selected": 223,
+      "sampling_method": "diversity_farthest_point_scaled_PCA",
+      "descriptor_coverage": {
+        "retained_variance": 0.9500371217727661,
+        "pca_dimensions": 68,
+        "max_distance": 11.112068461394694
+      }
+    },
+    {
+      "material": "Sb2Te3",
+      "modeling_method": "MLIP_NEP",
+      "natoms": 1000,
+      "candidates": 400,
+      "allocated": 223,
+      "selected": 223,
+      "sampling_method": "diversity_farthest_point_scaled_PCA",
+      "descriptor_coverage": {
+        "retained_variance": 0.9501916766166687,
+        "pca_dimensions": 67,
+        "max_distance": 10.220833942109028
+      }
+    },
+    {
+      "material": "Sb2Te3",
+      "modeling_method": "MLIP_NEP",
+      "natoms": 2400,
+      "candidates": 400,
+      "allocated": 223,
+      "selected": 223,
+      "sampling_method": "diversity_farthest_point_scaled_PCA",
+      "descriptor_coverage": {
+        "retained_variance": 0.9509501457214355,
+        "pca_dimensions": 62,
+        "max_distance": 8.879454878150204
+      }
+    },
+    {
+      "material": "SbTe",
+      "modeling_method": "MLIP_NEP",
+      "natoms": 300,
+      "candidates": 400,
+      "allocated": 223,
+      "selected": 223,
+      "sampling_method": "diversity_farthest_point_scaled_PCA",
+      "descriptor_coverage": {
+        "retained_variance": 0.9527520537376404,
+        "pca_dimensions": 69,
+        "max_distance": 11.12695569625431
+      }
+    },
+    {
+      "material": "SbTe",
+      "modeling_method": "MLIP_NEP",
+      "natoms": 1000,
+      "candidates": 400,
+      "allocated": 223,
+      "selected": 223,
+      "sampling_method": "diversity_farthest_point_scaled_PCA",
+      "descriptor_coverage": {
+        "retained_variance": 0.9508713483810425,
+        "pca_dimensions": 66,
+        "max_distance": 10.197142735624677
+      }
+    },
+    {
+      "material": "SbTe",
+      "modeling_method": "MLIP_NEP",
+      "natoms": 2400,
+      "candidates": 400,
+      "allocated": 223,
+      "selected": 223,
+      "sampling_method": "diversity_farthest_point_scaled_PCA",
+      "descriptor_coverage": {
+        "retained_variance": 0.9503765106201172,
+        "pca_dimensions": 62,
+        "max_distance": 9.089995667778636
+      }
+    },
+    {
+      "material": "SbTe2",
+      "modeling_method": "MLIP_NEP",
+      "natoms": 300,
+      "candidates": 400,
+      "allocated": 223,
+      "selected": 223,
+      "sampling_method": "diversity_farthest_point_scaled_PCA",
+      "descriptor_coverage": {
+        "retained_variance": 0.9508435726165771,
+        "pca_dimensions": 57,
+        "max_distance": 6.22484439517492
+      }
+    },
+    {
+      "material": "SbTe2",
+      "modeling_method": "MLIP_NEP",
+      "natoms": 1000,
+      "candidates": 400,
+      "allocated": 223,
+      "selected": 223,
+      "sampling_method": "diversity_farthest_point_scaled_PCA",
+      "descriptor_coverage": {
+        "retained_variance": 0.9531528949737549,
+        "pca_dimensions": 68,
+        "max_distance": 10.595373878813147
+      }
+    },
+    {
+      "material": "SbTe2",
+      "modeling_method": "MLIP_NEP",
+      "natoms": 2400,
+      "candidates": 400,
+      "allocated": 223,
+      "selected": 223,
+      "sampling_method": "diversity_farthest_point_scaled_PCA",
+      "descriptor_coverage": {
+        "retained_variance": 0.9513332843780518,
+        "pca_dimensions": 64,
+        "max_distance": 9.116702553110665
+      }
+    },
+    {
+      "material": "Se",
+      "modeling_method": "Diffusion",
+      "natoms": 100,
+      "candidates": 28,
+      "allocated": 28,
+      "selected": 28,
+      "sampling_method": "diversity_farthest_point_scaled_PCA",
+      "descriptor_coverage": {
+        "retained_variance": 1.0,
+        "pca_dimensions": 0,
+        "max_distance": 0.0
+      }
+    },
+    {
+      "material": "Se",
+      "modeling_method": "Diffusion",
+      "natoms": 300,
+      "candidates": 1862,
+      "allocated": 483,
+      "selected": 483,
+      "sampling_method": "diversity_farthest_point_scaled_PCA",
+      "descriptor_coverage": {
+        "retained_variance": 0.9527339339256287,
+        "pca_dimensions": 28,
+        "max_distance": 7.0459709179614
+      }
+    },
+    {
+      "material": "Se",
+      "modeling_method": "Diffusion",
+      "natoms": 1000,
+      "candidates": 4,
+      "allocated": 4,
+      "selected": 4,
+      "sampling_method": "diversity_farthest_point_scaled_PCA",
+      "descriptor_coverage": {
+        "retained_variance": 1.0,
+        "pca_dimensions": 0,
+        "max_distance": 0.0
+      }
+    },
+    {
+      "material": "Se",
+      "modeling_method": "Flow Matching",
+      "natoms": 300,
+      "candidates": 150,
+      "allocated": 137,
+      "selected": 137,
+      "sampling_method": "diversity_farthest_point_scaled_PCA",
+      "descriptor_coverage": {
+        "retained_variance": 0.9513210654258728,
+        "pca_dimensions": 28,
+        "max_distance": 0.9470658239068269
+      }
+    },
+    {
+      "material": "Te",
+      "modeling_method": "MLIP_NEP",
+      "natoms": 300,
+      "candidates": 400,
+      "allocated": 223,
+      "selected": 223,
+      "sampling_method": "diversity_farthest_point_scaled_PCA",
+      "descriptor_coverage": {
+        "retained_variance": 0.9520060420036316,
+        "pca_dimensions": 26,
+        "max_distance": 7.366446497232029
+      }
+    },
+    {
+      "material": "Te",
+      "modeling_method": "MLIP_NEP",
+      "natoms": 1000,
+      "candidates": 400,
+      "allocated": 223,
+      "selected": 223,
+      "sampling_method": "diversity_farthest_point_scaled_PCA",
+      "descriptor_coverage": {
+        "retained_variance": 0.9636118412017822,
+        "pca_dimensions": 26,
+        "max_distance": 6.904767874228116
+      }
+    },
+    {
+      "material": "Te",
+      "modeling_method": "MLIP_NEP",
+      "natoms": 2400,
+      "candidates": 400,
+      "allocated": 223,
+      "selected": 223,
+      "sampling_method": "diversity_farthest_point_scaled_PCA",
+      "descriptor_coverage": {
+        "retained_variance": 0.9523754119873047,
+        "pca_dimensions": 24,
+        "max_distance": 5.620984827275982
+      }
+    }
+  ],
+  "by_modeling_method": {
+    "Diffusion": 4404,
+    "Flow Matching": 1233,
+    "MLIP_DeePMD": 833,
+    "MLIP_MACE": 4416,
+    "MLIP_NEP": 4014
+  },
+  "by_material": {
+    "Ge": 788,
+    "Ge11Se9": 133,
+    "Ge2Se": 436,
+    "Ge3Se": 459,
+    "Ge3Se17": 158,
+    "Ge3Se2": 270,
+    "Ge3Se7": 480,
+    "Ge4Se": 250,
+    "Ge7Se3": 485,
+    "GeSe": 558,
+    "GeSe19": 67,
+    "GeSe2": 445,
+    "GeSe3": 456,
+    "Se": 652,
+    "GeTe": 833,
+    "Ge2Sb2Te5": 4416,
+    "Sb": 669,
+    "Sb2Te": 446,
+    "Sb2Te3": 669,
+    "Sb333Te667": 223,
+    "Sb667Te333": 223,
+    "SbTe": 669,
+    "SbTe2": 446,
+    "Te": 669
+  },
+  "by_simulation_time_order": {
+    "none": 10371,
+    "0ps": 1,
+    "0.01ps": 44,
+    "0.1ps": 428,
+    "1ps": 3090,
+    "10ps": 695,
+    "100ps": 121,
+    "1ns": 120,
+    "10ns": 16,
+    "0.001ps": 14
+  },
+  "peak_statuses": {
+    "clear": 14900
+  },
+  "near_stoichiometry_reference_matches": 446,
+  "output_file_sha256": {
+    "structures/MLIP_DeePMD/GeTe_N1000__64ff7aecbce5.dump": "eb81f0c32a3f0f67f63594b64bbd82f20774a52bd37fbb0733fe9e08e8f77019",
+    "structures/MLIP_DeePMD/GeTe_N2400__bf5d5209a9d5.dump": "a8c8b337cf839d47cc3bd68f7671e8e3d7eb52cda0f4bb5c4d472861b7ccab33",
+    "structures/MLIP_DeePMD/GeTe_N300__7f32d855fb05.dump": "4edc83f8c7b26cc3d78aae7acb59bef30daf939d6e37201ff893ad40a631b214",
+    "structures/MLIP_DeePMD/GeTe_N300__c267656c0f63.dump": "99450dac3a393a80a68ab33fa28dae5ae056b6b92b3997d23f20ce03a981f559",
+    "structures/MLIP_DeePMD/GeTe_N300__dcb1910922b8.dump": "a392ad8d3a21b0a2d9206d4a34a105491db1feede695ca61f5b26d5c17393e04",
+    "structures/MLIP_NEP/Sb_N1000__e8312a26cf2d.extxyz": "39cee54ef1e0e5149755c63cdeb1812e2687ad173709425dcba947d4d71f5a3f",
+    "structures/MLIP_NEP/Sb_N2400__659987db91ee.extxyz": "2930bd23dc66d7c01f4b11d23c838262d62391917bf9d6f8882249a3a7296fba",
+    "structures/MLIP_NEP/Sb_N300__5ce1e42ebdfa.extxyz": "64a952467de4a5184b57efc2f67e589ec6dae49c9135f6e52c633201630f1fec",
+    "structures/MLIP_NEP/Sb667Te333_N1000__c8a721db3ffe.extxyz": "280f914fed96b8f601229979bd2cd0b4a92b0ee257a89d41a563a281ad7c8ed5",
+    "structures/MLIP_NEP/Sb2Te_N2400__02e84b6212b7.extxyz": "762675cf39e4d4de75d63913c60fd80b10ced47d92e0af90bc5d261901abb6bb",
+    "structures/MLIP_NEP/Sb2Te_N300__60c168958dd8.extxyz": "6b3ab098138ce6d1196bdf09b567ed64687718bd49bc8bb41710e3ebcbc6db93",
+    "structures/MLIP_NEP/SbTe_N1000__c03e4373fdb8.extxyz": "d9fc7823dd77c984ed259f159a914030300d63ac0724740864de6865480d42e0",
+    "structures/MLIP_NEP/SbTe_N2400__1044d17964d9.extxyz": "5872a7ad9762a0aaba8fc3d50b0b222c72ee9fc8bee454e89c93fc2bf642c400",
+    "structures/MLIP_NEP/SbTe_N300__21219252fb21.extxyz": "1f16fd18793a467025919b3d5569dfe9369cff7f79fc82ff978e6902dc39b713",
+    "structures/MLIP_NEP/Sb2Te3_N1000__a232fa3fc77f.extxyz": "992bc6ff2fe2d1ee96d801a2f45a05916af0257e02eef6256b17065e9060ba2d",
+    "structures/MLIP_NEP/Sb2Te3_N2400__54027f19ddd9.extxyz": "574e655b98b7ff7a612b136499c1a927abdc38c6d9ca0fbf97f50cb8cc3645e7",
+    "structures/MLIP_NEP/Sb2Te3_N300__aa5e7f73d10e.extxyz": "2c94820c74234140d623217851b48575570ed3b79c69e1b5cd6180d48dc4f08b",
+    "structures/MLIP_NEP/Sb333Te667_N1000__380161aa94f2.extxyz": "d61f5be0a5afc7fd5c83869b5f72a070e733b0d930bb2b10d503b9b195bda7f4",
+    "structures/MLIP_NEP/SbTe2_N2400__f5931cf45178.extxyz": "93f1567897335075d808ad8f0e8e3ae7f97d016cc6c725f5e129ceee2235d93b",
+    "structures/MLIP_NEP/SbTe2_N300__e405716b0be3.extxyz": "c537f435cefa1efaabc53d460242109685d116831e310ed9fab6cd9835bab217",
+    "structures/MLIP_NEP/Te_N1000__b4629571d270.extxyz": "54aebebd3cabefff6997ef5a5071891bc9582da398e3cca28e4d72d7691297e5",
+    "structures/MLIP_NEP/Te_N2400__c4a0ebd8adad.extxyz": "5988258c00b624ee21f10c4d38c2842b34ac55d92a76ea7ef3d3676f07af3ba2",
+    "structures/MLIP_NEP/Te_N300__524eb01bbefd.extxyz": "cb44d0ea09b296082469856d1550b221a8cd916fc20ef3f6b016141d5a5beae6",
+    "structures/MLIP_MACE/Ge2Sb2Te5_N1080__786ccf985fc5.dump": "25568651c9f68986d2c84f88634d469e1d946ba7e5075ae000b015fb04023262",
+    "structures/MLIP_MACE/Ge2Sb2Te5_N108__2bd3391eb2ce.dump": "9f9d7e89364e08fec793d4372dac816e7a07d0b8fa48e909317413592d19951e",
+    "structures/MLIP_MACE/Ge2Sb2Te5_N216__5136e544133f.extxyz": "5136e544133ff90928d84aee3b7bce1935bec6a90f02f6fb1d27665ff5a8b5bd",
+    "structures/MLIP_MACE/Ge2Sb2Te5_N504__b3aba39406cc.dump": "4150a038bd7ca4e5f4c5490ed7b5f5275eefa60d3a7106e8092b0365e9d7422b",
+    "structures/MLIP_MACE/Ge2Sb2Te5_N8001__34154fec5c71.dump": "e25d1d1ac2c6326ddb054fa80b4d72198602eb9d8bfa2dba16a75e72b32507a7",
+    "structures/Diffusion/Ge_N100__93d28b901bd2.extxyz": "93d28b901bd2fd06df907e3b1d55695377b22abdc2f6e6c2346336e3635b68f6",
+    "structures/Diffusion/Ge_N1000__5a219e15a366.extxyz": "5a219e15a3662195a1a2657ae410a73f459c071ea5155f3c655cf38749d5efaf",
+    "structures/Diffusion/Ge_N300__c4f18499afb6.extxyz": "d358c7ccb16f2e53705da40fd9f26657b7a68e6f6a13452fe15457ef21872230",
+    "structures/Flow_Matching/Ge_N300__c4f18499afb6.extxyz": "c5cbc3a753bf89f4ec9b2983af918cd5d3b61ec89305c435b6eb3f8da7cc3077",
+    "structures/Diffusion/Ge11Se9_N100__f26bb0cc5c0a.extxyz": "f26bb0cc5c0a1bfa5b210541aacad333a5ed0aff46c6f8c52ab00a4c9bca9638",
+    "structures/Diffusion/Ge11Se9_N1000__cf79f9255755.extxyz": "cf79f92557550211dfde4e5fb763dc1d0f16a6667c398521d5dab6b864bc8101",
+    "structures/Diffusion/Ge11Se9_N300__581b73d89c0c.extxyz": "38f99f99ac2f9c11478564efece94d5e32b6c51c6df37a58f93aced30a953a6b",
+    "structures/Diffusion/Ge11Se9_N30000__d3b16f439cd9.extxyz": "d3b16f439cd9e7a5e6e0ec35944aa8de5d795cdb0eb454dde975c534a85e7d8b",
+    "structures/Diffusion/Ge2Se_N300__43b9c467c82d.extxyz": "589303a5e371dbf968a86a3a33ce6dbbab9d87b9da010c1adb74c314ee8a604a",
+    "structures/Flow_Matching/Ge2Se_N300__43b9c467c82d.extxyz": "a2ada61cbfca53c0b3786ceb54557a5b3b5f986ca53868d7649d6f63449cbad5",
+    "structures/Diffusion/Ge3Se_N100__a8a51add5a2f.extxyz": "a8a51add5a2f8880f892e2e7e49cd335f69bb8437d8fb4b1f2aab3e672d6a342",
+    "structures/Diffusion/Ge3Se_N300__ed5a8a8e7181.extxyz": "2d9679b2549ca94edde236f3b3ce8c578821ce6e36385e1f4216b6f69d5a91d7",
+    "structures/Flow_Matching/Ge3Se_N300__ed5a8a8e7181.extxyz": "4a83993a46ef8cbd55a6dee5952057984ed213e6d73e692596adc05cee566d52",
+    "structures/Diffusion/Ge3Se17_N100__8829420dd760.extxyz": "8829420dd760374b003f5daff9ec9708fb4d3017b8145a94a7e17bd99a764797",
+    "structures/Diffusion/Ge3Se17_N300__30ae34d752af.extxyz": "b160ad54c8b400f8d0c4285a1c5f6765061c6a27d6f9d4f7b68fc117db318bb6",
+    "structures/Diffusion/Ge3Se2_N100__8c7a0f340e93.extxyz": "8c7a0f340e939fd27e82d4e2d1688d817ba9524e7946b7359e70ec050691d09a",
+    "structures/Diffusion/Ge3Se2_N1000__927b94a602c6.extxyz": "927b94a602c698473254ce10238bee8aa0d633108b979490e2947587290c278c",
+    "structures/Diffusion/Ge3Se2_N300__62d6a9f5986b.extxyz": "e7867eb819cb8cb1823f055d679aadcab85ac81663fdeec473e225adf07dfa19",
+    "structures/Diffusion/Ge3Se7_N100__e5c1a92bc843.extxyz": "e5c1a92bc8435011b1f50a751314dee4babe24fac4ab43f0dc21bedaf993d8b7",
+    "structures/Diffusion/Ge3Se7_N1000__748583b3ca21.extxyz": "748583b3ca216dee8c4163b2daa8ddbd094d08b745d7855c31996eebce9d7897",
+    "structures/Diffusion/Ge3Se7_N300__a1801b8f9422.extxyz": "cc43487efc2349f0d6d5fdfacacf5e196f284724cbf8874793dbb336d9a87d2d",
+    "structures/Flow_Matching/Ge3Se7_N300__a1801b8f9422.extxyz": "98d6ba6de1e1f5ed2473679fcd53a5df1abc3102e99abc368edfe15a18466992",
+    "structures/Diffusion/Ge4Se_N100__a22bbefe4844.extxyz": "a22bbefe484405564ad3752aa28b210274dabc93ba90fd564be8dd676107386a",
+    "structures/Diffusion/Ge4Se_N300__fc2962975e46.extxyz": "6df386fabb62bf7dbcd5f7f7452324bcf4b7b0a7a98c440d1619226daeb54277",
+    "structures/Diffusion/Ge7Se3_N100__93c2cfdf864e.extxyz": "93c2cfdf864e36c019f0accc1729555c77514993e17af830949caeec56da8b7f",
+    "structures/Diffusion/Ge7Se3_N1000__c80e25dae0e5.extxyz": "c80e25dae0e55a905e511c5b14f7f6f2a4264c4df97a440a970663c6c72e0250",
+    "structures/Diffusion/Ge7Se3_N300__4f2ea31fcfbb.extxyz": "b83c7e9b8a1e444b3a462b4b2428ff30813a0ea8a35b14c5168684a7bcd5d7da",
+    "structures/Flow_Matching/Ge7Se3_N300__4f2ea31fcfbb.extxyz": "9294f8b1696c29312e8af6416e6d172660bad450e54cff328dc63be39411ab31",
+    "structures/Diffusion/GeSe_N100__eeb4a8132289.extxyz": "eeb4a8132289e6b5ab9057ac6f55ab1483bd8181d9a14ce33632790d3cee2af3",
+    "structures/Diffusion/GeSe_N1000__053e62219042.extxyz": "053e62219042933f45b49c1d151465006fc723330d8eec0f8325d0b9454b2fb4",
+    "structures/Diffusion/GeSe_N300__dec6d0cc2396.extxyz": "a7012e77f930cd9f236cce49e52b8524bb0a170b30406e1bd5a34c8002215e54",
+    "structures/Flow_Matching/GeSe_N300__dec6d0cc2396.extxyz": "99975937833103bfb8060e86cb47d95f9d77d7941d2d8ab53d32078dd154a5f6",
+    "structures/Diffusion/GeSe19_N100__5a83cf8e765b.extxyz": "5a83cf8e765bcbcdbf6feb6f3cc93f778f6d1ce5d95022b5a5c6896f256bdf04",
+    "structures/Diffusion/GeSe19_N300__7aa5eb462538.extxyz": "7aa5eb462538c232da1424a1b617721415a556da6ccf8895dca1fb0c717abeb7",
+    "structures/Diffusion/GeSe2_N300__8786d73e03b8.extxyz": "97314ae54e7d74c6d5b9263efa6f886206803feb23dc0bddc949c99cbc72d9aa",
+    "structures/Flow_Matching/GeSe2_N300__8786d73e03b8.extxyz": "cb9840d82924bf32235eacc4c1b3c1418dc366bc1fe48c8d4a9ca8d8be1cd5d2",
+    "structures/Diffusion/GeSe3_N100__3ee715285271.extxyz": "3ee715285271bb1f6f30ce36d883fc7f3ae344d8017661c5408dd2d787051c0c",
+    "structures/Diffusion/GeSe3_N300__e5f775368ffb.extxyz": "8e97af30cdfce2df427dad19f1d0820b7f15b0ff01258586c41783712b8e6a26",
+    "structures/Flow_Matching/GeSe3_N300__e5f775368ffb.extxyz": "e103373566ceeffdf149995456993e6951dcae63233053509f8a8e7ab2652456",
+    "structures/Diffusion/Se_N100__c35d1a935155.extxyz": "c35d1a935155a834f1e9a7cc8370199e7d320ef40021e28768c2fcec1c0b8644",
+    "structures/Diffusion/Se_N1000__09a9b7a0a7b3.extxyz": "09a9b7a0a7b32afdb3b69a3068a5bca57702ccd3b4c1b8aa93d53cc71a916865",
+    "structures/Diffusion/Se_N300__fda42a70218b.extxyz": "98d08cecaee36fd5db912193c9562352a61ca81ef51e144f1e5d5eb199a99c04",
+    "structures/Flow_Matching/Se_N300__fda42a70218b.extxyz": "903e2927b154c7a162e2d8423efeb58830c89cb4cb2e4b6fc51589cffb2364c3"
+  },
+  "output_file_frames": {
+    "structures/MLIP_DeePMD/GeTe_N1000__64ff7aecbce5.dump": 223,
+    "structures/MLIP_DeePMD/GeTe_N2400__bf5d5209a9d5.dump": 223,
+    "structures/MLIP_DeePMD/GeTe_N300__7f32d855fb05.dump": 125,
+    "structures/MLIP_DeePMD/GeTe_N300__c267656c0f63.dump": 126,
+    "structures/MLIP_DeePMD/GeTe_N300__dcb1910922b8.dump": 136,
+    "structures/MLIP_NEP/Sb_N1000__e8312a26cf2d.extxyz": 223,
+    "structures/MLIP_NEP/Sb_N2400__659987db91ee.extxyz": 223,
+    "structures/MLIP_NEP/Sb_N300__5ce1e42ebdfa.extxyz": 223,
+    "structures/MLIP_NEP/Sb667Te333_N1000__c8a721db3ffe.extxyz": 223,
+    "structures/MLIP_NEP/Sb2Te_N2400__02e84b6212b7.extxyz": 223,
+    "structures/MLIP_NEP/Sb2Te_N300__60c168958dd8.extxyz": 223,
+    "structures/MLIP_NEP/SbTe_N1000__c03e4373fdb8.extxyz": 223,
+    "structures/MLIP_NEP/SbTe_N2400__1044d17964d9.extxyz": 223,
+    "structures/MLIP_NEP/SbTe_N300__21219252fb21.extxyz": 223,
+    "structures/MLIP_NEP/Sb2Te3_N1000__a232fa3fc77f.extxyz": 223,
+    "structures/MLIP_NEP/Sb2Te3_N2400__54027f19ddd9.extxyz": 223,
+    "structures/MLIP_NEP/Sb2Te3_N300__aa5e7f73d10e.extxyz": 223,
+    "structures/MLIP_NEP/Sb333Te667_N1000__380161aa94f2.extxyz": 223,
+    "structures/MLIP_NEP/SbTe2_N2400__f5931cf45178.extxyz": 223,
+    "structures/MLIP_NEP/SbTe2_N300__e405716b0be3.extxyz": 223,
+    "structures/MLIP_NEP/Te_N1000__b4629571d270.extxyz": 223,
+    "structures/MLIP_NEP/Te_N2400__c4a0ebd8adad.extxyz": 223,
+    "structures/MLIP_NEP/Te_N300__524eb01bbefd.extxyz": 223,
+    "structures/MLIP_MACE/Ge2Sb2Te5_N1080__786ccf985fc5.dump": 1948,
+    "structures/MLIP_MACE/Ge2Sb2Te5_N108__2bd3391eb2ce.dump": 354,
+    "structures/MLIP_MACE/Ge2Sb2Te5_N216__5136e544133f.extxyz": 9,
+    "structures/MLIP_MACE/Ge2Sb2Te5_N504__b3aba39406cc.dump": 1590,
+    "structures/MLIP_MACE/Ge2Sb2Te5_N8001__34154fec5c71.dump": 515,
+    "structures/Diffusion/Ge_N100__93d28b901bd2.extxyz": 20,
+    "structures/Diffusion/Ge_N1000__5a219e15a366.extxyz": 8,
+    "structures/Diffusion/Ge_N300__c4f18499afb6.extxyz": 623,
+    "structures/Flow_Matching/Ge_N300__c4f18499afb6.extxyz": 137,
+    "structures/Diffusion/Ge11Se9_N100__f26bb0cc5c0a.extxyz": 4,
+    "structures/Diffusion/Ge11Se9_N1000__cf79f9255755.extxyz": 1,
+    "structures/Diffusion/Ge11Se9_N300__581b73d89c0c.extxyz": 127,
+    "structures/Diffusion/Ge11Se9_N30000__d3b16f439cd9.extxyz": 1,
+    "structures/Diffusion/Ge2Se_N300__43b9c467c82d.extxyz": 299,
+    "structures/Flow_Matching/Ge2Se_N300__43b9c467c82d.extxyz": 137,
+    "structures/Diffusion/Ge3Se_N100__a8a51add5a2f.extxyz": 11,
+    "structures/Diffusion/Ge3Se_N300__ed5a8a8e7181.extxyz": 311,
+    "structures/Flow_Matching/Ge3Se_N300__ed5a8a8e7181.extxyz": 137,
+    "structures/Diffusion/Ge3Se17_N100__8829420dd760.extxyz": 4,
+    "structures/Diffusion/Ge3Se17_N300__30ae34d752af.extxyz": 154,
+    "structures/Diffusion/Ge3Se2_N100__8c7a0f340e93.extxyz": 2,
+    "structures/Diffusion/Ge3Se2_N1000__927b94a602c6.extxyz": 1,
+    "structures/Diffusion/Ge3Se2_N300__62d6a9f5986b.extxyz": 267,
+    "structures/Diffusion/Ge3Se7_N100__e5c1a92bc843.extxyz": 6,
+    "structures/Diffusion/Ge3Se7_N1000__748583b3ca21.extxyz": 1,
+    "structures/Diffusion/Ge3Se7_N300__a1801b8f9422.extxyz": 336,
+    "structures/Flow_Matching/Ge3Se7_N300__a1801b8f9422.extxyz": 137,
+    "structures/Diffusion/Ge4Se_N100__a22bbefe4844.extxyz": 9,
+    "structures/Diffusion/Ge4Se_N300__fc2962975e46.extxyz": 241,
+    "structures/Diffusion/Ge7Se3_N100__93c2cfdf864e.extxyz": 3,
+    "structures/Diffusion/Ge7Se3_N1000__c80e25dae0e5.extxyz": 1,
+    "structures/Diffusion/Ge7Se3_N300__4f2ea31fcfbb.extxyz": 344,
+    "structures/Flow_Matching/Ge7Se3_N300__4f2ea31fcfbb.extxyz": 137,
+    "structures/Diffusion/GeSe_N100__eeb4a8132289.extxyz": 10,
+    "structures/Diffusion/GeSe_N1000__053e62219042.extxyz": 5,
+    "structures/Diffusion/GeSe_N300__dec6d0cc2396.extxyz": 406,
+    "structures/Flow_Matching/GeSe_N300__dec6d0cc2396.extxyz": 137,
+    "structures/Diffusion/GeSe19_N100__5a83cf8e765b.extxyz": 1,
+    "structures/Diffusion/GeSe19_N300__7aa5eb462538.extxyz": 66,
+    "structures/Diffusion/GeSe2_N300__8786d73e03b8.extxyz": 308,
+    "structures/Flow_Matching/GeSe2_N300__8786d73e03b8.extxyz": 137,
+    "structures/Diffusion/GeSe3_N100__3ee715285271.extxyz": 2,
+    "structures/Diffusion/GeSe3_N300__e5f775368ffb.extxyz": 317,
+    "structures/Flow_Matching/GeSe3_N300__e5f775368ffb.extxyz": 137,
+    "structures/Diffusion/Se_N100__c35d1a935155.extxyz": 28,
+    "structures/Diffusion/Se_N1000__09a9b7a0a7b3.extxyz": 4,
+    "structures/Diffusion/Se_N300__fda42a70218b.extxyz": 483,
+    "structures/Flow_Matching/Se_N300__fda42a70218b.extxyz": 137
+  },
+  "source_file_sha256": {
+    "2026_AI4S_uniform_400/gete/MLIP_MD/GeTe_1000_300K_uniform400.dump": "64ff7aecbce5aa4b4ae9007a584e6ba7a518620c305634bf24e02997c7ea7838",
+    "2026_AI4S_uniform_400/gete/MLIP_MD/GeTe_2400_300K_uniform400.dump": "bf5d5209a9d515c269ca034ab6b2b1dabd44c07308ec67c3cfec508352dcf470",
+    "2026_AI4S_uniform_400/gete/MLIP_MD/GeTe_300_0_uniform400.dump": "7f32d855fb059376bd5be74ac0243579982562b755c4d22e2889fa14d367460e",
+    "2026_AI4S_uniform_400/gete/MLIP_MD/GeTe_300_1_uniform400.dump": "c267656c0f63849100936ae2e8a35344977df8337c2d4071a24d52dd7a689586",
+    "2026_AI4S_uniform_400/gete/MLIP_MD/GeTe_300_2_uniform400.dump": "dcb1910922b8e6a9e50efc55ec8ce9557d17de2447e8b79b64427ca6c56e30d4",
+    "2026_AI4S_uniform_400/sb-te/MLIP_MD/sb/sb_1000_uniform400.xyz": "e8312a26cf2d9dd4d076afa11c18879c3ba3f3be7142225d8cd70ab38aca2ced",
+    "2026_AI4S_uniform_400/sb-te/MLIP_MD/sb/sb_2400_uniform400.xyz": "659987db91eecccf2b61158b839a81a7564ee2dc008a78615c0de5f9f92db65d",
+    "2026_AI4S_uniform_400/sb-te/MLIP_MD/sb/sb_300_uniform400.xyz": "5ce1e42ebdfaa872c0cb5a22e09f238dc7b4bb08ac9dc090144327586d130c59",
+    "2026_AI4S_uniform_400/sb-te/MLIP_MD/sb2te/sb2te_1000_uniform400.xyz": "c8a721db3ffe3bd3dd3c259667d9b1d99f231cf5c272ff5a700d33803d7a481f",
+    "2026_AI4S_uniform_400/sb-te/MLIP_MD/sb2te/sb2te_2400_uniform400.xyz": "02e84b6212b765ded116ea424072e65784888ace7e532f71e1529e6fe752dd7a",
+    "2026_AI4S_uniform_400/sb-te/MLIP_MD/sb2te/sb2te_300_uniform400.xyz": "60c168958dd891462ebc04c02b6dfd51b7440aaed0b2efec020c75fafb2f2088",
+    "2026_AI4S_uniform_400/sb-te/MLIP_MD/sb2te2/sb2te2_1000_uniform400.xyz": "c03e4373fdb803827899c6511e322f46e324e3832eb4b2a4b13d430ff3e5ff2d",
+    "2026_AI4S_uniform_400/sb-te/MLIP_MD/sb2te2/sb2te2_2400_uniform400.xyz": "1044d17964d975424836836afebe8e12628361eebdc5fac84e3e3b3702006eb1",
+    "2026_AI4S_uniform_400/sb-te/MLIP_MD/sb2te2/sb2te2_300_uniform400.xyz": "21219252fb21fef410f31300e2b807bb363944f20a6a7a6ef9af9bdf7916771b",
+    "2026_AI4S_uniform_400/sb-te/MLIP_MD/sb2te3/sb2te3_1000_uniform400.xyz": "a232fa3fc77f06fa94090a17a25ae46e9c75cdbfc46b35451080fc4159111ca2",
+    "2026_AI4S_uniform_400/sb-te/MLIP_MD/sb2te3/sb2te3_2400_uniform400.xyz": "54027f19ddd9f92fa923224bf6b254e41f2fde1560d6af0bd8b9c96e21d6d15e",
+    "2026_AI4S_uniform_400/sb-te/MLIP_MD/sb2te3/sb2te3_300_uniform400.xyz": "aa5e7f73d10e3eaaec3becac99811048c7cee3baf614bd00561a845e3fa9d46c",
+    "2026_AI4S_uniform_400/sb-te/MLIP_MD/sbte2/sbte2_1000_uniform400.xyz": "380161aa94f2499efe183ae326b8916ec51d8aa30ff78e34820ebbd7eb552a36",
+    "2026_AI4S_uniform_400/sb-te/MLIP_MD/sbte2/sbte2_2400_uniform400.xyz": "f5931cf45178eadc92c6d29cb89e368488ee62b86b2de89bdb7dea91303cee43",
+    "2026_AI4S_uniform_400/sb-te/MLIP_MD/sbte2/sbte2_300_uniform400.xyz": "e405716b0be37dc8a749175857799a02a6bdaa83893f937fe60e94d96290c7e6",
+    "2026_AI4S_uniform_400/sb-te/MLIP_MD/te/te_1000_uniform400.xyz": "b4629571d2708abca8ef80e44760a6d002822a163bc4467c567adc61db701d01",
+    "2026_AI4S_uniform_400/sb-te/MLIP_MD/te/te_2400_uniform400.xyz": "c4a0ebd8adad2a5706bfebea40628c35fbe0f12703ad63c9b6603567c9ca4a4e",
+    "2026_AI4S_uniform_400/sb-te/MLIP_MD/te/te_300_uniform400.xyz": "524eb01bbefdef0e12a927b9df3ec43dcf719750336bad5e10f106215b072ffb",
+    "GST225/GST225_1080atoms.dump": "786ccf985fc57821452f5a4a52386d29c21ae368985aa345feb932367c929358",
+    "GST225/GST225_108atoms.dump": "2bd3391eb2ce0ca76304e9a0d63fca4115e544e6e86b7c6972fe866587e655e6",
+    "GST225/GST225_216atoms.xyz": "5136e544133ff90928d84aee3b7bce1935bec6a90f02f6fb1d27665ff5a8b5bd",
+    "GST225/GST225_512atoms.dump": "b3aba39406cc126296a67f694f6996a9b2adf15864201481a5deab097c5e38b8",
+    "GST225/GST225_720atoms.dump": "34154fec5c7106d42706a12f4620ef62901d8555fa4dde17b48a02f954ea4fbe",
+    "diffusion_rdf_dataset/generated/Ge/atoms_100.extxyz": "93d28b901bd2fd06df907e3b1d55695377b22abdc2f6e6c2346336e3635b68f6",
+    "diffusion_rdf_dataset/generated/Ge/atoms_1000.extxyz": "5a219e15a3662195a1a2657ae410a73f459c071ea5155f3c655cf38749d5efaf",
+    "diffusion_rdf_dataset/generated/Ge/atoms_300.extxyz": "c4f18499afb65a3327ee050a0ca80e3dd50e775164fd5ad33581f119d45cbc2b",
+    "diffusion_rdf_dataset/generated/Ge11Se9/atoms_100.extxyz": "f26bb0cc5c0a1bfa5b210541aacad333a5ed0aff46c6f8c52ab00a4c9bca9638",
+    "diffusion_rdf_dataset/generated/Ge11Se9/atoms_1000.extxyz": "cf79f92557550211dfde4e5fb763dc1d0f16a6667c398521d5dab6b864bc8101",
+    "diffusion_rdf_dataset/generated/Ge11Se9/atoms_300.extxyz": "581b73d89c0cdc4a365cdb9bb674988ca53d9853923df4de42d758db21a13b9c",
+    "diffusion_rdf_dataset/generated/Ge11Se9/atoms_30000.extxyz": "d3b16f439cd9e7a5e6e0ec35944aa8de5d795cdb0eb454dde975c534a85e7d8b",
+    "diffusion_rdf_dataset/generated/Ge2Se/atoms_300.extxyz": "43b9c467c82d4763f83b8c748f3e5a00bf6d4c637c81258cb8619de92ffdf870",
+    "diffusion_rdf_dataset/generated/Ge3Se/atoms_100.extxyz": "a8a51add5a2f8880f892e2e7e49cd335f69bb8437d8fb4b1f2aab3e672d6a342",
+    "diffusion_rdf_dataset/generated/Ge3Se/atoms_300.extxyz": "ed5a8a8e71814b0a5b86b2c43241458dda49e91b3f2e929b54be9dd9add033f5",
+    "diffusion_rdf_dataset/generated/Ge3Se17/atoms_100.extxyz": "8829420dd760374b003f5daff9ec9708fb4d3017b8145a94a7e17bd99a764797",
+    "diffusion_rdf_dataset/generated/Ge3Se17/atoms_300.extxyz": "30ae34d752aff968cb90792caa7cd4dde30cbeea75539e0dc4097e551229ceae",
+    "diffusion_rdf_dataset/generated/Ge3Se2/atoms_100.extxyz": "8c7a0f340e939fd27e82d4e2d1688d817ba9524e7946b7359e70ec050691d09a",
+    "diffusion_rdf_dataset/generated/Ge3Se2/atoms_1000.extxyz": "927b94a602c698473254ce10238bee8aa0d633108b979490e2947587290c278c",
+    "diffusion_rdf_dataset/generated/Ge3Se2/atoms_300.extxyz": "62d6a9f5986befae0fa547f003d9085f0f9991a78367ee7d4f6c0f57ada4ea5c",
+    "diffusion_rdf_dataset/generated/Ge3Se7/atoms_100.extxyz": "e5c1a92bc8435011b1f50a751314dee4babe24fac4ab43f0dc21bedaf993d8b7",
+    "diffusion_rdf_dataset/generated/Ge3Se7/atoms_1000.extxyz": "748583b3ca216dee8c4163b2daa8ddbd094d08b745d7855c31996eebce9d7897",
+    "diffusion_rdf_dataset/generated/Ge3Se7/atoms_300.extxyz": "a1801b8f9422b7a0208a125fe057c86b3ed46c139e766f3fcf96e86d6db59dac",
+    "diffusion_rdf_dataset/generated/Ge4Se/atoms_100.extxyz": "a22bbefe484405564ad3752aa28b210274dabc93ba90fd564be8dd676107386a",
+    "diffusion_rdf_dataset/generated/Ge4Se/atoms_300.extxyz": "fc2962975e46c58ff912305cdcf1989d68165e4c3b78d034f57c9d583dfb44ce",
+    "diffusion_rdf_dataset/generated/Ge7Se3/atoms_100.extxyz": "93c2cfdf864e36c019f0accc1729555c77514993e17af830949caeec56da8b7f",
+    "diffusion_rdf_dataset/generated/Ge7Se3/atoms_1000.extxyz": "c80e25dae0e55a905e511c5b14f7f6f2a4264c4df97a440a970663c6c72e0250",
+    "diffusion_rdf_dataset/generated/Ge7Se3/atoms_300.extxyz": "4f2ea31fcfbbd73f3a2be44faee5323751d9b65864a939284d9bf3bf7a4d2156",
+    "diffusion_rdf_dataset/generated/GeSe/atoms_100.extxyz": "eeb4a8132289e6b5ab9057ac6f55ab1483bd8181d9a14ce33632790d3cee2af3",
+    "diffusion_rdf_dataset/generated/GeSe/atoms_1000.extxyz": "053e62219042933f45b49c1d151465006fc723330d8eec0f8325d0b9454b2fb4",
+    "diffusion_rdf_dataset/generated/GeSe/atoms_300.extxyz": "dec6d0cc23969deb5ca6907352534e887460758ae1dc76b94d946fa68207aed9",
+    "diffusion_rdf_dataset/generated/GeSe19/atoms_100.extxyz": "5a83cf8e765bcbcdbf6feb6f3cc93f778f6d1ce5d95022b5a5c6896f256bdf04",
+    "diffusion_rdf_dataset/generated/GeSe19/atoms_300.extxyz": "7aa5eb462538c232da1424a1b617721415a556da6ccf8895dca1fb0c717abeb7",
+    "diffusion_rdf_dataset/generated/GeSe2/atoms_300.extxyz": "8786d73e03b8e9e8dad2f5f9515c92e9dc423344503d5104aeea466437283ac3",
+    "diffusion_rdf_dataset/generated/GeSe3/atoms_100.extxyz": "3ee715285271bb1f6f30ce36d883fc7f3ae344d8017661c5408dd2d787051c0c",
+    "diffusion_rdf_dataset/generated/GeSe3/atoms_300.extxyz": "e5f775368ffb367855cd6447d51e3740446b4933c2983fff9cb9fef449cb4c66",
+    "diffusion_rdf_dataset/generated/Se/atoms_100.extxyz": "c35d1a935155a834f1e9a7cc8370199e7d320ef40021e28768c2fcec1c0b8644",
+    "diffusion_rdf_dataset/generated/Se/atoms_1000.extxyz": "09a9b7a0a7b32afdb3b69a3068a5bca57702ccd3b4c1b8aa93d53cc71a916865",
+    "diffusion_rdf_dataset/generated/Se/atoms_300.extxyz": "fda42a70218beb5731318bba09e58ef1ec7c63a8c8a47b1680a85897ae8a0587"
+  },
+  "cache_files": {
+    "2026_AI4S_uniform_400/gete/MLIP_MD/GeTe_1000_300K_uniform400.dump": "inventory/diversity_cache/005d9b846e69d3a84fd775aec637780996a7a2652c2352a0f71f85c75ec9d35f.npz",
+    "2026_AI4S_uniform_400/gete/MLIP_MD/GeTe_2400_300K_uniform400.dump": "inventory/diversity_cache/082b716b682da2ea504eef7e26b20bc27a2c115e8e6ca09016af4e5e506dd6ed.npz",
+    "2026_AI4S_uniform_400/gete/MLIP_MD/GeTe_300_0_uniform400.dump": "inventory/diversity_cache/f6026f5250b80162eb3d34a098eb4a9cf52f39d51ae573ef7ad0d5dfd7172c40.npz",
+    "2026_AI4S_uniform_400/gete/MLIP_MD/GeTe_300_1_uniform400.dump": "inventory/diversity_cache/5e1aa201b54d972c25256f8ced31d2dc1a0e4ee46ac7e027289cb8286e1e720c.npz",
+    "2026_AI4S_uniform_400/gete/MLIP_MD/GeTe_300_2_uniform400.dump": "inventory/diversity_cache/0f693c85ce226de728a20c58d4fe6a525c090ca470cf8de66952becdd925d019.npz",
+    "2026_AI4S_uniform_400/sb-te/MLIP_MD/sb/sb_1000_uniform400.xyz": "inventory/diversity_cache/7bd41f073d4c53b2ce766b48eadea7a2359a67c166e32b58b3a7f6155e761037.npz",
+    "2026_AI4S_uniform_400/sb-te/MLIP_MD/sb/sb_2400_uniform400.xyz": "inventory/diversity_cache/dd6d0e235900cf21d7f818060ae643a234938e7f0e86afefccadb3ac43457e49.npz",
+    "2026_AI4S_uniform_400/sb-te/MLIP_MD/sb/sb_300_uniform400.xyz": "inventory/diversity_cache/e3da2fa606de33f85dd7bce48d6432b207826a1a4ecf1f266c00e02e13e11f55.npz",
+    "2026_AI4S_uniform_400/sb-te/MLIP_MD/sb2te/sb2te_1000_uniform400.xyz": "inventory/diversity_cache/035b65ad4302b9596c4f047e2b10fe9d184019f7c493a8394bf09ce02f56f7f6.npz",
+    "2026_AI4S_uniform_400/sb-te/MLIP_MD/sb2te/sb2te_2400_uniform400.xyz": "inventory/diversity_cache/b56c5661f992c71c78ac08a2c770d234ee3f276eb1263dbc8e88cebc9b9e36f7.npz",
+    "2026_AI4S_uniform_400/sb-te/MLIP_MD/sb2te/sb2te_300_uniform400.xyz": "inventory/diversity_cache/86ca149985704d41da99dd77e1783e05339b0474eb53db380853f40c1a3e7f1b.npz",
+    "2026_AI4S_uniform_400/sb-te/MLIP_MD/sb2te2/sb2te2_1000_uniform400.xyz": "inventory/diversity_cache/109842d1736faed0104b9b12163293de2bd4e72d7b7747b21b4bd1b1d20db802.npz",
+    "2026_AI4S_uniform_400/sb-te/MLIP_MD/sb2te2/sb2te2_2400_uniform400.xyz": "inventory/diversity_cache/7b0295c7d7523221530be082c7681b4609f4ca919286b2350aa7e650ab1d883f.npz",
+    "2026_AI4S_uniform_400/sb-te/MLIP_MD/sb2te2/sb2te2_300_uniform400.xyz": "inventory/diversity_cache/f15b9dde83c7f649eca1c9849678a3fe88c0bb297edcac64fef57bf7dc236d87.npz",
+    "2026_AI4S_uniform_400/sb-te/MLIP_MD/sb2te3/sb2te3_1000_uniform400.xyz": "inventory/diversity_cache/b1f7d1aa0bb0280cdf41c09e9e14f018f2bd97dfec1f64bc4341125e06ee4e06.npz",
+    "2026_AI4S_uniform_400/sb-te/MLIP_MD/sb2te3/sb2te3_300_uniform400.xyz": "inventory/diversity_cache/1f256e69d32d4a7de768cf48fd7d4fb197798d79886a2d37327d07e24210acf6.npz",
+    "2026_AI4S_uniform_400/sb-te/MLIP_MD/sb2te3/sb2te3_2400_uniform400.xyz": "inventory/diversity_cache/1e2976c349b4a054a7a315b87a08a45c7902ceca666642a151c346bc92c036b8.npz",
+    "2026_AI4S_uniform_400/sb-te/MLIP_MD/sbte2/sbte2_1000_uniform400.xyz": "inventory/diversity_cache/c70b90efa0d336b095995ae0b30d264ee34bcb5efb71a82c6b87587fc6431205.npz",
+    "2026_AI4S_uniform_400/sb-te/MLIP_MD/sbte2/sbte2_2400_uniform400.xyz": "inventory/diversity_cache/1678e3a373c015093b656d578e8b5d4fd93f06ccd19b15cf0ba6195dbb031df5.npz",
+    "2026_AI4S_uniform_400/sb-te/MLIP_MD/sbte2/sbte2_300_uniform400.xyz": "inventory/diversity_cache/db79426b23700d5fe675ee893557c4f62a2d30539bd17c25d2f322ee53f3aaed.npz",
+    "2026_AI4S_uniform_400/sb-te/MLIP_MD/te/te_1000_uniform400.xyz": "inventory/diversity_cache/40996d6357fb6c7196beae0c06340ecbb52fb4942a68fbecdaf18984b5654193.npz",
+    "2026_AI4S_uniform_400/sb-te/MLIP_MD/te/te_2400_uniform400.xyz": "inventory/diversity_cache/edce3b69eb1b4c4874cd83058f2f7c715d08020b06085b60c79cd73d6528a175.npz",
+    "2026_AI4S_uniform_400/sb-te/MLIP_MD/te/te_300_uniform400.xyz": "inventory/diversity_cache/dcc8d65a88e8f9cc7658fcbf4d9f1a5fb68741f9d10ab016c9540a6a14611bc9.npz",
+    "GST225/GST225_108atoms.dump": "inventory/diversity_cache/b0d3ca06065a84d176635298a2eed5b08858c98de440cbb290fcd533d3ce4025.npz",
+    "GST225/GST225_216atoms.xyz": "inventory/diversity_cache/84dfc2cc7468911c4c0d86bf21600db937d6cc06cb301a71450e2393a9f9ffd5.npz",
+    "GST225/GST225_1080atoms.dump": "inventory/diversity_cache/292846bf23b6f40dcbeca33dfd146184217dd887290eb79beb5b63d34e6e7576.npz",
+    "GST225/GST225_720atoms.dump": "inventory/diversity_cache/4a86629fd90737f24d097e2e539375945e510afef2a38c55b187791c4f0356ef.npz",
+    "diffusion_rdf_dataset/generated/Ge/atoms_100.extxyz": "inventory/diversity_cache/a2c44cc6631b18339fa0a1f56f6a51a949b72ea8b82d0157234682b1364ade66.npz",
+    "diffusion_rdf_dataset/generated/Ge/atoms_1000.extxyz": "inventory/diversity_cache/37b5f882d3c856ac107859f614521a3806898e966c110b419da2f39d51c5e72a.npz",
+    "diffusion_rdf_dataset/generated/Ge/atoms_300.extxyz": "inventory/diversity_cache/91d29de0e15e21a31d58a0efd2b5f3fae4bdba63fa72044e940ae9539d3db0a0.npz",
+    "GST225/GST225_512atoms.dump": "inventory/diversity_cache/88fafce2a46dc2582034681d3ce799f47f99aa467b6979b1296171980b86acf5.npz",
+    "diffusion_rdf_dataset/generated/Ge11Se9/atoms_100.extxyz": "inventory/diversity_cache/00b52284d20e10ab8d88038f58030ddf105816ac402d9c0f6b522e8f6f41f9ca.npz",
+    "diffusion_rdf_dataset/generated/Ge11Se9/atoms_1000.extxyz": "inventory/diversity_cache/456a088b7efd73e7e8700b3fee6ccb5c29e4b41559a75e234bd47ad57c0ee945.npz",
+    "diffusion_rdf_dataset/generated/Ge11Se9/atoms_30000.extxyz": "inventory/diversity_cache/a65ac2dca34bc77f6bfc45945791bc05301d25e5ba687b3218309a1970f4da27.npz",
+    "diffusion_rdf_dataset/generated/Ge11Se9/atoms_300.extxyz": "inventory/diversity_cache/25b3eae6e853bc0efeeb3eb3248fbea7107497fe377e273d6aa8c8930c0e7674.npz",
+    "diffusion_rdf_dataset/generated/Ge2Se/atoms_300.extxyz": "inventory/diversity_cache/5613f022cd88898bec005615da6e4e14445efcab0876825a0ef96374a89507dc.npz",
+    "diffusion_rdf_dataset/generated/Ge3Se/atoms_100.extxyz": "inventory/diversity_cache/b6869c4b4dc10fc1c29eb87fe19733a187dfe7a4fd61ea03b7370ddf7c1a9298.npz",
+    "diffusion_rdf_dataset/generated/Ge3Se17/atoms_100.extxyz": "inventory/diversity_cache/dba8708e81a68bf4728861146a102916d1ad1c6ea8f5540472b67f585eecd13e.npz",
+    "diffusion_rdf_dataset/generated/Ge3Se/atoms_300.extxyz": "inventory/diversity_cache/0ce8e9490b5a73454cea2d41a3dd47bbd16c6959cee12b0c5ac04bade85117d1.npz",
+    "diffusion_rdf_dataset/generated/Ge3Se17/atoms_300.extxyz": "inventory/diversity_cache/864b853dae2ab60aae989f964426604ff8759dbc884a411d6d903dd756e432e6.npz",
+    "diffusion_rdf_dataset/generated/Ge3Se2/atoms_100.extxyz": "inventory/diversity_cache/457c71f2bafedb2b607e5f508264c575968bcd70d3d35462403066c3affaf9ab.npz",
+    "diffusion_rdf_dataset/generated/Ge3Se2/atoms_1000.extxyz": "inventory/diversity_cache/f160665cc2b5bf549c8ef4bd7664ae3f3e0950670614b510205278d49e616519.npz",
+    "diffusion_rdf_dataset/generated/Ge3Se7/atoms_100.extxyz": "inventory/diversity_cache/ecf1b16e610fe9e99ee2901c5737dc798599ef9f954f3f2a43aea15f2e0fbf84.npz",
+    "diffusion_rdf_dataset/generated/Ge3Se2/atoms_300.extxyz": "inventory/diversity_cache/34045e5784c56fe108adc44988cb13533d3a32608fa50a1d1b6abc44bdac3f61.npz",
+    "diffusion_rdf_dataset/generated/Ge3Se7/atoms_1000.extxyz": "inventory/diversity_cache/2000d2a60fc0419d3d37007dcf9c898e7ff42adac8f52d5415a4281531d89ee5.npz",
+    "diffusion_rdf_dataset/generated/Ge4Se/atoms_100.extxyz": "inventory/diversity_cache/4846ba253f5bc961d3084dc07267f402e855ff317cff657c0747a5b16f860337.npz",
+    "diffusion_rdf_dataset/generated/Ge3Se7/atoms_300.extxyz": "inventory/diversity_cache/714ab698188b503cd3be81a210b8899383124230c33dbe41fb7ecb322fd42095.npz",
+    "diffusion_rdf_dataset/generated/Ge4Se/atoms_300.extxyz": "inventory/diversity_cache/ce88f4171714f2ec7c05584b105a9d2c8c536a5f5f1606c1bfdb0285b9607566.npz",
+    "diffusion_rdf_dataset/generated/Ge7Se3/atoms_100.extxyz": "inventory/diversity_cache/a5a166953ed1520d681aa6f6ff3b39f898154fbbd27e0bea86547417652f92f1.npz",
+    "diffusion_rdf_dataset/generated/Ge7Se3/atoms_1000.extxyz": "inventory/diversity_cache/a927fd76d2e56aa350ff61ecbc020dc734c7c9e08c3632c1d760e030d1d7498a.npz",
+    "diffusion_rdf_dataset/generated/GeSe/atoms_100.extxyz": "inventory/diversity_cache/1ce80ca7b93e1875782fe0e4971636c2f59da88e1626ada06b9cb5b5691f63e1.npz",
+    "diffusion_rdf_dataset/generated/Ge7Se3/atoms_300.extxyz": "inventory/diversity_cache/ce6bc0ec2dfd8f13c2e5c5e374cbc75a68720a0d6caf8910a756f57e10ead423.npz",
+    "diffusion_rdf_dataset/generated/GeSe/atoms_1000.extxyz": "inventory/diversity_cache/b9416fc2e282e454d04677e6a93493d075d1676fbe76acf05f137267bf189754.npz",
+    "diffusion_rdf_dataset/generated/GeSe19/atoms_100.extxyz": "inventory/diversity_cache/d6be52b97da48b2755fbdc0fb87fb61ee34e243f18f4d7e3b3376fcac217ea10.npz",
+    "diffusion_rdf_dataset/generated/GeSe/atoms_300.extxyz": "inventory/diversity_cache/a47ba2cc5f617963855b968270264a53709cf3eaf5a5e137926c2eb9badcf9b1.npz",
+    "diffusion_rdf_dataset/generated/GeSe19/atoms_300.extxyz": "inventory/diversity_cache/ddf056ea6972c521ae52b2e4611756026d9aea9a22ddeea6fb0a28e6687b3517.npz",
+    "diffusion_rdf_dataset/generated/GeSe2/atoms_300.extxyz": "inventory/diversity_cache/aaebd62db0985405876346a6855c3cf34ab4e3a14ca651d20bde4bf936238ebd.npz",
+    "diffusion_rdf_dataset/generated/GeSe3/atoms_100.extxyz": "inventory/diversity_cache/92f713e17a27af9ad249eaa7e8b8af129ef8bded0628547410273b497fa0a550.npz",
+    "diffusion_rdf_dataset/generated/Se/atoms_100.extxyz": "inventory/diversity_cache/300961f794c7b2584740b353647f31636977ccf7df9f8c658b393e19130683f9.npz",
+    "diffusion_rdf_dataset/generated/GeSe3/atoms_300.extxyz": "inventory/diversity_cache/1864818933ddedd8926c39092a3b185c7593a3208b2b2d2e786b22bc4a25bda8.npz",
+    "diffusion_rdf_dataset/generated/Se/atoms_1000.extxyz": "inventory/diversity_cache/f83e8e5878ee65018b2e91466362e397a34e20aa3b5f38ea9e52393b759f188f.npz",
+    "diffusion_rdf_dataset/generated/Se/atoms_300.extxyz": "inventory/diversity_cache/74655c8fc00e63030118318cf189cf457a3ffefc57ca6ca3c14a2a1878590841.npz"
+  },
+  "temporal_independence_claim": false,
+  "error_formula": "100*abs(r_AI-r_AIMD)/r_AIMD",
+  "error_threshold_applied": false
+}

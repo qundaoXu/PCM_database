@@ -62,6 +62,7 @@ def main():
     if any(x["结构文件"] == rel for x in records):
         print(f"[warn] {rel} 已存在于 metadata，跳过追加。")
     else:
+        rec.update(sid=f"s{len(records):04d}", **{"生成方式": "AIMD", "AI类别": None, "建模方法": "AIMD", "g(r)主峰相对误差_pct": None})
         records.append(rec)
         META_JSON.write_text(json.dumps(records, ensure_ascii=False, indent=2), encoding="utf-8")
         import pandas as pd

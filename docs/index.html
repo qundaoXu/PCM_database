@@ -4,11 +4,17 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>PCM Database</title>
+<script>
+// Local JSON and workers require HTTP; use the project's local preview service.
+if(location.protocol==='file:')location.replace('http://127.0.0.1:8765/'+location.hash);
+</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <script src="vendor/three.min.js"></script>
 <script src="vendor/OrbitControls.js"></script>
+<script src="catalog_logic.js"></script>
+<script src="pca.js"></script>
 <style>
 :root{
   --plane:#f7f8fa; --surface:#ffffff; --soft:#f6f6f7; --ink:#1b1b1f; --ink2:#4b4b52; --muted:#8a8a91;
@@ -71,8 +77,9 @@ a{color:var(--series);text-decoration:none}a:hover{text-decoration:underline}
 .topbar{position:absolute;top:18px;right:20px;display:flex;gap:8px;z-index:5}
 .tbtn{background:var(--surface);color:var(--ink2);border:1px solid var(--border);border-radius:9px;
   padding:7px 13px;cursor:pointer;font-size:13px;font-family:inherit;font-weight:500;
-  box-shadow:var(--sh1);transition:color .15s,border-color .15s,box-shadow .15s,transform .15s}
-.tbtn:hover{color:var(--series);border-color:var(--series);box-shadow:var(--sh2)}
+  box-shadow:var(--sh1);transition:color .15s,border-color .15s,box-shadow .15s,transform .15s;
+  text-decoration:none;display:inline-block}
+.tbtn:hover{color:var(--series);border-color:var(--series);box-shadow:var(--sh2);text-decoration:none}
 .tbtn:active{transform:translateY(1px)}
 header{position:relative;padding:60px 0 30px;overflow:hidden}
 header::before{content:"";position:absolute;top:-160px;left:-80px;width:520px;height:360px;
@@ -104,6 +111,20 @@ h1{font-size:clamp(34px,5.2vw,52px);line-height:1.08;margin:.28em 0 .18em;letter
   background:var(--grad);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
 .tile .v.tv{font-size:clamp(18px,2.4vw,24px);line-height:1.25}
 .tile .l{font-size:12.5px;color:var(--muted);margin-top:4px;font-weight:500}
+.actions{display:flex;flex-wrap:wrap;gap:14px;align-items:center;justify-content:center;margin:30px 0 4px}
+.act{display:inline-flex;align-items:center;gap:9px;font-family:inherit;font-size:15.5px;font-weight:650;
+  border-radius:999px;padding:12px 26px;cursor:pointer;text-decoration:none;border:1px solid transparent;line-height:1;
+  transition:transform .15s,box-shadow .18s,border-color .15s,color .15s,background .15s}
+.act:hover{text-decoration:none}
+.act:active{transform:translateY(1px)}
+.act .ico{font-size:1.4em;line-height:1;display:inline-block}
+.act.primary{background:var(--grad);color:#fff;box-shadow:var(--sh2)}
+.act.primary:hover{box-shadow:var(--sh3);color:#fff;transform:translateY(-1px)}
+.act.ghost{background:var(--surface);color:var(--ink);border-color:var(--border);box-shadow:var(--sh1)}
+.act.ghost:hover{border-color:var(--series);color:var(--series);box-shadow:var(--sh2)}
+.act.link{background:transparent;color:var(--ink2);padding:12px 12px}
+.act.link:hover{color:var(--series)}
+.act.link .ico.ar{font-size:1.1em}
 section{padding:34px 0}
 h2{font-size:22px;letter-spacing:-.01em;margin:0 0 4px;font-weight:700}
 .hint{color:var(--muted);font-size:13px;margin:0 0 18px;max-width:78ch}
@@ -137,6 +158,16 @@ text{fill:var(--ink2);font-size:11px;font-family:inherit}
 .controls input:focus,.controls select:focus{outline:none;border-color:var(--series);
   box-shadow:0 0 0 3px var(--series-soft)}
 .controls input[type=search]{min-width:220px;flex:1}
+.error-filter{display:flex;gap:6px;align-items:center;color:var(--muted);font-size:12px}
+.error-filter input{width:92px;min-width:0;padding:9px 8px}
+.source-swatch{width:34px;height:28px;padding:2px;border:1px solid var(--border);border-radius:6px;background:var(--surface);cursor:pointer}
+.source-key{display:flex;gap:12px;flex-wrap:wrap;font-size:12px;color:var(--muted)}
+.source-key i{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:5px;vertical-align:middle}
+.model-controls{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.model-controls .vizc-grp{min-width:0;gap:7px}
+.model-controls .vizc-lbl{white-space:nowrap}
+.model-controls .reference-controls{grid-column:1/-1;border-top:1px solid var(--border);padding-top:10px}
+.model-opacity{font-size:11px;color:var(--muted)}
 .cbox{position:relative;display:inline-block}
 .cbox-btn{background:var(--surface);color:var(--ink);border:1px solid var(--border);
   border-radius:9px;padding:9px 12px;font-family:inherit;font-size:13.5px;cursor:pointer;
@@ -190,6 +221,20 @@ tbody tr{cursor:pointer;transition:background .12s} tbody tr:hover{background:va
 .pill{display:inline-block;padding:2px 10px;border-radius:999px;font-size:11.5px;background:var(--series-soft);color:var(--brand-3);font-weight:600}
 td.idx{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12px;color:var(--muted);letter-spacing:.3px}
 tr.hi td{background:var(--series-soft)}
+/* Main catalog: fit all columns on desktop; retain horizontal scrolling on small screens. */
+#tbl{table-layout:fixed;min-width:1136px;font-size:12.5px}
+#tbl th{height:48px;padding:8px 16px 8px 6px;font-size:11px;line-height:1.25;
+  letter-spacing:0;white-space:normal;vertical-align:middle}
+#tbl th>span[data-i18n]{display:inline-block;max-width:100%;white-space:pre-line;hyphens:auto}
+#tbl th .sind{position:absolute;right:4px;top:50%;transform:translateY(-50%);margin:0}
+#tbl .sind i{border-left-width:3px;border-right-width:3px}
+#tbl td{padding:8px 6px;overflow:hidden;text-overflow:ellipsis}
+#tbl td.idx{font-size:11.5px;letter-spacing:0}
+#tbl td.act{display:table-cell;vertical-align:middle;font-size:12.5px;border-radius:0;box-shadow:none;
+  background:transparent;transform:none;border-top:0;border-left:0;border-right:0}
+#tbl td.fml .formula-main,#tbl td.fml .formula-ratio{display:block;overflow:hidden;text-overflow:ellipsis}
+#tbl td.fml .formula-ratio{font-size:10.5px;color:var(--muted);line-height:1.3}
+#tbl .pill{max-width:100%;padding:2px 6px;white-space:normal;line-height:1.3;vertical-align:middle}
 .vizpanel{width:100%;margin:14px auto 20px;background:var(--surface);border:1px solid var(--border);
   border-radius:14px;padding:14px 16px 16px;box-shadow:var(--sh1)}
 .viztitle{margin:0 0 8px;font-size:15px}
@@ -291,7 +336,6 @@ code{background:var(--soft);border:1px solid var(--border);border-radius:6px;pad
 </head>
 <body>
 <div class="topbar">
-  <button class="tbtn" id="uploadBtn" style="display:none" data-i18n="upload"></button>
   <button class="tbtn" id="langBtn">EN</button>
   <button class="tbtn" id="themeBtn">◐</button>
 </div>
@@ -406,6 +450,14 @@ code{background:var(--soft);border:1px solid var(--border);border-radius:6px;pad
       </div>
     </div>
     <div class="tiles" id="tiles"></div>
+    <div class="actions">
+      <button class="act primary" id="uploadBtn" style="display:none">
+        <span class="ico">⬆</span><span data-i18n="upload"></span></button>
+      <a class="act primary" id="docsBtn" href="docs.html">
+        <span class="ico">📖</span><span data-i18n="docs"></span></a>
+      <a class="act link" id="ghBtn" href="https://github.com/qundaoXu/PCM_database" target="_blank" rel="noopener">
+        <span data-i18n="github"></span><span class="ico ar">↗</span></a>
+    </div>
   </header>
 
   <section>
@@ -428,11 +480,14 @@ code{background:var(--soft);border:1px solid var(--border);border-radius:6px;pad
     </div>
     <div class="controls">
       <input type="search" id="q" data-i18n-ph="search_ph">
+      <div class="cbox" id="originBox"><button type="button" class="cbox-btn" id="originBtn"><span id="originLab"></span></button><div class="cbox-pop" id="originPop" hidden></div></div>
       <div class="cbox" id="sysBox"><button type="button" class="cbox-btn" id="sysBtn"><span id="sysLab"></span></button><div class="cbox-pop" id="sysPop" hidden></div></div>
       <div class="cbox" id="phaseBox"><button type="button" class="cbox-btn" id="phaseBtn"><span id="phaseLab"></span></button><div class="cbox-pop" id="phasePop" hidden></div></div>
       <div class="cbox" id="tempBox"><button type="button" class="cbox-btn" id="tempBtn"><span id="tempLab"></span></button><div class="cbox-pop" id="tempPop" hidden></div></div>
       <div class="cbox" id="funcBox"><button type="button" class="cbox-btn" id="funcBtn"><span id="funcLab"></span></button><div class="cbox-pop" id="funcPop" hidden></div></div>
       <div class="cbox" id="contribBox"><button type="button" class="cbox-btn" id="contribBtn"><span id="contribLab"></span></button><div class="cbox-pop" id="contribPop" hidden></div></div>
+      <div class="error-filter"><span data-i18n="error_filter"></span><input id="errorMin" type="number" min="0" step="0.1" data-i18n-ph="min_value" aria-label="Minimum g(r) peak error percent"><span>–</span><input id="errorMax" type="number" min="0" step="0.1" data-i18n-ph="max_value" aria-label="Maximum g(r) peak error percent"></div>
+      <button class="tbtn" id="exportMetadata" data-i18n="export_metadata"></button>
       <span class="count" id="shown"></span>
     </div>
     <div class="vizpanel" id="vizSection">
@@ -447,12 +502,36 @@ code{background:var(--soft);border:1px solid var(--border);border-radius:6px;pad
           <div class="vizc-grp">
             <label class="vizc-lbl" data-i18n="viz_colorby"></label>
             <select id="vizColorBy">
+              <option value="origin" data-i18n="c_origin"></option>
               <option value="phase" data-i18n="viz_cb_phase"></option>
               <option value="function" data-i18n="viz_cb_func"></option>
               <option value="density" data-i18n="viz_cb_density"></option>
               <option value="energy" data-i18n="viz_cb_energy"></option>
+              <option value="rdf_error" data-i18n="c_rdf_error"></option>
             </select>
           </div>
+          <div class="model-controls">
+            <div class="vizc-grp">
+              <label class="vizc-lbl" for="aimdColor" data-i18n="aimd_color"></label>
+              <input class="source-swatch" id="aimdColor" type="color" value="#d34f51">
+              <label class="model-opacity" for="aimdOpacity"><span data-i18n="viz_opacity"></span> · <span id="aimdOpacityVal"></span></label>
+              <input type="range" id="aimdOpacity" min="0.05" max="1" step="0.05">
+            </div>
+            <div class="vizc-grp">
+              <label class="vizc-lbl" for="aiColor" data-i18n="ai_color"></label>
+              <input class="source-swatch" id="aiColor" type="color" value="#2f74dd">
+              <label class="model-opacity" for="aiOpacity"><span data-i18n="viz_opacity"></span> · <span id="aiOpacityVal"></span></label>
+              <input type="range" id="aiOpacity" min="0.05" max="1" step="0.05">
+            </div>
+            <div class="vizc-grp reference-controls">
+              <label class="vizc-lbl" for="referenceColor" data-i18n="aimd_reference"></label>
+              <input class="source-swatch" id="referenceColor" type="color" value="#2a9d8f">
+              <label class="model-opacity" for="referenceOpacity"><span data-i18n="viz_opacity"></span> · <span id="referenceOpacityVal"></span></label>
+              <input type="range" id="referenceOpacity" min="0.05" max="1" step="0.05">
+              <label class="vizc-chk"><input type="checkbox" id="showReference" checked><span data-i18n="show_reference"></span></label>
+            </div>
+          </div>
+          <div class="source-key" id="sourceLegend"></div>
           <div class="vizc-grp" id="vizCmapGroup">
             <label class="vizc-lbl" data-i18n="viz_colormap"></label>
             <select id="vizCmap"></select>
@@ -462,19 +541,25 @@ code{background:var(--soft);border:1px solid var(--border);border-radius:6px;pad
             <label class="vizc-lbl"><span data-i18n="viz_size"></span> · <span id="vizSizeVal"></span></label>
             <input type="range" id="vizSize" min="2" max="12" step="1">
           </div>
-          <div class="vizc-grp">
-            <label class="vizc-lbl"><span data-i18n="viz_opacity"></span> · <span id="vizOpacityVal"></span></label>
-            <input type="range" id="vizOpacity" min="0.1" max="1" step="0.05">
-          </div>
           <div class="vizlegend" id="vizLegend"></div>
         </div>
       </div>
     </div>
     <div class="tblwrap"><table id="tbl">
+      <colgroup>
+        <col style="width:84px"><col style="width:66px"><col style="width:130px">
+        <col style="width:92px"><col style="width:98px"><col style="width:96px">
+        <col style="width:88px"><col style="width:84px"><col style="width:50px">
+        <col style="width:60px"><col style="width:68px"><col style="width:64px">
+        <col style="width:100px"><col style="width:56px">
+      </colgroup>
       <thead><tr>
         <th data-k="sid"><span data-i18n="c_idx"></span></th>
         <th data-k="system"><span data-i18n="c_system"></span></th>
         <th class="fml" data-k="formula"><span data-i18n="c_formula"></span></th>
+        <th data-k="generation_origin"><span data-i18n="c_origin"></span></th>
+        <th data-k="modeling_method"><span data-i18n="c_method_table"></span></th>
+        <th class="num" data-k="rdf_peak_error_pct" data-i18n-title="rdf_error_definition"><span data-i18n="c_rdf_error_table"></span></th>
         <th data-k="phase"><span data-i18n="c_phase"></span></th>
         <th data-k="functionality"><span data-i18n="c_func"></span></th>
         <th data-k="temperature"><span data-i18n="c_temp"></span></th>
@@ -484,7 +569,7 @@ code{background:var(--soft);border:1px solid var(--border);border-radius:6px;pad
         <th data-k="contributor"><span data-i18n="c_contributor"></span></th>
         <th data-i18n="c_view"></th>
       </tr></thead>
-      <tbody id="tbody"><tr><td colspan="11" class="load">…</td></tr></tbody>
+      <tbody id="tbody"><tr><td colspan="14" class="load">…</td></tr></tbody>
     </table></div>
     <div class="pager" id="pager">
       <button class="tbtn" id="firstPage">«</button>
@@ -600,6 +685,7 @@ code{background:var(--soft);border:1px solid var(--border);border-radius:6px;pad
     <div class="mcolors" id="mColors"></div>
     <div class="mfoot">
       <a class="btn" id="mDownload" download><span data-i18n="dl_poscar"></span></a>
+      <button class="btn ghost" id="mMetadata" data-i18n="download_metadata"></button>
       <button class="btn ghost" id="mStyle" data-i18n="toggle_style"></button>
     </div>
   </div>
@@ -628,7 +714,8 @@ const I18N={
    view:'▶ 3D',t_total:'结构总数',t_sys:'材料体系',t_natoms:'原子数范围',t_dens:'数密度中位',t_phase:'相态',phase_amor:'非晶',phase_cryst:'晶态',phase_liq:'液态',
    shown:(a,b)=>`显示 ${a} / ${b}`,page:(a,b)=>`第 ${a} / ${b} 页`,sel_none:'未选元素',sel_pre:'已选：',
    dl_poscar:'⬇ 下载 POSCAR',toggle_style:'切换显示（球棍/填充）',elem_colors:'元素颜色',reset:'↺ 重置',
-   upload:'⬆ 上传数据',up_title:'上传结构入库',up_file:'结构文件 (POSCAR/CONTCAR)',
+   docs:'文档',github:'GitHub',
+   upload:'贡献数据',up_title:'上传结构入库',up_file:'结构文件 (POSCAR/CONTCAR)',
    up_pick:'选择文件后自动计算化学式 / 原子数 / 密度',up_temp:'温度 (K)',up_dest:'存放路径',
    up_func:'功能性',up_func_auto:'自动识别',
    up_src:'HPC 来源 (可选)',up_submit:'提交入库',up_cancel:'关闭',
@@ -675,7 +762,8 @@ const I18N={
    view:'▶ 3D',t_total:'Structures',t_sys:'Material systems',t_natoms:'Atom-count range',t_dens:'Median density',t_phase:'Phase',phase_amor:'amorph.',phase_cryst:'cryst.',phase_liq:'liquid',
    shown:(a,b)=>`Showing ${a} / ${b}`,page:(a,b)=>`Page ${a} / ${b}`,sel_none:'No elements selected',sel_pre:'Selected: ',
    dl_poscar:'⬇ Download POSCAR',toggle_style:'Toggle style (ball-stick/space-fill)',elem_colors:'Element colors',reset:'↺ Reset',
-   upload:'⬆ Upload',up_title:'Upload structure',up_file:'Structure file (POSCAR/CONTCAR)',
+   docs:'Docs',github:'GitHub',
+   upload:'Contribute data',up_title:'Upload structure',up_file:'Structure file (POSCAR/CONTCAR)',
    up_pick:'Pick a file — formula / atoms / density auto-computed',up_temp:'Temperature (K)',up_dest:'Store path',
    up_func:'Function',up_func_auto:'Auto-detect',
    up_src:'HPC source (optional)',up_submit:'Submit',up_cancel:'Close',
@@ -703,6 +791,36 @@ const I18N={
    footer:'Data and code live in this repository. Build the main DB: python scripts/build_asedb.py; query: ase db data/pcm.db; contribute: python scripts/add_structure.py (see README).',
    noload:'Cannot load data.json — open via HTTP or GitHub Pages, not by double-clicking the file.'}
 };
+Object.assign(I18N.zh,{
+  origin_all:'全部生成方式',c_origin:'生成方式',c_method:'建模方法',
+  c_method_table:'建模\n方法',c_rdf_error_table:'g(r) 峰位\n误差 (%)',
+  c_rdf_error:'g(r) 峰位误差 (%)',error_filter:'g(r) 误差 %',min_value:'最小值',max_value:'最大值',
+  rdf_error_definition:'100 × |r_AI − r_AIMD| / r_AIMD，总 g(r) 第一壳主峰位置的相对误差；AIMD 为 —。',
+  export_metadata:'导出筛选 metadata',download_metadata:'下载 metadata',aimd_color:'AIMD Modeling',ai_color:'AI Modeling',
+  aimd_reference:'AIMD reference',color_unknown:'未标注',
+  m_origin:'生成方式',m_method:'建模方法',m_rdf_error:'g(r) 峰位误差',m_ai_peak:'AI 主峰 (Å)',m_ref_peak:'AIMD 主峰 (Å)',
+  m_time:'模拟时间',m_time_order:'时间数量级',m_reference:'AIMD 参考材料',m_ref_frame:'参考轨迹帧号 (从 0 起)',
+  viz_loading:'正在计算结构分布…',viz_ref_count:(n,r)=>`${n.toLocaleString()} 个库内结构 + ${r} 个 AIMD 参考帧`,
+  show_reference:'显示 AIMD reference',modeling_hidden:'已隐藏',
+  viz_reference_hidden:n=>`${n.toLocaleString()} 个 AIMD reference 参考帧已隐藏`,
+  viz_hint:'使用相同参数的元素无关 SOAP，在同一 PCA 坐标中比较。AIMD Modeling、AI Modeling、AIMD reference 分别设置颜色和透明度；选择 AI 时自动叠加每条对应参考轨迹的 10 个采样帧。显示开关仅控制 AIMD reference。参考帧仅用于对照，不计入表格数量。悬停查看信息，点击预览，拖动框选放大。',
+  subtitle:'面向硫系存储材料（PCM / OTS / SOM）的结构数据库，收录第一性原理结构及 MLIP、Diffusion、Flow Matching 生成构型。可按来源、成分和 g(r) 主峰误差筛选，支持 3D 预览与下载。'
+});
+Object.assign(I18N.en,{
+  origin_all:'All generation origins',c_origin:'Generation',c_method:'Modeling method',
+  c_method_table:'Modeling\nmethod',c_rdf_error_table:'g(r) peak\nerror (%)',
+  c_rdf_error:'g(r) peak error (%)',error_filter:'g(r) error %',min_value:'Min',max_value:'Max',
+  rdf_error_definition:'100 × |r_AI − r_AIMD| / r_AIMD: relative position error of the first-shell total g(r) peak; AIMD has no error value.',
+  export_metadata:'Export filtered metadata',download_metadata:'Download metadata',aimd_color:'AIMD Modeling',ai_color:'AI Modeling',
+  aimd_reference:'AIMD reference',color_unknown:'Unspecified',
+  m_origin:'Generation',m_method:'Modeling method',m_rdf_error:'g(r) peak error',m_ai_peak:'AI peak (Å)',m_ref_peak:'AIMD peak (Å)',
+  m_time:'Simulation time',m_time_order:'Time order',m_reference:'AIMD reference material',m_ref_frame:'Reference frame (0-based)',
+  viz_loading:'Computing the structure map…',viz_ref_count:(n,r)=>`${n.toLocaleString()} catalog structures + ${r} AIMD reference frames`,
+  show_reference:'Show AIMD reference',modeling_hidden:'Hidden',
+  viz_reference_hidden:n=>`${n.toLocaleString()} AIMD reference frames hidden`,
+  viz_hint:'Shared element-agnostic SOAP parameters and joint PCA coordinates. AIMD Modeling, AI Modeling and AIMD reference have separate color and opacity controls. AI selections include 10 sampled frames per matching reference trajectory. The visibility switch controls AIMD reference only. Reference overlays are excluded from table counts. Hover for details, click to preview, and drag to zoom.',
+  subtitle:'A structure database for chalcogenide memory materials (PCM / OTS / SOM), combining first-principles structures with MLIP, Diffusion and Flow Matching models. Filter by origin, composition and g(r) peak error; preview in 3D and download.'
+});
 let LANG=localStorage.getItem('pcm_lang')||'zh';
 function t(k){const v=I18N[LANG][k];return v!==undefined?v:k;}
 function applyI18n(){
@@ -712,14 +830,14 @@ function applyI18n(){
   document.querySelectorAll('[data-i18n-ph]').forEach(e=>e.placeholder=t(e.dataset.i18nPh));
   document.querySelectorAll('[data-i18n-title]').forEach(e=>e.title=t(e.dataset.i18nTitle));
   document.getElementById('langBtn').textContent=LANG==='zh'?'EN':'中';
-  if(DATA){renderTiles();renderCharts();renderTable();renderSelEls();buildCboxItems();if(vizState){renderVizBar(vizState);renderLegend();}}
+  if(DATA){renderTiles();renderCharts();renderTable();renderSelEls();buildCboxItems();renderSourceLegend();if(vizState){renderVizBar(vizState);renderLegend();}}
   renderMlip();
 }
 function renderTiles(){
   const box=document.getElementById('tiles');if(!box||!DATA)return;
   const na=DATA.map(r=>r.natoms);
-  const PL={amorphous:'phase_amor',crystalline:'phase_cryst',liquid:'phase_liq'};
-  const order=['amorphous','liquid','crystalline'];
+  const PL={amorphous:'phase_amor',crystalline:'phase_cryst',liquid:'phase_liq',unknown:'color_unknown'};
+  const order=['amorphous','liquid','crystalline','unknown'];
   const phases=[...new Set(DATA.map(r=>r.phase))].sort((a,b)=>order.indexOf(a)-order.indexOf(b));
   const phaseVal=phases.map(p=>t(PL[p]||'')||p).join(' · ');
   const items=[
@@ -864,7 +982,7 @@ const FN_CLASS={'PCM':'fn-pcm','OTS':'fn-ots','SOM':'fn-som','PCM candidates':'f
 const FN_LABEL={zh:{'PCM candidates':'PCM 候选','Others':'其他'},en:{'PCM candidates':'PCM candidate'}};
 function fnClass(f){return FN_CLASS[f]||'fn-other';}
 function fnLabel(f){return (FN_LABEL[LANG]||{})[f]||f;}
-function normFormula(f){                 // 组分归一化为百分比：元素串(p%:p%:…)，保持元素出现顺序
+function normFormula(f,stacked=false){   // 组分归一化；表格中将化学式与比例分行显示
   const c={};let n=0;
   for(const m of String(f).matchAll(/([A-Z][a-z]?)(\d*)/g)){
     if(!m[1])continue;const k=m[2]?+m[2]:1;c[m[1]]=(c[m[1]]||0)+k;n+=k;
@@ -873,36 +991,32 @@ function normFormula(f){                 // 组分归一化为百分比：元素
   const els=Object.keys(c);
   const sub=els.map(e=>`${e}<sub>${(c[e]/n).toFixed(2)}</sub>`).join('');
   const pct=els.map(e=>Math.round(c[e]/n*100)+'%').join(':');
-  return `${sub}(${pct})`;
+  return stacked?`<span class="formula-main">${sub}</span><span class="formula-ratio">(${pct})</span>`:`${sub}(${pct})`;
 }
 function filtered(){
-  const q=document.getElementById('q').value.toLowerCase().trim();
-  const sf=CBOX.sys.sel,pf=CBOX.phase.sel,tf=CBOX.temp.sel,ff=CBOX.func.sel,cf=CBOX.contrib.sel;
-  return DATA.filter(r=>{
-    if(sf&&r.system!==sf)return false;
-    if(pf&&r.phase!==pf)return false;
-    if(tf&&r.temperature!==tf)return false;
-    if(ff&&(r.functionality||'Others')!==ff)return false;
-    if(cf&&r.contributor!==cf)return false;
-    if(SEL.size&&(r.elements.length!==SEL.size||![...SEL].every(e=>r.elements.includes(e))))return false;
-    if(q&&!(r.formula.toLowerCase().includes(q)||r.system.toLowerCase().includes(q)||r.path.toLowerCase().includes(q)))return false;
-    return true;
-  });
+  const bound=id=>{const v=document.getElementById(id).value;return v!==''&&Number.isFinite(+v)?+v:null;};
+  return PcmCatalog.filter(DATA||[],{q:document.getElementById('q').value,origin:CBOX.origin.sel,
+    system:CBOX.sys.sel,phase:CBOX.phase.sel,temperature:CBOX.temp.sel,functionality:CBOX.func.sel,
+    contributor:CBOX.contrib.sel,elements:[...SEL],errorMin:bound('errorMin'),errorMax:bound('errorMax')});
 }
 function renderTable(){
   let rows=filtered();
-  rows.sort((a,b)=>{let x=a[sortK],y=b[sortK];return typeof x==='string'?sortDir*x.localeCompare(y):sortDir*(x-y);});
+  rows.sort((a,b)=>{let x=a[sortK],y=b[sortK];if(x==null||y==null)return x==null?(y==null?0:1):-1;
+    return typeof x==='string'?sortDir*x.localeCompare(y):sortDir*(x-y);});
   const total=rows.length, pages=Math.max(1,Math.ceil(total/PAGESIZE));
   if(curPage>pages)curPage=pages; if(curPage<1)curPage=1;
   const start=(curPage-1)*PAGESIZE, slice=rows.slice(start,start+PAGESIZE);
   const tb=document.getElementById('tbody');tb.innerHTML='';const fr=document.createDocumentFragment();
   slice.forEach(r=>{const tr=document.createElement('tr');tr.onclick=()=>openViewer(r);
     const fn=r.functionality||'Others';
-    tr.innerHTML=`<td class="idx" title="${r.sid}">${r.sid}</td><td>${r.system}</td><td class="fml" title="${r.formula}">${normFormula(r.formula)}</td><td><span class="pill">${r.phase}</span></td>`+
+    tr.innerHTML=`<td class="idx" title="${r.sid}">${r.sid}</td><td title="${r.system}">${r.system}</td><td class="fml" title="${r.formula}">${normFormula(r.formula,true)}</td>`+
+      `<td><span class="pill">${r.generation_origin||'AIMD'}</span></td><td title="${r.modeling_method||'AIMD'}">${r.modeling_method||'AIMD'}</td>`+
+      `<td class="num" title="${t('rdf_error_definition')}">${r.rdf_peak_error_pct!=null?r.rdf_peak_error_pct.toFixed(3):'—'}</td>`+
+      `<td><span class="pill">${r.phase==='unknown'?t('color_unknown'):r.phase}</span></td>`+
       `<td><span class="pill ${fnClass(fn)}">${fnLabel(fn)}</span></td>`+
       `<td>${r.temperature}</td><td class="num">${r.natoms}</td><td class="num">${r.density.toFixed(4)}</td>`+
       `<td class="num">${r.energy_per_atom!=null?r.energy_per_atom.toFixed(3):'—'}</td>`+
-      `<td>${r.contributor}</td><td class="act">${t('view')}</td>`;fr.appendChild(tr);});
+      `<td title="${r.contributor||'—'}">${r.contributor||'—'}</td><td class="act">${t('view')}</td>`;fr.appendChild(tr);});
   tb.appendChild(fr);
   document.getElementById('shown').textContent=t('shown')(total,DATA.length);
   document.getElementById('pageInfo').textContent=t('page')(curPage,pages);
@@ -923,6 +1037,7 @@ function gotoPage(p){curPage=p;renderTable();document.querySelector('.tblwrap').
    sys 组分分组、每组各显示 top10；其余为平铺列表，超过 10 项同样折叠 + 展开。 */
 const CBOX_TOP=10;
 const CBOX={
+  origin: {allKey:'origin_all', grouped:false,sel:'',items:[],expN:{},expanded:false},
   sys:    {allKey:'sys_all',    grouped:true,  sel:'',items:[],expN:{},expanded:false},
   phase:  {allKey:'phase_all',  grouped:false, sel:'',items:[],expN:{},expanded:false},
   temp:   {allKey:'temp_all',   grouped:false, sel:'',items:[],expN:{},expanded:false},
@@ -933,7 +1048,7 @@ function cboxLabel(k){const s=CBOX[k],it=s.items.find(x=>x.v===s.sel);
   document.getElementById(k+'Lab').textContent=(s.sel&&it)?it.label:t(s.allKey);}
 function cboxRenderPop(k){
   const s=CBOX[k],pop=document.getElementById(k+'Pop');
-  const opt=x=>`<div class="cbox-opt${s.sel===x.v?' sel':''}" data-v="${x.v}">${x.label}</div>`;
+  const opt=x=>`<div class="cbox-opt${s.sel===x.v?' sel':''}${x.nested?' nested':''}" data-v="${x.v}">${x.label}</div>`;
   const more=(g,exp,rest)=>`<button type="button" class="cbox-more" data-g="${g}">${exp?t('sys_less'):t('sys_more')(rest)}</button>`;
   let html=`<div class="cbox-opt${s.sel===''?' sel':''}" data-v="">${t(s.allKey)}</div>`;
   if(s.grouped){
@@ -953,7 +1068,9 @@ function cboxRenderPop(k){
   pop.innerHTML=`<div class="cbox-list">${html}</div>`;
   pop.querySelector('.cbox-list').scrollTop=keepTop;            // 展开/收起后保持滚动位置
   pop.querySelectorAll('.cbox-opt').forEach(o=>o.onclick=()=>{
-    s.sel=o.dataset.v;cboxLabel(k);cboxClose(k);curPage=1;renderTable();updateVizDebounced();});
+    s.sel=o.dataset.v;
+    if(k==='origin')buildCboxItems();
+    cboxLabel(k);cboxClose(k);curPage=1;renderTable();updateVizDebounced();});
   // stopPropagation：重建 innerHTML 后旧按钮已脱离 DOM，冒泡到 document 会被误判成“点了外部”而关闭面板
   pop.querySelectorAll('.cbox-more').forEach(b=>b.onclick=e=>{e.stopPropagation();
     if(s.grouped)s.expN[+b.dataset.g]=!s.expN[+b.dataset.g];else s.expanded=!s.expanded;
@@ -965,11 +1082,13 @@ function cboxClose(k){const p=document.getElementById(k+'Pop');if(!p)return;
   p.hidden=true;document.getElementById(k+'Btn').classList.remove('open');}
 // 重建各下拉的选项（语言切换时也会调用，选中值保留在 CBOX[k].sel）
 function buildCboxItems(){
-  const sc={},sysN={},pc={},fc={},tc={},cc={};
-  DATA.forEach(r=>{sc[r.system]=(sc[r.system]||0)+1;sysN[r.system]=r.elements.length;
+  const pc={},fc={},tc={},cc={};
+  DATA.forEach(r=>{
     pc[r.phase]=(pc[r.phase]||0)+1;const f=r.functionality||'Others';fc[f]=(fc[f]||0)+1;
-    tc[r.temperature]=(tc[r.temperature]||0)+1;cc[r.contributor]=(cc[r.contributor]||0)+1;});
-  CBOX.sys.items=Object.keys(sc).map(s=>({v:s,label:`${s} (${sc[s]})`,n:sysN[s],c:sc[s]})).sort((a,b)=>b.c-a.c);
+    tc[r.temperature]=(tc[r.temperature]||0)+1;const contributor=r.contributor||'none';cc[contributor]=(cc[contributor]||0)+1;});
+  CBOX.origin.items=['AIMD','AI'].map(v=>({v,label:`${v} (${DATA.filter(r=>(r.generation_origin||'AIMD')===v).length})`}));
+  CBOX.sys.items=PcmCatalog.systemOptions(DATA,CBOX.origin.sel).map(x=>({...x,label:`${x.v} (${x.c})`}));
+  if(CBOX.sys.sel&&!CBOX.sys.items.some(x=>x.v===CBOX.sys.sel))CBOX.sys.sel='';
   CBOX.phase.items=PHASE_ORDER.filter(p=>pc[p]).map(p=>({v:p,label:`${t(PHASE_LKEY[p])} (${pc[p]})`}));
   CBOX.temp.items=Object.keys(tc).sort((a,b)=>parseInt(a)-parseInt(b)).map(x=>({v:x,label:`${x} (${tc[x]})`}));
   CBOX.func.items=FN_ORDER.filter(f=>fc[f]).map(f=>({v:f,label:`${fnLabel(f)} (${fc[f]})`}));
@@ -987,6 +1106,7 @@ function initFilters(){
     if(!e.target.isConnected)return;                             // 目标已被重建移除，不能据此判断“点了外部”
     Object.keys(CBOX).forEach(k=>{if(!document.getElementById(k+'Box').contains(e.target))cboxClose(k);});});
   document.getElementById('q').addEventListener('input',()=>{curPage=1;renderTable();updateVizDebounced();});
+  ['errorMin','errorMax'].forEach(id=>document.getElementById(id).addEventListener('input',()=>{curPage=1;renderTable();updateVizDebounced();}));
   document.querySelectorAll('th[data-k]').forEach(th=>{
     if(!th.querySelector('.sind'))th.insertAdjacentHTML('beforeend','<span class="sind"><i class="up"></i><i class="dn"></i></span>');
     th.onclick=()=>{const k=th.dataset.k;sortDir=(sortK===k)?-sortDir:1;sortK=k;curPage=1;renderTable();};
@@ -996,6 +1116,16 @@ function initFilters(){
   document.getElementById('nextPage').onclick=()=>gotoPage(curPage+1);
   document.getElementById('lastPage').onclick=()=>gotoPage(Math.ceil(filtered().length/PAGESIZE));
 }
+function downloadText(content,name,type){const url=URL.createObjectURL(new Blob([content],{type})),a=document.createElement('a');
+  a.href=url;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);}
+document.getElementById('exportMetadata').onclick=()=>{
+  const rows=filtered(),fields=['sid','formula','generation_origin','generation_family','modeling_method','phase','temperature',
+    'natoms','density','rdf_peak_error_pct','rdf_peak_A','aimd_peak_A','reference_material','simulation_time_ps','simulation_time_order',
+    'reported_temperature_K','path','source_file','source_frame_0based','hpc_source'];
+  const quote=v=>'"'+String(v==null?'none':v).replaceAll('"','""')+'"';
+  const csv=[fields.map(quote).join(','),...rows.map(r=>fields.map(k=>quote(r[k])).join(','))].join('\r\n');
+  downloadText('\ufeff'+csv,'pcm_filtered_metadata.csv','text/csv;charset=utf-8');
+};
 
 /* ---------- 3D viewer (Three.js, pretty-lattice aesthetic) ---------- */
 let VIZ=null;                         // {colors, radii, material, lighting}
@@ -1067,11 +1197,11 @@ function disposeViewer(st){
   if(!st)return;cancelAnimationFrame(st.raf);st.renderer.dispose();st.host.innerHTML='';
 }
 function buildGroup(st){                       // 依据 st.struct + st.style 建/重建原子键盒
-  if(st.group)st.scene.remove(st.group);
+  if(st.group){st.scene.remove(st.group);st.group.traverse(o=>{if(o.geometry)o.geometry.dispose();if(o.material)o.material.dispose();});}
   const g=new THREE.Group();st.group=g;st.scene.add(g);
   const S=st.struct;
   const mat=presetMaterial('atom');
-  const sph=new THREE.SphereGeometry(1,24,18);
+  const sph=new THREE.SphereGeometry(1,S.at.length>4000?12:24,S.at.length>4000?8:18);
   const im=new THREE.InstancedMesh(sph,mat,S.at.length);
   const dummy=new THREE.Object3D();const col=new THREE.Color();
   const model=st.style==='sf'?'vdw':'atomic';const scale=st.style==='sf'?1.0:0.42;
@@ -1080,11 +1210,7 @@ function buildGroup(st){                       // 依据 st.struct + st.style �
     im.setMatrixAt(i,dummy.matrix);im.setColorAt(i,col.set(elColor(p.e)).convertSRGBToLinear());});
   im.instanceMatrix.needsUpdate=true;if(im.instanceColor)im.instanceColor.needsUpdate=true;g.add(im);
   if(st.style==='bs'){
-    const bonds=[];const N=S.at.length;const BF=1.15;
-    for(let i=0;i<N;i++)for(let j=i+1;j<N;j++){const A=S.at[i],B=S.at[j];
-      const dx=A.x-B.x,dy=A.y-B.y,dz=A.z-B.z;const d2=dx*dx+dy*dy+dz*dz;
-      const cut=(elRad(A.e,'atomic')+elRad(B.e,'atomic'))*BF;
-      if(d2<cut*cut&&d2>0.64)bonds.push([i,j]);}
+    const bonds=PcmCatalog.bondPairs(S.at,e=>elRad(e,'atomic'));
     if(bonds.length){
       // bicolor：每根键分两半，各用两端原子的元素色
       const cyl=new THREE.CylinderGeometry(0.13,0.13,1,10,1,true);
@@ -1145,13 +1271,21 @@ function openViewer(r){
   document.getElementById('mTitle').textContent=`${r.formula}  ·  ${r.phase} ${r.temperature}`;
   const eStr=r.energy_per_atom!=null?`${r.energy_per_atom.toFixed(3)} eV/atom`:'—';
   const M=[['m_natoms',r.natoms],['m_dens',r.density.toFixed(4)],['m_temp',r.temperature],
-    ['m_phase',r.phase],['m_energy',eStr],['m_contrib',r.contributor],['m_src',r.hpc_source]];
-  document.getElementById('mMeta').innerHTML=M.map(([k,v])=>`<div><span>${t(k)}</span>${v}</div>`).join('')+
-    `<div class="mnote">${t('c_energy_t')}</div>`;
-  const dl=document.getElementById('mDownload');dl.href=`structures/${r.sid}.poscar`;dl.download=`${r.formula}_${r.sid}_POSCAR.vasp`;
+    ['m_phase',r.phase==='unknown'?t('color_unknown'):r.phase],['m_origin',r.generation_origin||'AIMD'],
+    ['m_method',r.modeling_method||'AIMD'],['m_rdf_error',r.rdf_peak_error_pct!=null?r.rdf_peak_error_pct.toFixed(4)+'%':'—'],
+    ['m_ai_peak',r.rdf_peak_A!=null?r.rdf_peak_A.toFixed(5):'—'],['m_ref_peak',r.aimd_peak_A!=null?r.aimd_peak_A.toFixed(5):'—'],
+    ['m_time',r.simulation_time_ps!=null?r.simulation_time_ps+' ps':'none'],['m_time_order',r.simulation_time_order||'none'],
+    ['m_reference',r.reference_material||'—'],['m_energy',eStr],['m_contrib',r.contributor||'—'],['m_src',r.hpc_source||'—']];
+  if(r.collection_role==='reference')M.push(['m_ref_frame',r.reference_frame_0based]);
+  const box=document.getElementById('mMeta');box.innerHTML='';
+  M.forEach(([k,v])=>{const div=document.createElement('div'),span=document.createElement('span');span.textContent=t(k);div.append(span,document.createTextNode(String(v)));box.appendChild(div);});
+  const note=document.createElement('div');note.className='mnote';note.textContent=t('rdf_error_definition');box.appendChild(note);
+  document.getElementById('mMetadata').onclick=()=>downloadText(JSON.stringify(r,null,2),r.sid+'_metadata.json','application/json');
+  const url=r.structure_url||`structures/${r.sid}.poscar`;
+  const dl=document.getElementById('mDownload');dl.href=url;dl.download=`${r.formula}_${r.sid}_POSCAR.vasp`;
   document.getElementById('modal').classList.add('open');
   const host=document.getElementById('viewer3d');host.innerHTML='<div class="load">…</div>';
-  Promise.all([fetch(`structures/${r.sid}.poscar`).then(x=>x.text()),ensureVIZ()]).then(([txt])=>{
+  Promise.all([fetch(url).then(x=>{if(!x.ok)throw new Error(x.status);return x.text();}),ensureVIZ()]).then(([txt])=>{
     const struct=parsePoscar(txt);
     disposeViewer(mainViewer);mainViewer=makeViewer(host,struct);
     buildColorEditor(struct);
@@ -1185,7 +1319,8 @@ function cellVolume(a,b,c){
 function calcFormula(at){const m={};at.forEach(p=>m[p.e]=(m[p.e]||0)+1);
   return Object.keys(m).sort().map(e=>`${e}${m[e]}`).join('');}
 fetch('api/ping').then(r=>r.ok?r.json():null).then(j=>{
-  if(j&&j.ok)document.getElementById('uploadBtn').style.display='';}).catch(()=>{});
+  if(j&&j.ok){document.getElementById('uploadBtn').style.display='';   // 有后端时：贡献数据为主按钮，文档降为次按钮
+    document.getElementById('docsBtn').classList.replace('primary','ghost');}}).catch(()=>{});
 document.getElementById('uploadBtn').onclick=()=>document.getElementById('upModal').classList.add('open');
 function closeUp(){document.getElementById('upModal').classList.remove('open');disposeViewer(upPreview);upPreview=null;}
 document.getElementById('upClose').onclick=closeUp;
@@ -1233,42 +1368,11 @@ function loadDesc(){
 }
 // 子集轴：对筛选子集做 z-score 标准化后再 PCA→2D。
 // 协方差 C=AᵀA/m，用幂迭代取前两主成分（deflation）。
-function pcaProject(rows){
-  const m=rows.length,d=rows[0].length;
-  const mean=new Float64Array(d),std=new Float64Array(d);
-  for(const r of rows)for(let j=0;j<d;j++)mean[j]+=r[j];
-  for(let j=0;j<d;j++)mean[j]/=m;
-  for(const r of rows)for(let j=0;j<d;j++){const t=r[j]-mean[j];std[j]+=t*t;}
-  for(let j=0;j<d;j++){std[j]=Math.sqrt(std[j]/m)||1;}
-  const A=new Float64Array(m*d);   // 标准化矩阵（已零均值单位方差）
-  for(let i=0;i<m;i++){const r=rows[i],off=i*d;for(let j=0;j<d;j++)A[off+j]=(r[j]-mean[j])/std[j];}
-  let totvar=0;for(let i=0;i<m*d;i++)totvar+=A[i]*A[i];totvar/=m;if(totvar<=0)totvar=1;
-  function topPC(){
-    let v=new Float64Array(d);for(let j=0;j<d;j++)v[j]=Math.sin(j*0.7+1);
-    let lambda=0;
-    for(let it=0;it<200;it++){
-      const tv=new Float64Array(m);
-      for(let i=0;i<m;i++){let s=0;const off=i*d;for(let j=0;j<d;j++)s+=A[off+j]*v[j];tv[i]=s;}
-      const w=new Float64Array(d);
-      for(let i=0;i<m;i++){const s=tv[i],off=i*d;for(let j=0;j<d;j++)w[j]+=A[off+j]*s;}
-      for(let j=0;j<d;j++)w[j]/=m;
-      let norm=0;for(let j=0;j<d;j++)norm+=w[j]*w[j];norm=Math.sqrt(norm)||1;
-      for(let j=0;j<d;j++)w[j]/=norm;
-      let diff=0;for(let j=0;j<d;j++)diff+=Math.abs(w[j]-v[j]);
-      v=w;lambda=norm;if(diff<1e-7)break;
-    }
-    return {v,lambda};
-  }
-  const pc1=topPC(),proj1=new Float64Array(m);
-  for(let i=0;i<m;i++){let s=0;const off=i*d;for(let j=0;j<d;j++)s+=A[off+j]*pc1.v[j];proj1[i]=s;}
-  for(let i=0;i<m;i++){const p=proj1[i],off=i*d;for(let j=0;j<d;j++)A[off+j]-=p*pc1.v[j];}
-  const pc2=topPC(),proj2=new Float64Array(m);
-  for(let i=0;i<m;i++){let s=0;const off=i*d;for(let j=0;j<d;j++)s+=A[off+j]*pc2.v[j];proj2[i]=s;}
-  return {x:proj1,y:proj2,ev1:pc1.lambda/totvar,ev2:pc2.lambda/totvar};
-}
-const PHASE_COLOR={amorphous:'#2f74dd',liquid:'#f0a020',crystalline:'#d6336c'};
-const PHASE_LKEY={amorphous:'color_amor',liquid:'color_liq',crystalline:'color_cryst'};
-const PHASE_ORDER=['amorphous','liquid','crystalline'];
+function pcaProject(rows){return PcmPCA.project(rows);}
+
+const PHASE_COLOR={amorphous:'#2f74dd',liquid:'#f0a020',crystalline:'#d6336c',unknown:'#88919d'};
+const PHASE_LKEY={amorphous:'color_amor',liquid:'color_liq',crystalline:'color_cryst',unknown:'color_unknown'};
+const PHASE_ORDER=['amorphous','liquid','crystalline','unknown'];
 // 连续型 colormap（锚点色线性插值近似 matplotlib）
 const CMAPS={
   coolwarm:['#3b4cc0','#6788ee','#9abbff','#c9d7f0','#edd1c2','#f7a889','#e26952','#b40426'],
@@ -1292,12 +1396,21 @@ function funcColor(f){return getComputedStyle(document.body).getPropertyValue(FU
 const CLIP=[0.02,0.98];                 // 连续着色的分位裁剪范围（抑制离群值拉伸色标）
 function quantile(sorted,q){if(!sorted.length)return 0;const p=(sorted.length-1)*q,b=Math.floor(p),r=p-b;
   return sorted[b+1]!==undefined?sorted[b]+r*(sorted[b+1]-sorted[b]):sorted[b];}
-let vizColorBy=localStorage.getItem('pcm_viz_colorby')||'phase';
+let vizColorBy=localStorage.getItem('pcm_viz_colorby')||'origin';
 let vizCmap=localStorage.getItem('pcm_viz_cmap')||'Viridis';
 if(!CMAPS[vizCmap])vizCmap='Viridis';
 let vizCmapRev=localStorage.getItem('pcm_viz_cmap_rev')==='1';
 let vizPointSize=+(localStorage.getItem('pcm_viz_size')||5);
-let vizPointAlpha=+(localStorage.getItem('pcm_viz_alpha')||0.8);
+let vizPointAlpha=+(localStorage.getItem('pcm_ai_alpha')||0.5);
+let vizAimdAlpha=+(localStorage.getItem('pcm_aimd_alpha')||0.8);
+let vizShowReference=localStorage.getItem('pcm_show_reference')!=='0';
+let vizReferenceAlpha=+(localStorage.getItem('pcm_ref_alpha')||0.8);
+let referenceColor=localStorage.getItem('pcm_ref_color')||'#2a9d8f';
+let aimdColor=localStorage.getItem('pcm_aimd_color')||'#d34f51',aiColor=localStorage.getItem('pcm_ai_color')||'#2f74dd';
+function renderSourceLegend(){const box=document.getElementById('sourceLegend');if(!box)return;
+  box.innerHTML=`<span><i style="background:${aimdColor};opacity:${vizAimdAlpha}"></i>AIMD Modeling · ${Math.round(vizAimdAlpha*100)}%</span>`+
+    `<span><i style="background:${aiColor};opacity:${vizPointAlpha}"></i>AI Modeling · ${Math.round(vizPointAlpha*100)}%</span>`+
+    `<span><i style="background:${referenceColor};opacity:${vizShowReference?vizReferenceAlpha:0}"></i>AIMD reference · ${vizShowReference?Math.round(vizReferenceAlpha*100)+'%':t('modeling_hidden')}</span>`;}
 let vizCatColors=(()=>{try{return JSON.parse(localStorage.getItem('pcm_viz_catcolors')||'{}');}catch(e){return {};}})();
 function toHex(c){c=(c||'').trim();if(/^#[0-9a-fA-F]{6}$/.test(c))return c.toLowerCase();
   const m=c.match(/rgba?\(([^)]+)\)/);if(m){const p=m[1].split(',').map(x=>parseInt(x));
@@ -1311,7 +1424,8 @@ function catColor(mode,cat){const ov=(vizCatColors[mode]||{})[cat];if(ov)return 
 // 连续量着色（density / energy）——按当前子集 min/max 映射到 colormap
 const CONT={
   density:{get:r=>r.density,cap:()=>`${t('c_density')} (Atom/Å³)`,fmt:v=>v.toFixed(4)},
-  energy:{get:r=>r.energy_per_atom,cap:()=>`${t('viz_cb_energy')} (eV/atom)`,fmt:v=>v.toFixed(3)}
+  energy:{get:r=>r.energy_per_atom,cap:()=>`${t('viz_cb_energy')} (eV/atom)`,fmt:v=>v.toFixed(3)},
+  rdf_error:{get:r=>r.rdf_peak_error_pct,cap:()=>t('c_rdf_error'),fmt:v=>v.toFixed(3)}
 };
 // 连续量着色的公共实现：分位裁剪 → 归一化 → colormap。返回 {colors,colorInfo}
 function contColors(items,get,cmapName,rev){
@@ -1324,11 +1438,13 @@ function contColors(items,get,cmapName,rev){
 }
 function computeColors(){
   if(!vizState)return;const items=vizState.items;
-  if(CONT[vizColorBy]){const r=contColors(items,CONT[vizColorBy].get,vizCmap,vizCmapRev);
+  if(vizColorBy==='origin'){vizState.colors=items.map(r=>PcmCatalog.modelingColor(r,{AIMD:aimdColor,AI:aiColor,reference:referenceColor}));vizState.colorInfo=null;}
+  else if(CONT[vizColorBy]){const r=contColors(items,CONT[vizColorBy].get,vizCmap,vizCmapRev);
     vizState.colors=r.colors;vizState.colorInfo=r.colorInfo;}
   else{const mode=vizColorBy==='function'?'function':'phase';
     const key=mode==='function'?(r=>r.functionality||'Others'):(r=>r.phase);
     vizState.colors=items.map(r=>catColor(mode,key(r)));vizState.colorInfo=null;}
+  items.forEach((r,i)=>{if(r.collection_role==='reference')vizState.colors[i]=referenceColor;});
 }
 // 连续色标图例（色带 + 上下限 + 标题）
 function contLegend(box,C,ci,cmapName,rev){
@@ -1350,39 +1466,62 @@ function catLegend(box,mode,cats,label,onChange){
 function renderLegend(){
   const box=document.getElementById('vizLegend');if(!box)return;
   if(!vizState){box.innerHTML='';return;}
+  if(vizColorBy==='origin'){box.innerHTML='';return;}
   if(CONT[vizColorBy]){contLegend(box,CONT[vizColorBy],vizState.colorInfo||{lo:0,hi:1},vizCmap,vizCmapRev);return;}
-  const items=vizState.items,mode=vizColorBy;let cats,label;
+  const items=vizState.items.filter(r=>PcmCatalog.visibleInMap(r,vizShowReference)),mode=vizColorBy;let cats,label;
   if(mode==='function'){cats=FN_ORDER.filter(f=>items.some(r=>(r.functionality||'Others')===f));label=fnLabel;}
   else{cats=PHASE_ORDER.filter(p=>items.some(r=>r.phase===p));label=p=>t(PHASE_LKEY[p]||'')||p;}
   catLegend(box,mode,cats,label,relegend=>{computeColors();drawViz();if(relegend)renderLegend();});
 }
 let vizState=null;
 // 常驻面板：根据当前筛选结果重算并绘制（随筛选实时更新）。
-function updateViz(){
-  const bar=document.getElementById('vizBar');if(!bar)return;
-  loadDesc().then(D=>{
-    const items=[],vecs=[];
-    filtered().forEach(r=>{const i=D.idx[r.sid];if(i===undefined)return;
-      items.push(r);vecs.push(D.arr.subarray(i*D.dim,i*D.dim+D.dim));});
-    if(items.length<3){vizState=null;renderVizBar(null);renderLegend();
-      const cv=document.getElementById('vizCanvas');cv.width=cv.clientWidth;cv.height=cv.clientHeight;
-      cv.getContext('2d').clearRect(0,0,cv.width,cv.height);return;}
-    const pca=pcaProject(vecs);
+let REFERENCE_FRAMES=null,REFERENCE_LOADING=null,pcaWorker=null,vizRequest=0;
+function loadReferences(){
+  if(REFERENCE_FRAMES)return Promise.resolve(REFERENCE_FRAMES);
+  if(!REFERENCE_LOADING)REFERENCE_LOADING=fetch('aimd_references.json').then(r=>{if(!r.ok)throw new Error(r.status);return r.json();}).then(rows=>REFERENCE_FRAMES=rows);
+  return REFERENCE_LOADING;
+}
+function projectInWorker(vecs,dim){
+  if(pcaWorker)pcaWorker.terminate();
+  const worker=new Worker('descriptor_worker.js');pcaWorker=worker;
+  const matrix=new Float32Array(vecs.length*dim);vecs.forEach((v,i)=>matrix.set(v,i*dim));
+  return new Promise((resolve,reject)=>{
+    worker.onmessage=e=>{worker.terminate();if(pcaWorker===worker)pcaWorker=null;e.data.error?reject(new Error(e.data.error)):resolve(e.data);};
+    worker.onerror=e=>{worker.terminate();reject(new Error(e.message));};
+    worker.postMessage({matrix,dim},[matrix.buffer]);
+  });
+}
+async function updateViz(){
+  const bar=document.getElementById('vizBar');if(!bar)return;const request=++vizRequest;
+  if(pcaWorker){pcaWorker.terminate();pcaWorker=null;}
+  bar.textContent=t('viz_loading');
+  try{
+    const [D,references]=await Promise.all([loadDesc(),loadReferences()]);if(request!==vizRequest)return;
+    const context=PcmCatalog.withReferences(filtered(),references),items=[],vecs=[];
+    context.items.forEach(r=>{const i=D.idx[r.sid];if(i===undefined)return;items.push(r);vecs.push(D.arr.subarray(i*D.dim,(i+1)*D.dim));});
+    if(items.length<3){vizState=null;renderVizBar(null);renderLegend();const cv=document.getElementById('vizCanvas');
+      cv.width=cv.clientWidth;cv.height=cv.clientHeight;cv.getContext('2d').clearRect(0,0,cv.width,cv.height);return;}
+    const pca=await projectInWorker(vecs,D.dim);if(request!==vizRequest)return;
     let xmin=Math.min(...pca.x),xmax=Math.max(...pca.x),ymin=Math.min(...pca.y),ymax=Math.max(...pca.y);
     const px=(xmax-xmin)*0.06||1,py=(ymax-ymin)*0.06||1;
     const full={xmin:xmin-px,xmax:xmax+px,ymin:ymin-py,ymax:ymax+py};
-    vizState={items,x:pca.x,y:pca.y,ev1:pca.ev1,ev2:pca.ev2,pts:[],hover:null,
+    vizState={items,x:pca.x,y:pca.y,ev1:pca.ev1,ev2:pca.ev2,pts:[],hover:null,catalogMap:true,
+      catalogCount:context.catalogCount,referenceCount:context.referenceCount,
       full,view:Object.assign({},full),plot:null,colors:null,colorInfo:null};
-    computeColors();renderVizBar(vizState);drawViz();renderLegend();
-  }).catch(()=>{bar.textContent='descriptors.json load failed';});
+    computeColors();renderVizBar(vizState);drawViz();renderLegend();renderSourceLegend();
+  }catch(error){if(request===vizRequest)bar.textContent='Map loading failed: '+error.message;}
 }
+
 const updateVizDebounced=debounce(updateViz,220);
 function resetViz(){if(vizState){vizState.view=Object.assign({},vizState.full);drawViz();}}
 function renderVizBar(st){
   const bar=document.getElementById('vizBar');
   const rst=`<button class="tbtn" id="vizReset">${t('reset')}</button>`;
   if(!st){bar.innerHTML=`<span>${t('viz_need')}</span>`;}
-  else{bar.innerHTML=rst+`<span>${t('viz_count')(st.items.length)}</span>`+
+  else{const counts=PcmCatalog.mapCounts(st.items,vizShowReference);
+    const label=counts.referenceCount?t('viz_ref_count')(counts.catalogCount,counts.referenceCount):t('viz_count')(counts.catalogCount);
+    bar.innerHTML=rst+`<span>${label}</span>`+
+      (counts.hiddenReferenceCount?`<span>${t('viz_reference_hidden')(counts.hiddenReferenceCount)}</span>`:'')+
       `<span>${t('viz_axis')(1,st.ev1)} · ${t('viz_axis')(2,st.ev2)}</span>`;}
   const rb=document.getElementById('vizReset');if(rb)rb.onclick=resetViz;
 }
@@ -1406,6 +1545,7 @@ function drawScatterOn(cv,st,sizePx,alpha,sel){   // sel: 可选的框选矩形(
   const css=getComputedStyle(document.body);
   const grid=css.getPropertyValue('--border').trim()||'#e6e6e8';
   const muted=css.getPropertyValue('--muted').trim()||'#8a8a8a';
+  const pointOutline=css.getPropertyValue('--ink2').trim()||'#444';
   // 灰色网格线 + 刻度值
   ctx.font='10px ui-sans-serif,system-ui';ctx.lineWidth=1;
   ctx.textAlign='center';ctx.textBaseline='top';
@@ -1427,11 +1567,15 @@ function drawScatterOn(cv,st,sizePx,alpha,sel){   // sel: 可选的框选矩形(
   ctx.save();ctx.beginPath();ctx.rect(pX,pY,pW,pH);ctx.clip();
   const {x,y,items}=st,pts=[];
   for(let i=0;i<items.length;i++){const cx=sx(x[i]),cy=sy(y[i]);
+    if(st.catalogMap&&!PcmCatalog.visibleInMap(items[i],vizShowReference))continue;
     if(cx<pX||cx>pX+pW||cy<pY||cy>pY+pH)continue;
     pts.push({px:cx,py:cy,r:items[i]});
     ctx.beginPath();ctx.arc(cx,cy,sizePx,0,6.2832);
-    ctx.fillStyle=(st.colors&&st.colors[i])||'#888';ctx.globalAlpha=alpha;ctx.fill();
-    ctx.globalAlpha=1;ctx.lineWidth=1;ctx.strokeStyle='rgba(0,0,0,.28)';ctx.stroke();}
+    const color=(st.colors&&st.colors[i])||'#888',style=st.catalogMap?PcmCatalog.markerStyle(items[i],alpha,vizAimdAlpha,vizReferenceAlpha):{fill:true,alpha};
+    ctx.fillStyle=color;ctx.globalAlpha=style.alpha;ctx.fill();
+    ctx.strokeStyle=pointOutline;ctx.lineWidth=0.8;
+    ctx.globalAlpha=style.alpha*0.7;ctx.stroke();
+    ctx.globalAlpha=1;}
   ctx.restore();
   st.pts=pts;
   // 框选叠加
@@ -1475,7 +1619,10 @@ function attachScatter(cv,cfg){
 (function(){
   attachScatter(document.getElementById('vizCanvas'),{
     state:()=>vizState,draw:drawViz,size:()=>vizPointSize,
-    tip:r=>`<b>${r.sid}</b> · ${normFormula(r.formula)}<br>${r.system} · ${r.phase} ${r.temperature}`,
+    tip:r=>`<b>${r.sid}</b> · ${normFormula(r.formula)}<br>${r.modeling_method||'AIMD'} · ${r.temperature}`+
+      (r.collection_role==='reference'?`<br>${t('aimd_reference')} · ${r.reference_id}`:'')+
+      (r.rdf_peak_error_pct!=null?`<br>${t('c_rdf_error')}: ${r.rdf_peak_error_pct.toFixed(3)}%`:'')+
+      (r.simulation_time_ps!=null?`<br>${r.simulation_time_ps} ps · ${r.simulation_time_order}`:''),
     click:r=>openViewer(r),                          // 点击点→结构页(不关闭 map)
   });
   // 控制面板：着色依据 + colormap
@@ -1491,11 +1638,24 @@ function attachScatter(cv,cfg){
   revChk.checked=vizCmapRev;
   revChk.onchange=()=>{vizCmapRev=revChk.checked;localStorage.setItem('pcm_viz_cmap_rev',vizCmapRev?'1':'0');recolor();};
   // 散点大小 / 透明度
-  const szSel=document.getElementById('vizSize'),opSel=document.getElementById('vizOpacity');
-  const szVal=document.getElementById('vizSizeVal'),opVal=document.getElementById('vizOpacityVal');
-  szSel.value=vizPointSize;opSel.value=vizPointAlpha;szVal.textContent=vizPointSize;opVal.textContent=(+vizPointAlpha).toFixed(2);
+  const szSel=document.getElementById('vizSize'),szVal=document.getElementById('vizSizeVal');
+  szSel.value=vizPointSize;szVal.textContent=vizPointSize;
+  const sourceOpacity=(id,value,save)=>{const input=document.getElementById(id),label=document.getElementById(id+'Val');
+    input.value=value;label.textContent=Math.round(value*100)+'%';
+    input.oninput=()=>{const alpha=+input.value;label.textContent=Math.round(alpha*100)+'%';save(alpha);renderSourceLegend();if(vizState)drawViz();};};
+  sourceOpacity('aimdOpacity',vizAimdAlpha,alpha=>{vizAimdAlpha=alpha;localStorage.setItem('pcm_aimd_alpha',alpha);});
+  sourceOpacity('aiOpacity',vizPointAlpha,alpha=>{vizPointAlpha=alpha;localStorage.setItem('pcm_ai_alpha',alpha);});
+  sourceOpacity('referenceOpacity',vizReferenceAlpha,alpha=>{vizReferenceAlpha=alpha;localStorage.setItem('pcm_ref_alpha',alpha);});
+  const showReference=document.getElementById('showReference');showReference.checked=vizShowReference;
+  showReference.onchange=()=>{vizShowReference=showReference.checked;localStorage.setItem('pcm_show_reference',vizShowReference?'1':'0');
+    hideTip();renderSourceLegend();if(vizState){vizState.hover=null;drawViz();renderVizBar(vizState);renderLegend();}};
   szSel.oninput=()=>{vizPointSize=+szSel.value;szVal.textContent=vizPointSize;localStorage.setItem('pcm_viz_size',vizPointSize);if(vizState)drawViz();};
-  opSel.oninput=()=>{vizPointAlpha=+opSel.value;opVal.textContent=vizPointAlpha.toFixed(2);localStorage.setItem('pcm_viz_alpha',vizPointAlpha);if(vizState)drawViz();};
+  const ac=document.getElementById('aimdColor'),gc=document.getElementById('aiColor');ac.value=aimdColor;gc.value=aiColor;
+  ac.oninput=()=>{aimdColor=ac.value;localStorage.setItem('pcm_aimd_color',aimdColor);renderSourceLegend();recolor();};
+  gc.oninput=()=>{aiColor=gc.value;localStorage.setItem('pcm_ai_color',aiColor);renderSourceLegend();recolor();};
+  const rc=document.getElementById('referenceColor');rc.value=referenceColor;
+  rc.oninput=()=>{referenceColor=rc.value;localStorage.setItem('pcm_ref_color',referenceColor);renderSourceLegend();recolor();};
+  renderSourceLegend();
   window.addEventListener('resize',debounce(()=>{if(vizState)drawViz();},150));
 })();
 
@@ -1682,9 +1842,9 @@ fetch('mlip.json').then(r=>r.json()).then(d=>{
 window.addEventListener('resize',debounce(()=>{if(DATA)renderCharts();},150));
 fetch('data.json').then(r=>r.json()).then(d=>{
   DATA=d;initFilters();buildPT();applyI18n();updateViz();
-  const m=location.hash.match(/#view=(s\d+)/);
+  const m=location.hash.match(/#view=([a-zA-Z0-9_]+)/);
   if(m){const r=DATA.find(x=>x.sid===m[1]);if(r)openViewer(r);}
-}).catch(()=>{document.getElementById('tbody').innerHTML=`<tr><td colspan="11" class="load">${t('noload')}</td></tr>`;});
+}).catch(()=>{document.getElementById('tbody').innerHTML=`<tr><td colspan="14" class="load">${t('noload')}</td></tr>`;});
 </script>
 </body>
 </html>

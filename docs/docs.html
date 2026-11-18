@@ -1,0 +1,377 @@
+<!doctype html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>使用文档 · 硫系存储材料数据库</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --plane:#f7f8fa; --surface:#ffffff; --soft:#f6f6f7; --ink:#1b1b1f; --ink2:#4b4b52; --muted:#8a8a91;
+  --grid:#ececee; --border:#e6e6e8; --series:#2f74dd; --series-soft:#e6effc; --accent2:#6366f1; --brand-3:#1e5bb8;
+  --grad:linear-gradient(120deg,#2f74dd 15%,#6366f1);
+  --sh1:0 1px 2px rgba(0,0,0,.04),0 1px 2px rgba(0,0,0,.06);
+  --sh2:0 3px 12px rgba(0,0,0,.06),0 1px 4px rgba(0,0,0,.05);
+  --sh3:0 12px 32px rgba(0,0,0,.10),0 2px 6px rgba(0,0,0,.08);
+  --glow:rgba(47,116,221,.11);
+  --fn-pcm:#1e5bb8; --fn-ots:#1f8f5f; --fn-som:#7a3fc0; --fn-cand:#b3701a; --fn-other:#6b7280;
+}
+@media (prefers-color-scheme:dark){:root{
+  --plane:#161618; --surface:#202127; --soft:#1b1b1f; --ink:#f5f5f7; --ink2:#c9c9cf; --muted:#8a8a91;
+  --grid:#2c2c30; --border:rgba(255,255,255,0.10); --series:#4a9eff; --series-soft:#16324f; --accent2:#8b9bff; --brand-3:#8cc2ff;
+  --grad:linear-gradient(120deg,#4a9eff 15%,#8b9bff);
+  --sh1:0 1px 2px rgba(0,0,0,.2),0 1px 2px rgba(0,0,0,.3);
+  --sh2:0 3px 12px rgba(0,0,0,.3),0 1px 4px rgba(0,0,0,.3);
+  --sh3:0 12px 32px rgba(0,0,0,.4),0 2px 6px rgba(0,0,0,.4);
+  --glow:rgba(74,158,255,.13);
+  --fn-pcm:#8cc2ff; --fn-ots:#5fd39a; --fn-som:#c4a3f0; --fn-cand:#f0b566; --fn-other:#9aa0aa;
+}}
+:root[data-theme=dark]{
+  --plane:#161618; --surface:#202127; --soft:#1b1b1f; --ink:#f5f5f7; --ink2:#c9c9cf; --muted:#8a8a91;
+  --grid:#2c2c30; --border:rgba(255,255,255,0.10); --series:#4a9eff; --series-soft:#16324f; --accent2:#8b9bff; --brand-3:#8cc2ff;
+  --grad:linear-gradient(120deg,#4a9eff 15%,#8b9bff);
+  --sh1:0 1px 2px rgba(0,0,0,.2),0 1px 2px rgba(0,0,0,.3);
+  --sh2:0 3px 12px rgba(0,0,0,.3),0 1px 4px rgba(0,0,0,.3);
+  --sh3:0 12px 32px rgba(0,0,0,.4),0 2px 6px rgba(0,0,0,.4);
+  --glow:rgba(74,158,255,.13);
+  --fn-pcm:#8cc2ff; --fn-ots:#5fd39a; --fn-som:#c4a3f0; --fn-cand:#f0b566; --fn-other:#9aa0aa;
+}
+:root[data-theme=light]{
+  --plane:#f7f8fa; --surface:#ffffff; --soft:#f6f6f7; --ink:#1b1b1f; --ink2:#4b4b52; --muted:#8a8a91;
+  --grid:#ececee; --border:#e6e6e8; --series:#2f74dd; --series-soft:#e6effc; --accent2:#6366f1; --brand-3:#1e5bb8;
+  --grad:linear-gradient(120deg,#2f74dd 15%,#6366f1);
+  --sh1:0 1px 2px rgba(0,0,0,.04),0 1px 2px rgba(0,0,0,.06);
+  --sh2:0 3px 12px rgba(0,0,0,.06),0 1px 4px rgba(0,0,0,.05);
+  --sh3:0 12px 32px rgba(0,0,0,.10),0 2px 6px rgba(0,0,0,.08);
+  --glow:rgba(47,116,221,.11);
+  --fn-pcm:#1e5bb8; --fn-ots:#1f8f5f; --fn-som:#7a3fc0; --fn-cand:#b3701a; --fn-other:#6b7280;
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--plane);color:var(--ink);
+  font-family:"Inter",system-ui,-apple-system,"Segoe UI",sans-serif;line-height:1.65;
+  -webkit-text-size-adjust:100%;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+html{scroll-behavior:smooth}
+a{color:var(--series);text-decoration:none}a:hover{text-decoration:underline}
+code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.88em;
+  background:var(--soft);border:1px solid var(--border);border-radius:6px;padding:1px 6px}
+.wrap{max-width:1180px;margin:0 auto;padding:0 20px}
+.topbar{position:absolute;top:18px;right:20px;display:flex;gap:8px;z-index:5}
+.tbtn{background:var(--surface);color:var(--ink2);border:1px solid var(--border);border-radius:9px;
+  padding:7px 13px;cursor:pointer;font-size:13px;font-family:inherit;font-weight:500;
+  box-shadow:var(--sh1);transition:color .15s,border-color .15s,box-shadow .15s,transform .15s;text-decoration:none;display:inline-block}
+.tbtn:hover{color:var(--series);border-color:var(--series);box-shadow:var(--sh2);text-decoration:none}
+.tbtn:active{transform:translateY(1px)}
+header{position:relative;padding:56px 0 24px;overflow:hidden}
+header::before{content:"";position:absolute;top:-160px;left:-80px;width:520px;height:360px;
+  background:radial-gradient(closest-side,var(--glow),transparent 70%);pointer-events:none;z-index:0}
+header>*{position:relative;z-index:1}
+.eyebrow{font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--series);font-weight:700}
+h1{font-size:clamp(32px,5vw,46px);line-height:1.08;margin:.26em 0 .18em;letter-spacing:-.025em;font-weight:800;
+  background:var(--grad);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.sub{color:var(--ink2);max-width:70ch;font-size:16px;line-height:1.65}
+
+.layout{display:grid;grid-template-columns:220px minmax(0,1fr);gap:40px;padding:14px 0 64px;align-items:start}
+@media(max-width:900px){.layout{grid-template-columns:1fr;gap:8px}.toc{display:none}}
+.toc{position:sticky;top:24px;align-self:start}
+.toc .toc-t{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);font-weight:700;margin:0 0 10px;padding-left:12px}
+.toc a{display:block;color:var(--ink2);font-size:13.5px;font-weight:500;padding:7px 12px;border-radius:8px;
+  border-left:2px solid transparent;transition:color .15s,background .15s,border-color .15s}
+.toc a:hover{color:var(--series);background:var(--soft);text-decoration:none}
+.toc a.active{color:var(--series);border-left-color:var(--series);background:var(--series-soft);font-weight:600}
+
+.doc section{padding:26px 0;scroll-margin-top:20px}
+.doc section+section{border-top:1px solid var(--border)}
+h2{font-size:24px;letter-spacing:-.015em;margin:0 0 6px;font-weight:750;display:flex;align-items:baseline;gap:12px}
+h2 .num{font-size:14px;font-weight:700;color:var(--series);font-variant-numeric:tabular-nums;
+  background:var(--series-soft);border-radius:7px;padding:2px 9px;letter-spacing:0}
+.lead{color:var(--ink2);font-size:15.5px;max-width:76ch;margin:0 0 18px}
+.doc p{color:var(--ink2);max-width:76ch}
+.doc ul{color:var(--ink2);max-width:76ch;padding-left:20px}
+.doc li{margin:5px 0}
+.doc b,.doc strong{color:var(--ink);font-weight:650}
+
+.card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:18px 20px;
+  box-shadow:var(--sh2);margin:16px 0}
+.card h3{font-size:14.5px;margin:0 0 8px;font-weight:650;color:var(--ink)}
+.card p{margin:0;font-size:14px}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px;margin:16px 0}
+.grid2 .card{margin:0}
+
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:14px;margin:6px 0 4px}
+.stat{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:16px 18px;box-shadow:var(--sh2)}
+.stat .v{font-size:28px;font-weight:750;letter-spacing:-.03em;font-variant-numeric:tabular-nums;
+  background:var(--grad);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.stat .l{font-size:12.5px;color:var(--muted);margin-top:3px;font-weight:500}
+
+.shot{margin:8px 0 4px;border:1px solid var(--border);border-radius:14px;overflow:hidden;box-shadow:var(--sh3);background:var(--surface)}
+.shot img{display:block;width:100%;height:auto}
+.cap{color:var(--muted);font-size:12.5px;margin:10px 2px 0}
+
+.tags{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0}
+.tag{font-size:12.5px;font-weight:600;padding:4px 11px;border-radius:999px;border:1px solid var(--border);background:var(--surface)}
+.tag.pcm{color:var(--fn-pcm)} .tag.ots{color:var(--fn-ots)} .tag.som{color:var(--fn-som)}
+.tag.cand{color:var(--fn-cand)} .tag.other{color:var(--fn-other)}
+.tag.amor{color:var(--series)} .tag.cryst{color:var(--accent2)}
+
+.steps{counter-reset:step;list-style:none;padding:0;margin:16px 0;max-width:76ch}
+.steps li{position:relative;padding:2px 0 14px 40px;color:var(--ink2)}
+.steps li::before{counter-increment:step;content:counter(step);position:absolute;left:0;top:0;
+  width:26px;height:26px;border-radius:50%;background:var(--series-soft);color:var(--series);
+  font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:center}
+.steps li:not(:last-child)::after{content:"";position:absolute;left:12.5px;top:28px;bottom:2px;width:1.5px;background:var(--border)}
+
+.note{background:var(--series-soft);border:1px solid var(--border);border-left:3px solid var(--series);
+  border-radius:10px;padding:13px 16px;margin:16px 0;font-size:14px;color:var(--ink2);max-width:76ch}
+.note b{color:var(--ink)}
+footer{border-top:1px solid var(--border);padding:26px 0 50px;color:var(--muted);font-size:13px}
+.backrow{margin-top:28px}
+</style>
+</head>
+<body>
+<div class="topbar">
+  <a class="tbtn" id="homeBtn" href="index.html" data-i18n="back"></a>
+  <button class="tbtn" id="langBtn">EN</button>
+  <button class="tbtn" id="themeBtn">◐</button>
+</div>
+
+<header>
+  <div class="wrap">
+    <div class="eyebrow" data-i18n="eyebrow"></div>
+    <h1 data-i18n="h1"></h1>
+    <p class="sub" data-i18n="intro"></p>
+  </div>
+</header>
+
+<div class="wrap">
+  <div class="layout">
+    <nav class="toc">
+      <div class="toc-t" data-i18n="toc_t"></div>
+      <a href="#overview" data-i18n="nav_overview"></a>
+      <a href="#query" data-i18n="nav_query"></a>
+      <a href="#filter" data-i18n="nav_filter"></a>
+      <a href="#viz" data-i18n="nav_viz"></a>
+      <a href="#mlip" data-i18n="nav_mlip"></a>
+      <a href="#contribute" data-i18n="nav_contribute"></a>
+    </nav>
+
+    <main class="doc">
+      <!-- 0 概览 -->
+      <section id="overview">
+        <h2><span class="num">0</span><span data-i18n="s0_h"></span></h2>
+        <p class="lead" data-i18n="s0_lead"></p>
+        <div class="stats">
+          <div class="stat"><div class="v">16944</div><div class="l" data-i18n="st_total"></div></div>
+          <div class="stat"><div class="v">247</div><div class="l" data-i18n="st_sys"></div></div>
+          <div class="stat"><div class="v">3</div><div class="l" data-i18n="st_phase"></div></div>
+          <div class="stat"><div class="v">4</div><div class="l" data-i18n="st_mlip"></div></div>
+        </div>
+        <div class="tags">
+          <span class="tag amor" data-i18n="tg_amor"></span>
+          <span class="tag cryst" data-i18n="tg_cryst"></span>
+          <span class="tag pcm">PCM</span>
+          <span class="tag ots">OTS</span>
+          <span class="tag som">SOM</span>
+          <span class="tag cand" data-i18n="tg_cand"></span>
+        </div>
+        <div class="shot"><img src="assets/database_0.png" alt="database preview"></div>
+        <p class="cap" data-i18n="s0_cap"></p>
+      </section>
+
+      <!-- 1 数据查询 -->
+      <section id="query">
+        <h2><span class="num">1</span><span data-i18n="s1_h"></span></h2>
+        <p class="lead" data-i18n="s1_lead"></p>
+        <div class="grid2">
+          <div class="card"><h3 data-i18n="s1_c1_h"></h3><p data-i18n="s1_c1_p"></p></div>
+          <div class="card"><h3 data-i18n="s1_c2_h"></h3><p data-i18n="s1_c2_p"></p></div>
+          <div class="card"><h3 data-i18n="s1_c3_h"></h3><p data-i18n="s1_c3_p"></p></div>
+        </div>
+        <p data-i18n="s1_meta"></p>
+      </section>
+
+      <!-- 2 数据筛选 -->
+      <section id="filter">
+        <h2><span class="num">2</span><span data-i18n="s2_h"></span></h2>
+        <p class="lead" data-i18n="s2_lead"></p>
+        <ul>
+          <li data-i18n="s2_l1"></li>
+          <li data-i18n="s2_l2"></li>
+          <li data-i18n="s2_l3"></li>
+          <li data-i18n="s2_l4"></li>
+        </ul>
+        <div class="note" data-i18n="s2_note"></div>
+      </section>
+
+      <!-- 3 分布可视化 -->
+      <section id="viz">
+        <h2><span class="num">3</span><span data-i18n="s3_h"></span></h2>
+        <p class="lead" data-i18n="s3_lead"></p>
+        <ol class="steps">
+          <li data-i18n="s3_s1"></li>
+          <li data-i18n="s3_s2"></li>
+          <li data-i18n="s3_s3"></li>
+        </ol>
+        <div class="note" data-i18n="s3_note"></div>
+      </section>
+
+      <!-- 4 MLIP 训练集 -->
+      <section id="mlip">
+        <h2><span class="num">4</span><span data-i18n="s4_h"></span></h2>
+        <p class="lead" data-i18n="s4_lead"></p>
+        <div class="grid2">
+          <div class="card"><h3 data-i18n="s4_c1_h"></h3><p data-i18n="s4_c1_p"></p></div>
+          <div class="card"><h3 data-i18n="s4_c2_h"></h3><p data-i18n="s4_c2_p"></p></div>
+        </div>
+        <div class="note" data-i18n="s4_note"></div>
+      </section>
+
+      <!-- 贡献 -->
+      <section id="contribute">
+        <h2><span class="num">＋</span><span data-i18n="s5_h"></span></h2>
+        <p class="lead" data-i18n="s5_lead"></p>
+        <ul>
+          <li data-i18n="s5_l1"></li>
+          <li data-i18n="s5_l2"></li>
+        </ul>
+        <div class="backrow"><a class="tbtn" href="index.html" data-i18n="back_cta"></a></div>
+      </section>
+    </main>
+  </div>
+</div>
+
+<footer><div class="wrap"><span data-i18n="footer"></span></div></footer>
+
+<script>
+const I18N={
+ zh:{
+  back:'← 返回数据库', back_cta:'← 返回数据库首页', toc_t:'目录',
+  nav_overview:'概览', nav_query:'1 · 数据查询', nav_filter:'2 · 数据筛选', nav_viz:'3 · 分布可视化', nav_mlip:'4 · 训练集', nav_contribute:'贡献数据',
+  eyebrow:'使用文档',
+  h1:'数据库功能介绍',
+  intro:'本页介绍硫系存储材料数据库的核心功能：如何查询与筛选结构、如何解读结构分布可视化，以及面向机器学习势函数（MLIP）的高精度标注数据集。',
+
+  s0_h:'界面预览',
+  s0_lead:'数据库以单页网站形式发布，包含数据概览、结构浏览、SOAP+PCA 分布图与 MLIP 训练集四大板块，支持中英双语与明暗主题切换。',
+  st_total:'结构总数', st_sys:'材料体系', st_phase:'相态（非晶/晶态/未标注）', st_mlip:'MLIP 数据集',
+  tg_amor:'非晶 amorphous', tg_cryst:'晶态 crystalline', tg_cand:'PCM candidates',
+  s0_cap:'数据库首页：顶部为数据概览与统计图，向下依次为结构浏览、分布可视化与训练集板块。',
+
+  s1_h:'数据查询',
+  s1_lead:'目前收录 16,944 条构型：2,044 条原有 AIMD 来源结构及 14,900 条由 MLIP、Diffusion、Flow Matching 生成的 AI 结构，另有 790 个 AIMD reference 轨迹采样帧用于地图对照。',
+  s1_c1_h:'按元素组合查询', s1_c1_p:'点击交互式元素周期表选择元素（如 Ge-Te），精确匹配由所选元素组成的体系。',
+  s1_c2_h:'按化学式查询', s1_c2_p:'在搜索框输入化学式或体系名（如 Ge0.5Se0.5、SbTe），亦可按来源路径检索。',
+  s1_c3_h:'查看与可视化', s1_c3_p:'点击表格行即可查看该结构的完整 meta data，并在浏览器内进行 3D 结构预览与 POSCAR 下载。',
+  s1_meta:'每条结构记录包含化学式、体系、生成来源、具体建模方式、相态、温度、原子数、密度、贡献者、模拟时间及 g(r) 主峰相对误差。AIMD 构型的误差显示为 —。',
+
+  s2_h:'数据筛选',
+  s2_lead:'先按 AIMD / AI 来源筛选，材料体系列表会随来源更新选项和数量；可进一步按 g(r) 误差区间筛选，并与周期表和搜索框叠加使用。',
+  s2_l1:'<b>相态</b>：非晶 amorphous / 晶态 crystalline / 液态 liquid。',
+  s2_l2:'<b>功能性</b>：PCM（相变存储）/ OTS（阈值开关）/ SOM（选通器存储）/ PCM candidates / Others。',
+  s2_l3:'<b>温度</b>：按建模 / 采样温度筛选。',
+  s2_l4:'<b>贡献者</b>：按上传者筛选，便于数据溯源。',
+  s2_note:'各筛选条件与元素周期表、化学式搜索<b>叠加生效</b>，筛选结果会同步刷新表格、统计与分布图。',
+
+  s3_h:'数据分布可视化',
+  s3_lead:'用 SOAP 描述符将每个结构编码为高维特征向量，再用 PCA 降到二维，直观呈现库内结构的多样性分布。',
+  s3_s1:'对当前筛选的结构做<b>元素无关 SOAP</b> 编码，得到统一维度的结构指纹。',
+  s3_s2:'z-score 标准化后用 <b>PCA</b> 降至 2 维，坐标轴为前两个主成分（标注解释方差比例）。',
+  s3_s3:'可按相态 / 功能性 / 数密度 / 能量<b>着色</b>；悬停查看结构序号，点击散点打开 3D 预览，框选可局部放大。',
+  s3_note:'地图将 AIMD Modeling、AI Modeling、AIMD reference 分组，颜色与透明度分别可调。参考帧取自对应轨迹，每轨迹 10 帧；显示开关仅控制 AIMD reference，保留 PCA 坐标和表格筛选。',
+
+  s4_h:'用于机器学习的训练集数据',
+  s4_lead:'数据库另含多个由 DFT 单点能计算标注的高精度数据集，适用于机器学习势函数（MLIP）训练等下游应用。目前收录 4 个数据集。',
+  s4_c1_h:'逐帧 DFT 标签', s4_c1_p:'每一帧都带有 DFT 计算的总能量与原子受力（extended XYZ 的 REF_energy / REF_forces）。',
+  s4_c2_h:'标签覆盖分析', s4_c2_p:'提供每原子能量、受力模长 |F| 与受力分量分布图，刻画训练集标签的覆盖范围与可外推空间。',
+  s4_note:'训练集独立登记、不并入主结构表；每个数据集沿轨迹均匀抽样若干帧用于分布展示。不同体系的绝对能量参考点不同，跨数据集比较应看分布<b>宽度</b>而非绝对位置。',
+
+  s5_h:'贡献与获取数据',
+  s5_lead:'数据与代码均托管于本仓库，欢迎贡献新结构以扩充数据库。',
+  s5_l1:'<b>网页上传</b>：点击首页右上角「⬆ 上传数据」，选择 POSCAR/CONTCAR 后自动计算化学式、原子数与数密度，填写元数据即可入库。',
+  s5_l2:'<b>命令行</b>：构建主库 <code>python scripts/build_asedb.py</code>；查询 <code>ase db data/pcm.db</code>；贡献 <code>python scripts/add_structure.py</code>（详见 README）。',
+
+  footer:'硫系存储材料数据库 · 使用文档。数据与代码托管于本仓库。'
+ },
+ en:{
+  back:'← Back to database', back_cta:'← Back to database home', toc_t:'Contents',
+  nav_overview:'Overview', nav_query:'1 · Query', nav_filter:'2 · Filter', nav_viz:'3 · Distribution', nav_mlip:'4 · ML dataset', nav_contribute:'Contribute',
+  eyebrow:'Documentation',
+  h1:'Database Features',
+  intro:'This page introduces the core features of the chalcogenide memory materials database: how to query and filter structures, how to read the structure-distribution visualization, and the DFT-labeled datasets for machine-learning interatomic potentials (MLIP).',
+
+  s0_h:'Interface preview',
+  s0_lead:'The database is published as a single-page site with four sections — overview, structure explorer, SOAP+PCA distribution map, and MLIP datasets — with bilingual (中/EN) and light/dark theme support.',
+  st_total:'Structures', st_sys:'Material systems', st_phase:'Phases (amorphous/crystalline/unspecified)', st_mlip:'MLIP datasets',
+  tg_amor:'amorphous', tg_cryst:'crystalline', tg_cand:'PCM candidates',
+  s0_cap:'Home page: overview and stats charts on top, followed by the structure explorer, distribution map, and training-set sections.',
+
+  s1_h:'Structure query',
+  s1_lead:'The catalog holds 16,944 structures: 2,044 original AIMD models and 14,900 AI-generated structures from MLIP, Diffusion and Flow Matching. Another 790 sampled AIMD reference frames provide map comparisons.',
+  s1_c1_h:'By element set', s1_c1_p:'Pick elements on the interactive periodic table (e.g. Ge-Te) to exactly match systems composed of those elements.',
+  s1_c2_h:'By formula', s1_c2_p:'Type a formula or system name in the search box (e.g. Ge0.5Se0.5, SbTe); source paths are searchable too.',
+  s1_c3_h:'Inspect & visualize', s1_c3_p:'Click a table row to see the full metadata, preview the structure in 3D in-browser, and download its POSCAR.',
+  s1_meta:'Records include formula, system, origin, modeling method, phase, temperature, atom count, density, contributor, simulation time and relative g(r) peak error. AIMD error values are shown as —.',
+
+  s2_h:'Data filtering',
+  s2_lead:'The explorer offers multi-dimensional filters that stack with the periodic table and search box to pinpoint target structures.',
+  s2_l1:'<b>Phase</b>: amorphous / crystalline / liquid.',
+  s2_l2:'<b>Functionality</b>: PCM (phase-change memory) / OTS (ovonic threshold switching) / SOM (selector-only memory) / PCM candidates / Others.',
+  s2_l3:'<b>Temperature</b>: filter by modeling / sampling temperature.',
+  s2_l4:'<b>Contributor</b>: filter by uploader for provenance tracking.',
+  s2_note:'All filters <b>combine</b> with the periodic table and formula search; results instantly refresh the table, stats, and distribution map.',
+
+  s3_h:'Distribution visualization',
+  s3_lead:'Each structure is encoded into a high-dimensional feature vector via the SOAP descriptor, then reduced to 2D with PCA to reveal the diversity of the library at a glance.',
+  s3_s1:'Encode the currently filtered structures with an <b>element-agnostic SOAP</b>, yielding fixed-length structural fingerprints.',
+  s3_s2:'After z-score standardization, reduce to 2D with <b>PCA</b>; axes are the first two principal components (with explained-variance ratios).',
+  s3_s3:'<b>Color</b> by phase / functionality / density / energy; hover for the structure index, click a point for a 3D preview, drag to zoom into a region.',
+  s3_note:'The map distinguishes AIMD Modeling, AI Modeling and AIMD reference with separate color and opacity controls. Ten frames per matching reference trajectory provide context. The visibility switch controls reference frames only, preserving PCA coordinates and table filters.',
+
+  s4_h:'Datasets for machine learning',
+  s4_lead:'The database also includes several high-accuracy datasets labeled by DFT single-point calculations, suited for downstream uses such as training machine-learning interatomic potentials (MLIP). Four datasets are currently included.',
+  s4_c1_h:'Per-frame DFT labels', s4_c1_p:'Every frame carries DFT total energy and atomic forces (REF_energy / REF_forces in extended XYZ).',
+  s4_c2_h:'Label-coverage analysis', s4_c2_p:'Per-atom energy, force magnitude |F|, and force-component distributions characterize label coverage and the extrapolable space.',
+  s4_note:'Datasets are registered separately and not merged into the main structure table; each is uniformly sampled along its trajectory for the distribution plots. Absolute energy references differ per system, so compare distribution <b>width</b>, not absolute position, across datasets.',
+
+  s5_h:'Contribute & get data',
+  s5_lead:'Data and code live in this repository; contributions of new structures are welcome.',
+  s5_l1:'<b>Web upload</b>: click “⬆ Upload” at the top-right of the home page; after picking a POSCAR/CONTCAR, formula, atom count, and density are computed automatically — fill in the metadata to submit.',
+  s5_l2:'<b>Command line</b>: build the main DB <code>python scripts/build_asedb.py</code>; query <code>ase db data/pcm.db</code>; contribute <code>python scripts/add_structure.py</code> (see README).',
+
+  footer:'Chalcogenide Memory Materials Database · Documentation. Data and code live in this repository.'
+ }
+};
+let LANG=localStorage.getItem('pcm_lang')||'zh';
+function t(k){const v=I18N[LANG][k];return v!==undefined?v:k;}
+function applyI18n(){
+  document.documentElement.lang=LANG;
+  document.title=(LANG==='zh'?'使用文档 · 硫系存储材料数据库':'Documentation · Chalcogenide Memory Materials Database');
+  document.querySelectorAll('[data-i18n]').forEach(e=>e.innerHTML=t(e.dataset.i18n));
+  document.getElementById('langBtn').textContent=LANG==='zh'?'EN':'中';
+}
+document.getElementById('langBtn').onclick=()=>{LANG=LANG==='zh'?'en':'zh';localStorage.setItem('pcm_lang',LANG);applyI18n();};
+
+const rootEl=document.documentElement;
+function curTheme(){return rootEl.getAttribute('data-theme')||(matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light');}
+{const s=localStorage.getItem('pcm_theme');if(s)rootEl.setAttribute('data-theme',s);}
+document.getElementById('themeBtn').onclick=()=>{
+  rootEl.setAttribute('data-theme',curTheme()==='dark'?'light':'dark');
+  localStorage.setItem('pcm_theme',curTheme());
+};
+
+// TOC scroll-spy
+const secs=[...document.querySelectorAll('.doc section')];
+const links=new Map([...document.querySelectorAll('.toc a')].map(a=>[a.getAttribute('href').slice(1),a]));
+const io=new IntersectionObserver(es=>{
+  es.forEach(e=>{if(e.isIntersecting){
+    links.forEach(a=>a.classList.remove('active'));
+    const a=links.get(e.target.id);if(a)a.classList.add('active');
+  }});
+},{rootMargin:'-20% 0px -70% 0px',threshold:0});
+secs.forEach(s=>io.observe(s));
+
+applyI18n();
+</script>
+</body>
+</html>

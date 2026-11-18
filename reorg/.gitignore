@@ -1,0 +1,12 @@
+# 大体积原始结构留在本地；来源、哈希和元数据可进入版本库。
+**/XDATCAR*
+**/*.xdatcar
+**/*.XDATCAR
+**/*.dump
+**/*.xyz
+**/*.extxyz
+
+# 可复现的全量中间索引和多样性特征缓存；筛选后 metadata 与清单保留。
+/inventory/diversity_cache/
+/inventory/ai_local_frames.json
+/inventory/ai_local_frames.csv

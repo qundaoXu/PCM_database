@@ -70,6 +70,7 @@ def add_record(p):
     if any(r["结构文件"] == rel for r in recs):
         raise ValueError(f"已存在同路径记录: {rel}")
     rec = {
+        "sid": f"s{len(recs):04d}",
         "化学式": formula,
         "相": phase,
         "温度": temp,
@@ -80,6 +81,7 @@ def add_record(p):
         "贡献者": contributor,
         "HPC来源路径": (p.get("hpc_source") or "").strip(),
         "代表帧来源": "web-upload",
+        "生成方式": "AIMD", "AI类别": None, "建模方法": "AIMD", "g(r)主峰相对误差_pct": None,
     }
     recs.append(rec)
     META_JSON.write_text(json.dumps(recs, ensure_ascii=False, indent=2), encoding="utf-8")
@@ -101,6 +103,9 @@ def add_record(p):
         "phase": phase, "functionality": functionality, "temperature": temp, "natoms": n,
         "density": rec["密度_Atom_per_Angstrom3"], "contributor": contributor,
         "path": rel, "hpc_source": rec["HPC来源路径"], "source_frame": "web-upload",
+        "generation_origin": "AIMD", "generation_family": "AIMD", "modeling_method": "AIMD",
+        "rdf_peak_error_pct": None, "reference_ids": [], "collection_role": "catalog",
+        "structure_url": f"structures/{sid}.poscar",
     }
     data.append(entry)
     DATA_JSON.write_text(json.dumps(data, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
