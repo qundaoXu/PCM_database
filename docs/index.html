@@ -216,6 +216,13 @@ text{fill:var(--ink2);font-size:11px;font-family:inherit}
 .cbox-opt{padding:6px 8px;border-radius:6px;cursor:pointer;font-size:13px;white-space:nowrap}
 .cbox-opt:hover{background:var(--series-soft)}
 .cbox-opt.sel{color:var(--series);font-weight:600}
+.cbox-opt .ck{display:inline-block;width:14px;height:14px;margin-right:8px;vertical-align:-2px;box-sizing:border-box;
+  border:1.5px solid color-mix(in srgb,var(--muted) 60%,transparent);border-radius:4px;position:relative}
+.cbox-opt.sel .ck{background:var(--series);border-color:var(--series)}
+.cbox-opt.sel .ck::after{content:'';position:absolute;left:3.5px;top:0.5px;width:3.5px;height:7px;
+  border:solid #fff;border-width:0 1.8px 1.8px 0;transform:rotate(45deg)}
+.cbox-opt.zero{color:var(--muted)}
+.cbox-btn>span{max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .cbox-more{width:100%;text-align:left;background:none;border:0;border-top:1px solid var(--border);
   margin-top:4px;padding:8px;color:var(--series);cursor:pointer;font:inherit;font-size:12.5px}
 .count{color:var(--muted);font-size:12.5px;margin-left:auto;font-weight:500}
@@ -792,7 +799,7 @@ const I18N={
    explore:'结构浏览',pt_hint:'点击元素周期表筛选（仅由所选元素精确组成的体系，如选 Sb 得纯 Sb、选 Sb+Te 得 SbTe）；元素底色越深=含该元素的结构越多；点表格行可 3D 预览。',
    clear:'清除元素',search_ph:'搜索化学式 / 体系 / 来源路径…',
    sys_all:'全部体系',sys_more:(n)=>`显示其余 ${n} 个 ▾`,sys_less:'收起 ▴',
-   phase_all:'全部相态',temp_all:'全部温度',func_all:'全部功能性',contrib_all:'全部贡献者',
+   phase_all:'全部相态',cbox_n:(n,c)=>`已选 ${n} 项 (${c})`,temp_all:'全部温度',func_all:'全部功能性',contrib_all:'全部贡献者',
    c_idx:'序号',c_formula:'化学式',c_system:'体系',c_phase:'相',c_func:'功能性',c_temp:'温度',c_natoms:'原子数',c_density:'数密度',c_energy:'能量',c_energy_t:'MLIP(mace-omat-0-medium)预测的每原子能量 (eV/atom)，反映相对能量，非 DFT 绝对值',c_contributor:'贡献者',c_view:'预览',
    m_energy:'MLIP 能量/原子',
    viz_title:'结构描述符分布',
@@ -840,7 +847,7 @@ const I18N={
    explore:'Explore structures',pt_hint:'Click the periodic table to filter (systems made of EXACTLY the selected elements — e.g. Sb → pure Sb, Sb+Te → SbTe); darker cell = more structures with that element; click a row for 3D preview.',
    clear:'Clear elements',search_ph:'Search formula / system / source path…',
    sys_all:'All systems',sys_more:(n)=>`Show ${n} more ▾`,sys_less:'Show less ▴',
-   phase_all:'All phases',temp_all:'All temps',func_all:'All functions',contrib_all:'All contributors',
+   phase_all:'All phases',cbox_n:(n,c)=>`${n} selected (${c})`,temp_all:'All temps',func_all:'All functions',contrib_all:'All contributors',
    c_idx:'ID',c_formula:'Formula',c_system:'System',c_phase:'Phase',c_func:'Function',c_temp:'Temp',c_natoms:'Atoms',c_density:'Density',c_energy:'Energy',c_energy_t:'MLIP (mace-omat-0-medium) predicted energy per atom (eV/atom): reflects relative energy, not absolute DFT values',c_contributor:'Contributor',c_view:'View',
    m_energy:'Energy/atom (MLIP)',
    viz_title:'Structure descriptor map',
@@ -1061,7 +1068,7 @@ function buildPT(){
       d.addEventListener('mousemove',e=>showTip(e,`<b>${sym}</b> · ${cnt}`));
       d.addEventListener('mouseleave',hideTip);
       d.onclick=()=>{const on=SEL.has(sym);if(on)SEL.delete(sym);else SEL.add(sym);
-        d.classList.toggle('sel');renderSelEls();curPage=1;renderTable();updateVizDebounced();};
+        d.classList.toggle('sel');renderSelEls();onFilterChange();};
     } else d.className='pt';
     g.appendChild(d);
   }));
@@ -1070,7 +1077,7 @@ function renderSelEls(){
   const s=document.getElementById('selEls');
   s.textContent=SEL.size?t('sel_pre')+[...SEL].join(' · '):t('sel_none');
 }
-document.getElementById('clearEls').onclick=()=>{SEL.clear();document.querySelectorAll('.pt.sel').forEach(e=>e.classList.remove('sel'));renderSelEls();curPage=1;renderTable();updateVizDebounced();};
+document.getElementById('clearEls').onclick=()=>{SEL.clear();document.querySelectorAll('.pt.sel').forEach(e=>e.classList.remove('sel'));renderSelEls();onFilterChange();};
 
 /* ---------- table + pagination ---------- */
 let sortK='natoms',sortDir=-1,curPage=1;
@@ -1091,12 +1098,15 @@ function normFormula(f,stacked=false){   // 组分归一化；表格中将化学
   const pct=els.map(e=>Math.round(c[e]/n*100)+'%').join(':');
   return stacked?`<span class="formula-main">${sub}</span><span class="formula-ratio">(${pct})</span>`:`${sub}(${pct})`;
 }
-function filtered(){
+function filterState(){
   const bound=id=>{const v=document.getElementById(id).value;return v!==''&&Number.isFinite(+v)?+v:null;};
-  return PcmCatalog.filter(DATA||[],{q:document.getElementById('q').value,origin:CBOX.origin.sel,
-    system:CBOX.sys.sel,phase:CBOX.phase.sel,temperature:CBOX.temp.sel,functionality:CBOX.func.sel,
-    contributor:CBOX.contrib.sel,elements:[...SEL],errorMin:bound('errorMin'),errorMax:bound('errorMax')});
+  return {q:document.getElementById('q').value,origin:CBOX.origin.sel,system:CBOX.sys.sel,phase:CBOX.phase.sel,
+    temperature:CBOX.temp.sel,functionality:CBOX.func.sel,contributor:CBOX.contrib.sel,elements:[...SEL],
+    errorMin:bound('errorMin'),errorMax:bound('errorMax')};
 }
+function filtered(){return PcmCatalog.filter(DATA||[],filterState());}
+// 任一筛选条件变化：刷新各下拉的分面计数，回到第一页，重绘表格与分布图
+function onFilterChange(){buildCboxItems();curPage=1;renderTable();updateVizDebounced();}
 function renderTable(){
   if(colFitLang!==LANG)fitColumns();
   let rows=filtered();
@@ -1180,20 +1190,26 @@ function gotoPage(p){curPage=p;renderTable();document.querySelector('.tblwrap').
    sys 组分分组、每组各显示 top10；其余为平铺列表，超过 10 项同样折叠 + 展开。 */
 const CBOX_TOP=10;
 const CBOX={
-  origin: {allKey:'origin_all', grouped:false,sel:'',items:[],expN:{},expanded:false},
-  sys:    {allKey:'sys_all',    grouped:true,  sel:'',items:[],expN:{},expanded:false},
-  phase:  {allKey:'phase_all',  grouped:false, sel:'',items:[],expN:{},expanded:false},
-  temp:   {allKey:'temp_all',   grouped:false, sel:'',items:[],expN:{},expanded:false},
-  func:   {allKey:'func_all',   grouped:false, sel:'',items:[],expN:{},expanded:false},
-  contrib:{allKey:'contrib_all',grouped:false, sel:'',items:[],expN:{},expanded:false},
+  origin: {allKey:'origin_all', grouped:false,sel:[],items:[],expN:{},expanded:false},
+  sys:    {allKey:'sys_all',    grouped:true,  sel:[],items:[],expN:{},expanded:false},
+  phase:  {allKey:'phase_all',  grouped:false, sel:[],items:[],expN:{},expanded:false},
+  temp:   {allKey:'temp_all',   grouped:false, sel:[],items:[],expN:{},expanded:false},
+  func:   {allKey:'func_all',   grouped:false, sel:[],items:[],expN:{},expanded:false},
+  contrib:{allKey:'contrib_all',grouped:false, sel:[],items:[],expN:{},expanded:false},
 };
-function cboxLabel(k){const s=CBOX[k],it=s.items.find(x=>x.v===s.sel);
-  document.getElementById(k+'Lab').textContent=(s.sel&&it)?it.label:t(s.allKey);}
+function cboxLabel(k){
+  const s=CBOX[k],lab=document.getElementById(k+'Lab'),its=s.sel.map(v=>s.items.find(x=>x.v===v)).filter(Boolean);
+  if(!its.length)lab.textContent=t(s.allKey);
+  else if(its.length===1)lab.textContent=its[0].label;
+  else{const c=its.reduce((a,x)=>a+x.c,0);
+    lab.textContent=its.length===2?`${its[0].name} + ${its[1].name} (${c})`:t('cbox_n')(its.length,c);}
+  lab.parentElement.title=its.length>1?its.map(x=>x.label).join('\n'):'';
+}
 function cboxRenderPop(k){
   const s=CBOX[k],pop=document.getElementById(k+'Pop');
-  const opt=x=>`<div class="cbox-opt${s.sel===x.v?' sel':''}${x.nested?' nested':''}" data-v="${x.v}">${x.label}</div>`;
+  const opt=x=>`<div class="cbox-opt${s.sel.includes(x.v)?' sel':''}${x.c?'':' zero'}${x.nested?' nested':''}" data-v="${x.v}"><span class="ck"></span>${x.label}</div>`;
   const more=(g,exp,rest)=>`<button type="button" class="cbox-more" data-g="${g}">${exp?t('sys_less'):t('sys_more')(rest)}</button>`;
-  let html=`<div class="cbox-opt${s.sel===''?' sel':''}" data-v="">${t(s.allKey)}</div>`;
+  let html=`<div class="cbox-opt${s.sel.length?'':' sel'}" data-v="">${t(s.allKey)}</div>`;
   if(s.grouped){
     const byN={};s.items.forEach(x=>{(byN[x.n]=byN[x.n]||[]).push(x);});   // items 已按结构数降序 → 组内亦降序
     Object.keys(byN).map(Number).sort((a,b)=>a-b).forEach(n=>{
@@ -1210,10 +1226,11 @@ function cboxRenderPop(k){
   const prev=pop.querySelector('.cbox-list'),keepTop=prev?prev.scrollTop:0;
   pop.innerHTML=`<div class="cbox-list">${html}</div>`;
   pop.querySelector('.cbox-list').scrollTop=keepTop;            // 展开/收起后保持滚动位置
-  pop.querySelectorAll('.cbox-opt').forEach(o=>o.onclick=()=>{
-    s.sel=o.dataset.v;
-    if(k==='origin')buildCboxItems();
-    cboxLabel(k);cboxClose(k);curPage=1;renderTable();updateVizDebounced();});
+  // 多选：点选项切换勾选（面板保持打开以便继续勾选），点「全部」清空该维度
+  pop.querySelectorAll('.cbox-opt').forEach(o=>o.onclick=e=>{e.stopPropagation();
+    const v=o.dataset.v;
+    s.sel=v===''?[]:s.sel.includes(v)?s.sel.filter(x=>x!==v):[...s.sel,v];
+    onFilterChange();});
   // stopPropagation：重建 innerHTML 后旧按钮已脱离 DOM，冒泡到 document 会被误判成“点了外部”而关闭面板
   pop.querySelectorAll('.cbox-more').forEach(b=>b.onclick=e=>{e.stopPropagation();
     if(s.grouped)s.expN[+b.dataset.g]=!s.expN[+b.dataset.g];else s.expanded=!s.expanded;
@@ -1223,19 +1240,26 @@ function cboxOpen(k){Object.keys(CBOX).forEach(o=>{if(o!==k)cboxClose(o);});
   document.getElementById(k+'Pop').hidden=false;document.getElementById(k+'Btn').classList.add('open');cboxRenderPop(k);}
 function cboxClose(k){const p=document.getElementById(k+'Pop');if(!p)return;
   p.hidden=true;document.getElementById(k+'Btn').classList.remove('open');}
-// 重建各下拉的选项（语言切换时也会调用，选中值保留在 CBOX[k].sel）
+// 重建各下拉的选项与计数（筛选变化、语言切换时调用；选中值保留在 CBOX[k].sel）
+// 计数为分面计数：每个下拉的数字 = 应用「其余所有筛选」后该选项的结构数；计数为 0 的选项隐藏（已勾选的保留）
+const CBOX_FIELD={origin:'origin',sys:'system',phase:'phase',temp:'temperature',func:'functionality',contrib:'contributor'};
+let CONTRIB_ORDER=null;
 function buildCboxItems(){
-  const pc={},fc={},tc={},cc={};
-  DATA.forEach(r=>{
-    pc[r.phase]=(pc[r.phase]||0)+1;const f=r.functionality||'Others';fc[f]=(fc[f]||0)+1;
-    tc[r.temperature]=(tc[r.temperature]||0)+1;const contributor=r.contributor||'none';cc[contributor]=(cc[contributor]||0)+1;});
-  CBOX.origin.items=['AIMD','AI'].map(v=>({v,label:`${v} (${DATA.filter(r=>(r.generation_origin||'AIMD')===v).length})`}));
-  CBOX.sys.items=PcmCatalog.systemOptions(DATA,CBOX.origin.sel).map(x=>({...x,label:`${x.v} (${x.c})`}));
-  if(CBOX.sys.sel&&!CBOX.sys.items.some(x=>x.v===CBOX.sys.sel))CBOX.sys.sel='';
-  CBOX.phase.items=PHASE_ORDER.filter(p=>pc[p]).map(p=>({v:p,label:`${t(PHASE_LKEY[p])} (${pc[p]})`}));
-  CBOX.temp.items=Object.keys(tc).sort((a,b)=>parseInt(a)-parseInt(b)).map(x=>({v:x,label:`${x} (${tc[x]})`}));
-  CBOX.func.items=FN_ORDER.filter(f=>fc[f]).map(f=>({v:f,label:`${fnLabel(f)} (${fc[f]})`}));
-  CBOX.contrib.items=Object.keys(cc).sort((a,b)=>cc[b]-cc[a]).map(n=>({v:n,label:`${n} (${cc[n]})`}));
+  const f=filterState(),cnt=k=>PcmCatalog.facetCounts(DATA,f,CBOX_FIELD[k]);
+  const items=(k,vals,name)=>{const c=cnt(k),sel=CBOX[k].sel;
+    return vals.filter(v=>c.get(v)||sel.includes(v)).map(v=>{const n=name(v),x=c.get(v)||0;return {v,name:n,c:x,label:`${n} (${x})`};});};
+  CBOX.origin.items=items('origin',['AIMD','AI'],v=>v);
+  const sys=PcmCatalog.systemOptions(DATA,f),have=new Set(sys.map(x=>x.v));
+  CBOX.sys.sel.filter(v=>!have.has(v)).forEach(v=>{const r=DATA.find(r=>r.system===v);if(r)sys.push({v,n:r.elements.length,c:0});});
+  CBOX.sys.items=sys.map(x=>({...x,name:x.v,label:`${x.v} (${x.c})`}));
+  CBOX.phase.items=items('phase',PHASE_ORDER,p=>t(PHASE_LKEY[p]));
+  const temps=[...new Set(DATA.map(r=>r.temperature))].sort((a,b)=>parseInt(a)-parseInt(b));
+  CBOX.temp.items=items('temp',temps,v=>v);
+  CBOX.func.items=items('func',FN_ORDER,fnLabel);
+  if(!CONTRIB_ORDER||CONTRIB_ORDER.n!==DATA.length){       // 贡献者顺序按全库结构数固定，不随筛选跳动
+    const cc={};DATA.forEach(r=>{const c=r.contributor||'none';cc[c]=(cc[c]||0)+1;});
+    CONTRIB_ORDER={n:DATA.length,list:Object.keys(cc).sort((a,b)=>cc[b]-cc[a]||a.localeCompare(b))};}
+  CBOX.contrib.items=items('contrib',CONTRIB_ORDER.list,v=>v);
   Object.keys(CBOX).forEach(k=>{cboxLabel(k);if(!document.getElementById(k+'Pop').hidden)cboxRenderPop(k);});
 }
 function initFilters(){
@@ -1248,8 +1272,8 @@ function initFilters(){
   document.addEventListener('click',e=>{
     if(!e.target.isConnected)return;                             // 目标已被重建移除，不能据此判断“点了外部”
     Object.keys(CBOX).forEach(k=>{if(!document.getElementById(k+'Box').contains(e.target))cboxClose(k);});});
-  document.getElementById('q').addEventListener('input',()=>{curPage=1;renderTable();updateVizDebounced();});
-  ['errorMin','errorMax'].forEach(id=>document.getElementById(id).addEventListener('input',()=>{curPage=1;renderTable();updateVizDebounced();}));
+  document.getElementById('q').addEventListener('input',onFilterChange);
+  ['errorMin','errorMax'].forEach(id=>document.getElementById(id).addEventListener('input',onFilterChange));
   document.querySelectorAll('th[data-k]').forEach(th=>{
     if(!th.querySelector('.sind'))th.insertAdjacentHTML('beforeend','<span class="sind"><i class="up"></i><i class="dn"></i></span>');
     th.onclick=()=>{const k=th.dataset.k;sortDir=(sortK===k)?-sortDir:1;sortK=k;curPage=1;renderTable();};
@@ -1519,7 +1543,7 @@ document.getElementById('upSubmit').onclick=()=>{
   const btn=document.getElementById('upSubmit');btn.disabled=true;status.textContent='…';
   fetch('api/upload',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)})
     .then(r=>r.json()).then(j=>{btn.disabled=false;
-      if(j.ok){status.textContent=t('up_ok')+' '+j.record.formula;DATA.push(j.record);renderCharts();buildPT();curPage=1;renderTable();}
+      if(j.ok){status.textContent=t('up_ok')+' '+j.record.formula;DATA.push(j.record);renderCharts();buildPT();onFilterChange();}
       else status.textContent=t('up_fail')+j.error;})
     .catch(e=>{btn.disabled=false;status.textContent=t('up_fail')+e;});
 };

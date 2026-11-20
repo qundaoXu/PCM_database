@@ -22,6 +22,21 @@ test('System choices cascade from the selected origin and count only that origin
   assert.ok(catalog.systemOptions(records,'AIMD').some(x=>x.v==='InO'));
   assert.equal(catalog.systemOptions(records).reduce((sum,x)=>sum+x.c,0),16944);
 });
+test('Dropdown filters accept multi-select arrays (OR within a field, AND across fields)',()=>{
+  assert.equal(catalog.filter(records,{origin:['AIMD']}).length,2044);
+  assert.equal(catalog.filter(records,{origin:['AIMD','AI']}).length,16944);
+  assert.equal(catalog.filter(records,{origin:[]}).length,16944);
+  const pcm=catalog.filter(records,{origin:'AIMD',functionality:'PCM'}).length,ots=catalog.filter(records,{origin:'AIMD',functionality:'OTS'}).length;
+  assert.equal(catalog.filter(records,{origin:'AIMD',functionality:['PCM','OTS']}).length,pcm+ots);
+});
+test('Facet counts apply every other filter but ignore the field being counted',()=>{
+  const counts=catalog.facetCounts(records,{origin:'AIMD',functionality:['PCM']},'functionality');
+  assert.equal([...counts.values()].reduce((a,b)=>a+b,0),2044);
+  assert.equal(counts.get('PCM'),catalog.filter(records,{origin:'AIMD',functionality:'PCM'}).length);
+  const origins=catalog.facetCounts(records,{origin:'AIMD'},'origin');
+  assert.equal(origins.get('AIMD'),2044);assert.equal(origins.get('AI'),14900);
+  assert.equal(catalog.systemOptions(records,{origin:['AI'],system:['GeTe']}).reduce((a,x)=>a+x.c,0),14900);
+});
 test('AI subcategories and model filters preserve all five labels',()=>{
   const expected={MLIP:9263,MLIP_MACE:4416,MLIP_DeePMD:833,MLIP_NEP:4014,Diffusion:4404,'Flow Matching':1233};
   for(const [method,n] of Object.entries(expected))assert.equal(catalog.filter(records,{method}).length,n);
