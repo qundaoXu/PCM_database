@@ -13,3 +13,7 @@
 216 原子文件的 9 帧 timestep 不单调，作为快照集合登记。
 详情见 [清点报告](../design.md)，逐文件登记见 [CSV](../inventory/gst225_files.csv)。
 Hopper deeph 中此前 216/1080 静态结构已按用户要求排除。
+
+> 2026-11-25 存储清理：本地仅保留 108 / 216 原子文件。`GST225_720atoms.dump`（8001 原子，772 MB）已从本地删除，
+> 原件仍在 Hopper `run_10ns/GST_aging_10ns.dump`（SHA256 一致，见 `../inventory/gst225_files.csv`）；
+> 1080 / 512 两个 dump 也已不在本地。选中的帧已入库，重新筛选前需先取回原始轨迹。

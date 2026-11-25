@@ -26,6 +26,10 @@ Sb667Te333 / Sb333Te667 按最近理想组分对应参考，最大原子分数�
 structures/ 内保留原始帧字节；LAMMPS dump 须使用 metadata 的 type map 用 ASE 读取。
 没有删除或裁剪原始轨迹，也没有发布网站。
 
+> 2026-11-25 存储清理：本地 `structures/`（575 MB 原格式副本）已删除。14,900 个结构的 POSCAR 版本
+> 保存在 `data/raw/AI_generated/<sid>/POSCAR`（已提交）；源文件、帧号与哈希仍可由 `metadata.json` 追溯。
+> 如需重跑 `scripts/import_ai_catalog.py`，须先用 `select_ai_structures.py build` 重新生成 `structures/`。
+
 ```bash
 conda activate pcm_database
 python scripts/select_ai_structures.py build --workers 2
